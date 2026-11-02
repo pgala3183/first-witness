@@ -293,7 +293,8 @@ def cmd_report(args: argparse.Namespace) -> None:
                      f"{base['honesty_pass_rate']}% | {base['false_promise_rate']}% | {base['made_up_fact_rate']}% "
                      f"| {_cell(base.get('latency_ms_p50'))} | {_cell(base.get('latency_ms_p95'))} | $0 | - | - |")
     for m, s in rows:
-        cost = _cell(s["cost_per_1k_answers_usd"]) if m.get("serverless") else "dedicated GPU"
+        per_token = m.get("serverless") or m.get("backend") == "training-pool"
+        cost = _cell(s["cost_per_1k_answers_usd"]) if per_token else "dedicated GPU"
         lines.append(
             f"| {m['name']} | {m['role']} | **{_cell(s['pass_rate'], '%')}** | {_cell(s['real'], '%')} "
             f"| {_cell(s['synth'], '%')} | {_cell(s['honesty_pass_rate'], '%')} "
@@ -324,8 +325,8 @@ def cmd_report(args: argparse.Namespace) -> None:
         slow = [m["name"] for m, s in ok if (s["latency_ms_p95"] or 0) > args.budget_ms]
         if slow:
             lines.append(f"Over the latency budget: {', '.join(slow)}.")
-    lines += ["", "Latency is measured with parallel requests, so it runs high; recheck the pick on "
-              "its own deployment with `--workers 1`."]
+    lines += ["", "Latency is measured with parallel requests, so it runs high; recheck the pick "
+              "with `--workers 1`. Training-pool cost uses the pool's prefill and sample rates."]
     text = "\n".join(lines) + "\n"
     RESULTS.mkdir(exist_ok=True)
     (RESULTS / "benchmark.md").write_text(text, encoding="utf-8")

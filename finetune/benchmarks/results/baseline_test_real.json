@@ -6,6 +6,8 @@
  "made_up_fact_rate": 0.0,
  "missing_fact_rate": 44.2,
  "honesty_pass_rate": 38.1,
+ "error_rate": 0.0,
+ "empty_rate": 10.4,
  "latency_ms_p50": 3.3,
  "latency_ms_p95": 2050.2,
  "tokens_in_per_answer": 0.0,

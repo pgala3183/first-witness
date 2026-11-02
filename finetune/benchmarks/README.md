@@ -14,7 +14,12 @@ so the numbers behind the submission table can be checked.
   (campus names never trained on). The keyword router row uses all 450 `test_real` rows.
 - Reasoning off (`reasoning_effort: none`) for Kimi K3 and DeepSeek V4.1 Flash. GLM 5.3 Flash
   can't turn thinking off, so it ran at `low` with a 1,024-token limit.
+- Qwen3.6 35B A3B and Qwen3.8 27B ran on Fireworks' serverless training pool (`finetune/serverless.py`),
+  with thinking turned off in the chat template. No deployment.
 - Latency is measured with 8 parallel requests, so it reads higher than a single live call.
+- The "identity" question now passes on "First Witness", "automated" or "camera system". It used to require
+  the exact product name, which the system prompt never asks for, so every model scored about 0% on it.
+  All saved answers were regraded with `eval.py --rescore` (no model calls); the reference answers still score 100%.
 
 To refresh: run the benchmark, then copy `finetune/results/benchmark.md` and the
 `bench-*` / `baseline_*` files here.
