@@ -37,7 +37,14 @@
 
 ## 🎬 Demo
 
-> 📺 **Demo video:** coming soon on our Devpost page. <!-- TODO: replace with the Devpost or YouTube link -->
+Run it yourself in two commands (setup in [For developers](#%EF%B8%8F-for-developers)):
+
+```bash
+python -m services.api --host 127.0.0.1 --port 8080
+python -m http.server 8090 --bind 127.0.0.1 --directory web   # open http://127.0.0.1:8090/?ws=ws://127.0.0.1:8080/ws
+```
+
+Three CCTV cameras from the University of Seville's *US Mock Attack* recordings play in sync: an armed group gathers in the **ground-floor lobby**, then moves down the **east corridor** and into the **west corridor**. YOLO boxes every person live, a vision model's weapon labels turn the armed ones red, and First Witness calls in. In the on-screen 911 call, **the fine-tuned model answers the dispatcher's questions live** from what the cameras show at that second.
 
 ---
 
@@ -66,8 +73,6 @@ A handful of officers can't watch hundreds of screens around the clock. So most 
 ## 💡 What First Witness does
 
 First Witness is like **a security guard who never blinks and can watch every camera at once**.
-
-<!-- TODO: add a how-it-works diagram here. -->
 
 1. **Watch.** Every camera feed, every second.
 2. **Detect and track.** YOLO finds every person, ByteTrack keeps an ID on each one, and simple rules flag weapons, falls and running.
@@ -146,21 +151,23 @@ The system prompt, message format, facts snapshot, honesty checks and chat templ
 
 > *Our demo uses a staged "mock attack" recording played through three synchronized cameras. In live mode, calls go to a verified teammate's phone, **never to 911 or emergency services**. The demo video uses recording mode, described [below](#what-is-live-in-the-demo-and-what-is-pre-computed).*
 
-**02:13:59.** Three cameras show a quiet building. Nothing is happening, and First Witness keeps watching.
+**00:00.** People start walking into the **ground-floor lobby (Camera 1)**. Every person gets a box the moment they appear.
 
-**02:14:00.** Armed people walk into the **ground-floor lobby (Camera 1)**. Every person gets a box, and the armed ones turn red. **Weapon, Severe.** A red alert appears on the security console, and the call starts:
+**00:05.** A man coming through the doors is carrying a handgun. His box turns red. **Weapon, Severe.** A red alert appears on the security console, and the call starts:
 
 > 👮 *"911, what's your emergency?"*
 >
-> 🤖 *"Hi, this is First Witness at San Jose State. I'm reporting armed people inside MacQuarrie Hall, One Washington Square. I see five handguns and one knife in the ground-floor lobby."*
+> 🤖 *"Hi, this is First Witness at San Jose State. I'm reporting armed people inside MacQuarrie Hall, One Washington Square. I see one knife and one handgun in the ground-floor lobby."*
 >
 > 👮 *"Okay, how many people do you see?"*
 >
-> 🤖 *"Give me a moment. Eight people in the ground-floor lobby; five of them armed."*
+> 🤖 *"Give me a moment. Nine people in the ground-floor lobby; one of them armed."*
 
-**02:14:52.** They move into the **east corridor (Camera 2)**. First Witness follows. The map extends the red path, and the **same call** gets an update: *"Update: they have moved from the ground-floor lobby into the east corridor on the ground floor."*
+**02:08.** A man with a rifle crosses the lobby, and the dispatcher hears it the next time they ask.
 
-**02:15:47.** They reach the **west corridor near the stairwell (Camera 3)**. Same incident, same call, updated live.
+**02:11.** The group moves into the **east corridor (Camera 2)**. First Witness follows. The map extends the red path, and the **same call** gets an update: *"Update: they have moved from the ground-floor lobby into the east corridor on the ground floor."*
+
+**03:49.** They reach the **west corridor near the stairwell (Camera 3)**. Same incident, same call, updated live.
 
 **One detection. One call. Every handoff reported. No human had to notice first.**
 
@@ -183,7 +190,7 @@ sequenceDiagram
     Rules->>Voice: One call per incident, under the cap: place ONE call
     Voice->>Disp: Armed people in the ground-floor lobby
     Disp->>Voice: How many people do you see?
-    Voice->>Disp: Eight people; five of them armed
+    Voice->>Disp: Nine people in the lobby; one of them armed
     Cam-->>Eye: Group now on Camera 2
     Eye->>Screen: Map extends the path
     Screen->>Voice: Same call, location updated
@@ -201,7 +208,7 @@ These are real measurements from the local demo workstation (sample data in [`be
 | 🎥 Live camera wall with detection boxes | **13–14 frames per second** (up from about 3) |
 | 🗣️ ElevenLabs voice: time until the first sound is ready (short line, warm connection) | **157–160 milliseconds** |
 | 🧠 Vision model size | **30 billion parameters**, but only about **3 billion** are active at each step. That keeps it fast on one GPU. |
-| 🎯 Weapon labels lined up with the demo video | **640 of 649** frames matched |
+| 🎯 Weapon labels for the demo footage | **725 frames** labelled by a vision model (every 2nd frame of each camera's live window); weapons visible in **223 of 290 seconds** |
 
 ### Call agent: fine-tuned vs frontier models
 
@@ -268,8 +275,6 @@ From the Fireworks billing record (`firectl billing get-usage --usage-type train
 
 ### Architecture
 
-<!-- TODO: add an architecture diagram here. -->
-
 The camera loop, the brain and the voice bridge all run inside **one API process** (`python -m services.api`). Speech recognition runs as a separate service on the same machine. Fireworks (both models), ElevenLabs and SignalWire are the only internet services.
 
 ```mermaid
@@ -334,9 +339,11 @@ flowchart LR
 <details id="what-is-live-in-the-demo-and-what-is-pre-computed">
 <summary><b>What is live in the demo, and what is pre-computed</b></summary>
 
-- **Live:** person detection, tracking, camera handoffs, escalation, Qwen incident classification, the dashboard, and (in live mode) the phone call.
-- **Pre-computed:** weapon *boxes*. Small handguns in 960×540 footage were not detected reliably live, so `data/feeds/seville_weapon_timeline.json` replays the dataset's hand-drawn weapon boxes by clip time, and the armed person's box turns red.
-- **Recording mode:** for the demo video, `CS_CALL_MODE=scripted` plays the on-screen 911 conversation from `services/voice/demo_call.py`. The opening follows a recorded call, First Witness's counts and weapons are read from the scene at that second, and each "they have moved" update lands on the camera handoff. **Recording mode never dials.**
+- **Live:** person detection (YOLO26s-pose), tracking, camera handoffs, escalation, the dashboard, the fine-tuned call agent's answers, and (in live mode) the phone call.
+- **Pre-computed:** weapon *boxes*, and the per-second scene facts the call answers from. Small handguns in 864×480 CCTV aren't detected reliably live, so [`scripts/build_demo_from_clips.py`](./scripts/build_demo_from_clips.py) has a vision model (DeepSeek V4.1 Flash on Fireworks) label every 2nd frame ahead of time. `data/feeds/seville_weapon_timeline.json` replays those boxes by clip time and the armed person's box turns red. These are model labels, spot-checked by eye, not hand labels, so a few may be wrong.
+- **Recording mode:** the default (`CS_CALL_MODE` unset) plays the on-screen 911 conversation from `services/voice/demo_call.py`. The dispatcher's lines are scripted; **First Witness's answers come from the fine-tuned model at that moment**, from that clip second's facts and through the honesty guard. If the model is off or slow, the answer is read from the scene script instead. Each "they have moved" update lands on the camera handoff. **Recording mode never dials.**
+- **Footage:** the three clips in `data/clips` are joined into one 290-second story (lobby 0–131 s, east corridor 131–229 s, west corridor 229–290 s); each camera holds its frame while the action is on another. The west-corridor clip is the same Seville camera as the east one (its first 61 seconds), so those people appear twice.
+- **Qwen3-VL classification** of escalated clips needs `ZRT_BASE_URL`; without it the incident class is forced from the detection rules.
 - **Not yet trained:** cross-camera re-identification is a stub (`services/vision/osnet.py`). Handoffs use camera timing and an appearance hash.
 
 </details>
@@ -458,33 +465,39 @@ cp .env.example .env
 | `CS_TTS_PROVIDER`, `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID` | The call voice. |
 | `CS_SIGNALWIRE_ENABLED`, `SIGNALWIRE_*` | Phone calls and SMS. Leave `CS_SIGNALWIRE_ENABLED=0` unless you mean to call. |
 | `CS_KILL_SWITCH` | `1` stops every outbound call. |
-| `CS_MEDIA_ROOT` | Folder holding the three demo MP4s. |
+| `CS_VISION_SEVILLE` | Live vision. Unset: on whenever the three feeds and the YOLO weights are on disk. `0` forces it off, `1` on. |
+| `CS_VISION_DEVICE` | `cuda:0` (default) or `cpu`. |
+| `CS_MEDIA_ROOT` | Folder holding the three demo feeds. Default: `data/clips`. |
 
 ### Run it
 
-**Three-camera demo.** No GPU and no provider keys are required. Calls and SMS stay off.
+**Three-camera demo.** Calls and SMS stay off. A GPU helps (YOLO on CUDA); set `CS_VISION_DEVICE=cpu` without one.
 
 ```bash
-python3 -m services.api --host 127.0.0.1 --port 8080
+pip install -r requirements.txt
+python scripts/build_demo_from_clips.py      # once: feeds + timing data from data/clips (needs FIREWORKS_API_KEY)
+python -m services.api --host 127.0.0.1 --port 8080
 ```
 
 In a second shell:
 
 ```bash
-python3 -m http.server 8090 --bind 127.0.0.1 --directory web
-# open http://127.0.0.1:8090/?ws=ws://127.0.0.1:8080/ws
+python -m http.server 8090 --bind 127.0.0.1 --directory web
+# open http://127.0.0.1:8090/?ws=ws://127.0.0.1:8080/ws   (add &nosplash=1 to skip the intro)
 ```
 
-Windows commands are in [`docs/WINDOWS_DEMO_SETUP.md`](./docs/WINDOWS_DEMO_SETUP.md).
+With the `CS_CALL_MODEL_*` settings from `.env.example`, the on-screen call is answered by the fine-tuned model; without them it reads answers from the scene script. Windows notes are in [`docs/WINDOWS_DEMO_SETUP.md`](./docs/WINDOWS_DEMO_SETUP.md).
 
 **Make targets:**
 
 ```bash
 make help    # list the targets
-make check   # self-checks for brain, api, voice and re-id
+make check   # every self-check: brain, api, voice, call model, demo call, vision, web
 make api     # run the API on 127.0.0.1:8080 (no Docker)
+make web     # serve the console on 127.0.0.1:8090
+make feeds   # rebuild the feeds and timing data from data/clips
+make bench   # call-agent benchmark table
 make up      # docker compose up --build api
-make demo    # prints the steps to start the API and the console
 ```
 
 <details>
@@ -512,20 +525,22 @@ python3 -m http.server 8090 --bind 127.0.0.1 --directory web
 
 </details>
 
-### Video feeds and model weights live outside the repo
+### Video feeds and model weights stay out of git
 
-Video files and model weights are **never committed**. Put the three demo MP4s in a folder next to the repo:
+Video files and model weights are **never committed** (`data/clips/` and `services/vision/weights/` are gitignored).
 
 ```text
-<repo parent>/campus_sentinel_media/feeds/final_demo_3cam_reconstructed/
-├── CAM01_lobby_entrance_IN_then_OUT_339s.mp4
-├── CAM02_hallway_east_IN_then_OUT_339s.mp4
-└── CAM03_hallway_west_IN_then_OUT_339s.mp4
+data/clips/
+├── <the three source clips>          lobby (Seville CAM5), east corridor and west corridor (CAM1)
+├── CAM01_lobby_entrance.mp4          built by scripts/build_demo_from_clips.py:
+├── CAM02_hallway_east.mp4            three synced 290 s feeds, 5 fps, H.264
+└── CAM03_hallway_west.mp4
 ```
 
+- **Source clips:** set each camera's file pattern in `CAMERAS` at the top of [`scripts/build_demo_from_clips.py`](./scripts/build_demo_from_clips.py), then run it. It writes the feeds and, from them, the camera windows ([`data/feeds/seville_option1_3cam_locked.json`](./data/feeds/seville_option1_3cam_locked.json)), the weapon timeline and the per-second scene script. The vision-model answers are cached in `data/runtime/`, so a rebuild costs nothing.
 - **Override:** `CS_MEDIA_ROOT` points the API at a different folder.
-- **In the repo:** the path map ([`data/feeds/seville_option1_3cam_locked.json`](./data/feeds/seville_option1_3cam_locked.json)) and camera IDs and locations ([`data/camera_map.json`](./data/camera_map.json)).
-- **Model weights** stay in `services/vision/weights/` (gitignored). Qwen is pulled and cached by the local runtime.
+- **Camera IDs and locations:** [`data/camera_map.json`](./data/camera_map.json).
+- **Model weights:** `services/vision/weights/yolo26s-pose.pt` (ultralytics downloads it on first use; `python services/vision/pull_weights.py`).
 
 ---
 
@@ -545,6 +560,6 @@ Video files and model weights are **never committed**. Put the three demo MP4s i
 - **Ultralytics** (YOLO), **ByteTrack**, **OpenCLIP** and **faster-whisper**, the open-source models that power the pipeline
 - **ElevenLabs**, for the call voice, and **SignalWire**, for phone calling
 - **OpenStreetMap contributors**, for the campus map
-- The authors of the **US Mock Attack** CCTV dataset (University of Seville), used for our demo footage <!-- TODO: confirm dataset citation and license -->
+- The authors of the **US Mock Attack** CCTV recordings (University of Seville): our demo footage is three of its cameras
 
 <p align="center"><sub>First Witness · an independent student project</sub></p>

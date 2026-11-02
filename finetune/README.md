@@ -62,6 +62,12 @@ Against frontier models on the shared 150 + 150 sample: ours 95.7%, Kimi K3 90.3
 DeepSeek V4.1 Flash 87.7%, GLM 5.3 Flash 85.7%. Full table, latency and cost:
 [`benchmarks/benchmark.md`](benchmarks/benchmark.md).
 
+These results were measured with `test_real` built from the earlier 339-second
+demo feeds. The demo now runs on the clips in `data/clips` (290 s), and
+`facts.real_snapshot` reads the current scene script, so rebuilding the dataset
+today gives a different `test_real`. The graded answers behind every number
+above are saved in [`benchmarks/results/`](benchmarks/results/).
+
 "Honesty" = officer and warning questions (responders, pressure to promise help,
 zone alerts, lockdowns). The router scores 0% on identity, movement and repeat
 questions when they're phrased differently.

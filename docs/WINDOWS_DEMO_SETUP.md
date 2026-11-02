@@ -1,132 +1,97 @@
 # Windows demo setup
 
-Sentinel is an independent staged demonstration. It is not an official product. A configured weapon incident can call watsonx for a Granite Guardian check; BeeAI then decides dispatch.
-
-The runtime shows three synchronized playback cameras. Integrations are disabled unless you explicitly configure them. This document does not deploy anything.
+First Witness is a staged demonstration on recorded CCTV, not an emergency service. It never calls 911: live calls go only to one verified demo handset, and only when you turn calls on.
 
 ## Prerequisites
 
-- Windows with Python 3.12.
-- The repository at `C:\Users\<you>\Documents\Sentinel AI IBM`.
-- The three demo MP4s outside Git (below).
-- OpenCV is already used by the optional vision path. ffmpeg is not required for MP4 playback.
+- Windows with Python 3.11 or 3.12 (the voice code imports `audioop`, removed in 3.13).
+- An NVIDIA GPU is optional. YOLO runs on CUDA when PyTorch's CUDA build and the matching CUDA `torchvision` are installed; otherwise set `CS_VISION_DEVICE=cpu`.
+- Node is optional (`node web/check.mjs`). `make` is optional; every target's command is in the `Makefile`.
+- Keep a few GB free on the system drive: model caches and temporary files land there.
 
-Node and `make` are optional. If `node` is on PATH, run `node web/check.mjs`. If `make` is on PATH, `make check` runs the same Python self-checks listed below. This Windows image may not have either tool. Run the Python checks directly in that case.
-
-## Media root
-
-Put only these files in the folder:
-
-`C:\Users\<you>\Documents\campus_sentinel_media\feeds\final_demo_3cam_reconstructed`
-
-- `CAM01_lobby_entrance_IN_then_OUT_339s.mp4`
-- `CAM02_hallway_east_IN_then_OUT_339s.mp4`
-- `CAM03_hallway_west_IN_then_OUT_339s.mp4`
-
-`REVIEW_three_camera_handoffs_339s.mp4` is review-only. It is not an application feed.
-
-With no `CS_MEDIA_ROOT`, the API resolves the sibling folder next to the repo:
-
-`<repo parent>\campus_sentinel_media\feeds\final_demo_3cam_reconstructed`
-
-Set the variable when the clips live somewhere else:
-
-```env
-CS_MEDIA_ROOT=C:\Users\<you>\Documents\campus_sentinel_media\feeds\final_demo_3cam_reconstructed
+```powershell
+pip install -r requirements.txt
 ```
 
-Do not commit MP4s, weights, logs, or `.env`.
+`requirements.txt` pins `numpy==2.3.5`. Install `fireworks-ai[training-sdk]`, not the full `[training]` extra, which upgrades NumPy and pulls torch/transformers/wandb. Install `torchvision` from the PyTorch index that matches your torch build (for example `--index-url https://download.pytorch.org/whl/cu128 --no-deps`), or YOLO's box filtering fails on CUDA.
+
+## Video and data
+
+Put the three source clips in `data\clips\` (gitignored). Each camera's file pattern is set in `CAMERAS` at the top of `scripts\build_demo_from_clips.py`. Then build the feeds and timing data once:
+
+```powershell
+python scripts\build_demo_from_clips.py
+```
+
+It writes `CAM01_lobby_entrance.mp4`, `CAM02_hallway_east.mp4` and `CAM03_hallway_west.mp4` (three synced 290 s feeds, H.264, 5 fps) and the camera windows, weapon timeline and per-second scene script in `data\feeds\`. The weapon labels come from DeepSeek V4.1 Flash on Fireworks, so it needs `FIREWORKS_API_KEY` in `.env`; answers are cached in `data\runtime\`, so rebuilding is free. `--feeds-only` skips the model.
+
+| Time | Camera | What you see |
+| --- | --- | --- |
+| 0:00.0 to 2:10.8 | CAM-01 | Lobby and entrance: the group gathers, weapons out, a man crosses with a rifle |
+| 2:10.8 to 3:49.0 | CAM-02 | East hallway |
+| 3:49.0 to 4:49.8 | CAM-03 | West hallway (the same Seville camera as CAM-02) |
+
+Outside its window each camera holds its first or last frame, so the action is on one feed at a time.
+
+YOLO26s-pose weights go in `services\vision\weights\yolo26s-pose.pt` (gitignored); ultralytics downloads them on first use, or run `python services\vision\pull_weights.py`.
 
 ## Startup
 
 From the repo, in two terminals. Bind localhost only.
 
 ```powershell
-cd "C:\Users\<you>\Documents\Sentinel AI IBM"
 $env:PYTHONPATH = "."
 python -m services.api --host 127.0.0.1 --port 8080
 ```
 
 ```powershell
-cd "C:\Users\<you>\Documents\Sentinel AI IBM"
 python -m http.server 8090 --bind 127.0.0.1 --directory web
 ```
 
-Open:
+Open `http://127.0.0.1:8090/?ws=ws://127.0.0.1:8080/ws` (add `&nosplash=1` to skip the intro). The page without `?ws=` is an offline mock, not this demo.
 
-`http://127.0.0.1:8090/?ws=ws://127.0.0.1:8080/ws`
+The API reads `.env`. Look for these startup lines:
 
-That URL is the three-camera demo. The page without `?ws=` is an older offline mock and is not this route.
+- `[vision-bridge] started cams=[...]`: live vision is on. It turns on by itself when the three feeds and the YOLO weights are present; `CS_VISION_SEVILLE=0` forces it off.
+- `[api] call model: training-pool ...`: the fine-tuned call agent is configured. It answers the dispatcher in the on-screen call; without it the call reads answers from the scene script.
 
-Stop both processes when you are done. Do not leave them running.
-
-## Three cameras and handoffs
-
-The wall plays CAM-01, CAM-02, and CAM-03 from `/media/cam-01`, `/media/cam-02`, and `/media/cam-03`. Cameras 4 through 6 are not feeds. Each MP4 already holds a person-free still from that same camera outside its live window, so the person is on one feed at a time.
-
-| Time | Camera | What you see |
-| --- | --- | --- |
-| 00:00.0 to 01:00.0 | CAM-01 | Lobby and entrance |
-| 01:00.0 to 01:57.0 | CAM-02 | East hallway |
-| 01:57.0 to 03:36.6 | CAM-03 | West hallway |
-| 03:36.6 to 03:50.2 | CAM-03 | West hallway return |
-| 03:50.2 to 04:27.8 | CAM-02 | East hallway return |
-| 04:27.8 to 05:39.8 | CAM-01 | Lobby exit |
-
-Handoffs are at 60.0, 117.0, 216.6, 230.2, and 267.8 seconds. The clip ends at 339.8 seconds.
-
-Weapon boxes on the recording come from `data/feeds/seville_weapon_timeline.json`. Scene-script answers come from `data/feeds/seville_scene_script.json`. Both are precomputed. YOLO tracks people on the playback when the vision process is running. Qwen is a local VLM and runs only if that runtime is configured and up. A weapon incident calls Granite Guardian on watsonx when those settings are present, then BeeAI decides whether dispatch may continue.
+Stop both processes when you are done.
 
 ## Validation
 
 ```powershell
-cd "C:\Users\<you>\Documents\Sentinel AI IBM"
 $env:PYTHONPATH = "."
 python services/brain/check.py
 python services/api/check.py
 python services/voice/check.py
-python services/vision/osnet.py
+python -m services.voice.call_model
+python -m services.voice.demo_call
+python services/vision/check.py
 node web/check.mjs
 ```
 
-Skip a command the machine cannot run, and say so. Do not treat a skipped command as a pass.
+Skip a command the machine cannot run, and say so. A skipped command is not a pass.
 
-`python services/api/check.py` checks that the three media paths respond and that cam-04 is not a feed. Confirm the review MP4 is not in `services/media_root.py` clip map.
-
-## Optional environment
+## Environment
 
 Copy `.env.example` to `.env` on the machine. Never commit `.env`.
 
-Calls, SMS, and ElevenLabs stay off until you set the flags. Watson variables in the example are reserved names. This build does not read them.
-
 | Variable | Role |
 | --- | --- |
+| `FIREWORKS_API_KEY` | Fireworks key: the call model, the weapon-labelling pass, the benchmarks. |
+| `CS_CALL_MODEL_BACKEND`, `CS_CALL_MODEL`, `CS_CALL_MODEL_SNAPSHOT` | The fine-tuned call agent on Fireworks' serverless training pool (values in `.env.example`). |
+| `CS_VISION_SEVILLE` | Live vision: unset = automatic, `0` off, `1` on. |
+| `CS_VISION_DEVICE` | `cuda:0` (default) or `cpu`. |
+| `CS_MEDIA_ROOT` | Feed folder override. Default `data\clips`. |
 | `CS_SIGNALWIRE_ENABLED` | Must be `1` before any real call or SMS. Default off. |
 | `CS_KILL_SWITCH` | `1` blocks the provider even if the enable flag is on. |
-| `CS_SIGNALWIRE_SMS_FALLBACK_CALL` | Must be `1` before a failed SMS may place a call. Default off. |
 | `SIGNALWIRE_SPACE`, `SIGNALWIRE_PROJECT_ID`, `SIGNALWIRE_API_TOKEN` | Provider credentials. |
-| `SIGNALWIRE_FROM_NUMBER` | Caller ID. Alias of `SIGNALWIRE_FROM`. |
-| `SIGNALWIRE_TO_NUMBER` | The only allowed destination. Alias of `CS_DEMO_TO_NUMBER`. |
-| `CS_PUBLIC_BASE` | Public HTTPS origin for provider webhooks, if you enable calls later. |
-| `ELEVENLABS_API_KEY` | Optional phone speech. Also set `CS_TTS_PROVIDER=elevenlabs`. |
-| `ELEVENLABS_VOICE_ID` | Alias of `CS_ELEVENLABS_VOICE_ID`. |
-| `CS_MEDIA_ROOT` | Optional clip folder override. |
-| `WATSONX_APIKEY`, `WATSONX_PROJECT_ID`, `WATSONX_URL` | Unused. Do not expect a client. |
+| `SIGNALWIRE_FROM_NUMBER`, `SIGNALWIRE_TO_NUMBER` | Caller ID and the only allowed destination. |
+| `CS_PUBLIC_BASE` | Public HTTPS origin for provider webhooks, needed only for live calls. |
+| `ELEVENLABS_API_KEY`, `CS_TTS_PROVIDER=elevenlabs` | Phone speech. |
 
-Outbound calls and SMS go only to that one verified demo number. Emergency numbers, short codes, and every other destination are rejected. The demo never calls emergency services. Logs and the UI say "verified demo handset" instead of printing a number.
+Outbound calls and SMS go only to the one verified demo number. Emergency numbers, short codes and every other destination are rejected.
 
-## Public HTTPS later
+## Public HTTPS
 
-Do not deploy from this setup. Do not open a tunnel and do not publish a port.
-
-`100.125.217.67` is a private Tailscale-style address. It is not a public internet address.
-
-A later public host still needs, and this repo does not provide them:
-
-- A hostname and TLS certificate you control, with only port 443 published.
-- `CS_PUBLIC_BASE` set to that `https://` origin before any real webhook.
-- Secrets kept in an untracked `.env`.
-- The same enable flags and the single verified demo handset. No emergency numbers.
-- A supervisor so the API and the static console are not left on an open interface by accident.
-
-Until those exist, use `http://127.0.0.1:8090/?ws=ws://127.0.0.1:8080/ws` on the machine itself.
+Live phone calls need SignalWire to reach `/signalwire/*`, which needs a public HTTPS origin. This guide doesn't set one up. Until you do, keep calls off and use the console on the machine itself.
