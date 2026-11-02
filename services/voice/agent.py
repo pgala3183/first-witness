@@ -1,18 +1,20 @@
-"""Voice service — on-screen 911 conversation and live call answers.
+"""Voice service: the 911 call First Witness places by itself.
 
-Demo recording plays services.voice.demo_call on the transcript only.
-A live call speaks through the existing media bridge after the operator
-places it. Whereabouts stay current either way.
+Every call narrates itself (briefing.py): an opening report built from what
+the cameras show at that moment (who is armed and how they look, weapons,
+place, people count, heading), then an update whenever the scene changes.
+The on-screen call shows those lines; a live phone call speaks them through
+the media bridge.
 
-Live answers: the fine-tuned call model (call_model) answers from this
-moment's FACTS (facts.live_snapshot), every reply goes through the honesty
-guard, and a timeout or error falls back to the keyword rules below.
+The dispatcher's questions on a live call go to answer_dispatcher: the
+fine-tuned call model (call_model) answers from this moment's FACTS
+(facts.live_snapshot), every reply goes through the honesty guard, and a
+timeout or error falls back to the keyword rules below.
 """
 
 from __future__ import annotations
 
 import asyncio
-import os
 import re
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable
@@ -31,7 +33,7 @@ from services.brain.call_brief import scene_facts
 from services.brain.zrt_client import ZRTClient
 
 from . import call_model, scene
-from .demo_call import plan
+from . import briefing
 from .facts import live_snapshot
 from .guard import guarded
 from .tools import TOOL_HANDLERS, ToolName
@@ -141,6 +143,10 @@ class VoiceAgent:
         self.zone_alert: dict[str, Any] = {"status": "none"}
         # Off for the keyword-router baseline in finetune/eval.py.
         self.use_model = True
+        # The call narrates itself (briefing.py); off in tests that drive answers by hand.
+        self.narrate = True
+        # Speaking pace for narrated lines, so updates never talk over each other (0 = no wait).
+        self.pace_wpm = 170.0
         self.audit = AuditLog()
 
     def busy(self) -> bool:
@@ -217,48 +223,42 @@ class VoiceAgent:
         )
 
     async def _run_scripted(self, incident_id: str) -> None:
-        started = asyncio.get_running_loop().time()
-        # On screen a short pause is fine; a phone call keeps CS_CALL_MODEL_TIMEOUT_S.
         try:
-            timeout_s = float(os.environ.get("CS_CALL_MODEL_SCRIPTED_TIMEOUT_S", "") or 6.0)
-        except ValueError:
-            timeout_s = 6.0
-        pending: asyncio.Task[str | None] | None = None
-        try:
-            # Keyed to the clip second the wall shows as the call connects.
-            lines = plan(self.clock())
-            for i, (at_s, speaker, text, question) in enumerate(lines):
-                # One line per wait. The timestamp already includes speaking time.
-                wait = at_s - (asyncio.get_running_loop().time() - started)
-                if wait > 0:
-                    await asyncio.sleep(wait)
-                if question:
-                    # The fine-tuned model answers from this second's facts (through the
-                    # guard); the scripted scene answer stands if it's off or slow.
-                    reply = await pending if pending is not None else await self._model_answer(question, timeout_s)
-                    pending = None
-                    text = reply or text
-                    self._history += [("Dispatcher", question), (call_model.SPEAKER, heard(text))]
-                elif i + 1 < len(lines) and lines[i + 1][3]:
-                    # Ask as the dispatcher's question appears, so the model's latency
-                    # overlaps the pause before the answer is due.
-                    pending = asyncio.create_task(self._model_answer(lines[i + 1][3], timeout_s))
-                await self.publish(
-                    CallTranscriptDelta(
-                        incident_id=incident_id,
-                        speaker=speaker,  # type: ignore[arg-type]
-                        text=heard(text),
-                        ts=utcnow(),
-                    )
-                )
-            # The opening establishes the emergency.  Further transcript
-            # turns are event-driven by real camera handoffs.
-            await asyncio.Event().wait()
+            await self._narrate(incident_id)
         finally:
-            if pending is not None:
-                pending.cancel()
             self._scripted = False
             self._incident_id = None
+
+    async def _narrate(self, incident_id: str) -> None:
+        """The call's own voice: an opening report from what the cameras show, then an
+        update whenever the scene changes (handoff, new weapon, heading, officer accept)."""
+        try:
+            snap = live_snapshot(self.clock(), self.officer, self.zone_alert)
+            for line in briefing.opening(snap):
+                await self._say_line(incident_id, line)
+            narrator = briefing.Narrator(live_snapshot(self.clock(), self.officer, self.zone_alert), clock=self.clock)
+            while True:
+                await asyncio.sleep(1.0)
+                for line in narrator.update(live_snapshot(self.clock(), self.officer, self.zone_alert)):
+                    await self._say_line(incident_id, line)
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001 — a silent call is the worst failure: say why in the log
+            import traceback
+
+            print(f"[voice] narrator for {incident_id} stopped:\n{traceback.format_exc()}", flush=True)
+            raise
+
+    async def _say_line(self, incident_id: str, text: str) -> None:
+        """Publish one spoken line (the phone bridge voices it) and give it time to be said."""
+        text = heard(text)
+        self._last_answer = text
+        self._history.append((call_model.SPEAKER, text))
+        await self.publish(
+            CallTranscriptDelta(incident_id=incident_id, speaker="sentinel", text=text, ts=utcnow())
+        )
+        if self.pace_wpm:
+            await asyncio.sleep(len(text.split()) * 60.0 / self.pace_wpm)
 
     async def start_live_call(self, rec: IncidentRecord, brief: CallBrief) -> None:
         if self.busy():
@@ -277,21 +277,10 @@ class VoiceAgent:
         self._visible = True
         self._unknown_answer_index = 0
         self._site_address = scene.FULL_ADDRESS
-        text = heard(
-            f"Hi, this is {scene.PRODUCT}. "
-            f"I'm reporting armed people inside {scene.BUILDING}. "
-            f"The address is {scene.ADDRESS or scene.BUILDING}."
-        )
-        self._last_answer = text
-        self._history.append((call_model.SPEAKER, text))
-        await self.publish(
-            CallTranscriptDelta(
-                incident_id=rec.incident_id,
-                speaker="sentinel",
-                text=text,
-                ts=utcnow(),
-            )
-        )
+        if self.narrate:
+            # Same report and updates as the on-screen call; the phone bridge speaks
+            # every line, and the dispatcher's questions go to answer_dispatcher.
+            self._task = asyncio.create_task(self._narrate(rec.incident_id), name=f"call-{rec.incident_id}")
         await self.publish(
             DemoControl(
                 action="scenario",
@@ -454,10 +443,10 @@ class VoiceAgent:
             return
         if camera_id == self._camera:
             return
-        if self._scripted:
-            # Transcript timing belongs exclusively to DEMO_CALL. Vision
-            # handoffs still keep scenario state current, but never insert an
-            # early or duplicate spoken update.
+        if self._scripted or (self._live and self.narrate):
+            # The narrator says the handoff (from the scene, once people are on the new
+            # camera); vision handoffs only keep the call's camera state current, so
+            # nothing is said twice.
             self._camera = camera_id
             self._address = address
             self._visible = True

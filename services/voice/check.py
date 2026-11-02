@@ -255,10 +255,19 @@ async def _main() -> None:
     qwen = _Qwen()
     live = VoiceAgent(live_pub, zrt=qwen)  # type: ignore[arg-type]
     live.use_model = False  # keyword rules here; the call model path is checked below
+    live.pace_wpm = 0  # no speaking pauses in tests
+    live.clock = lambda: 20.0
     await live.start_live_call(rec, assemble_call_brief(rec))
-    opener = getattr(live_events[-2], "text", "")
+    await asyncio.sleep(0.2)
+    # The call narrates its own opening report from the facts at this second.
+    opening_lines = [getattr(e, "text", "") for e in live_events if getattr(e, "speaker", "") == "sentinel"]
+    assert opening_lines and opening_lines[0].startswith("This is First Witness"), opening_lines
+    opener = " ".join(opening_lines)
     assert "MacQuarrie Hall" in opener and "IBM" not in opener
-    assert "armed people" in opener.lower()
+    assert "armed" in opener.lower() and "ground-floor lobby" in opener
+    assert "with a handgun" in opener or "with a knife" in opener, opener  # who is armed, how they look
+    assert live._task is not None
+    live._task.cancel()  # stop narrating: the rest of this test drives answers by hand
     low_open = opener.lower()
     assert "simulat" not in low_open and "staged" not in low_open
     assert "never emergency" not in low_open and "demo-only" not in low_open and "psap" not in low_open
@@ -277,17 +286,15 @@ async def _main() -> None:
     live.clock = lambda: 250.0
     assert "west corridor" in await ask("Where are they now?")
     assert "lobby to the east corridor to the west corridor" in await ask("Where did they move?")
-    # Camera handoff on a live call: place names only, from -> to.
+    # A vision handoff on a narrated call only moves the call's camera: the narrator
+    # says the handoff, so nothing is spoken twice.
     event_count = len(live_events)
     await live.notify_whereabouts("cam-01", assemble_call_brief(rec).address)
     assert len(live_events) == event_count
     await live.notify_whereabouts("cam-02", assemble_call_brief(rec).address)
-    spoken = [getattr(e, "text", "") for e in live_events[event_count:]]
-    assert (
-        "Update: they have moved from the ground-floor lobby into the east corridor on the ground floor."
-        in spoken
-    ), spoken
-    assert not any("cam-" in line or "curb" in line or "(" in line for line in spoken)
+    spoken = [getattr(e, "text", "") for e in live_events[event_count:] if getattr(e, "speaker", "")]
+    assert spoken == [], spoken
+    assert live._camera == "cam-02"
     # An unmatched question is answered from this second of the scene script.
     assert await ask("Is the door locked?") == "I don't see that on the current camera."
     assert qwen.calls == 1 and qwen.last_facts["place"] == "MacQuarrie Hall"
@@ -339,88 +346,38 @@ async def _main() -> None:
         agent_mod.call_model.configured, agent_mod.call_model.answer = saved_cm
         live.use_model = False
 
-    # On-screen call: the model answers the dispatcher (asked as the question
-    # appears, with the longer on-screen timeout); the scripted line is the fallback.
-    asked: list[tuple[str, float | None]] = []
-
-    def screen_answer(facts, history, question, timeout_s=None):
-        asked.append((question, timeout_s))
-        return "They are in the ground-floor lobby." if question.startswith("How many") else None
-
+    # On-screen call: no scripted dispatcher. First Witness narrates by itself, an
+    # opening report from the facts at that second, then updates as the scene changes.
     screen_events: list[object] = []
 
     async def screen_pub(ev: object) -> None:
         screen_events.append(ev)
 
-    saved_cm = (agent_mod.call_model.configured, agent_mod.call_model.answer, agent_mod.plan)
-    agent_mod.call_model.configured = lambda: True  # type: ignore[assignment]
-    agent_mod.call_model.answer = screen_answer  # type: ignore[assignment]
-    agent_mod.plan = lambda _t: [  # type: ignore[assignment]
-        (0.0, "dispatcher", "How many people do you see?", None),
-        (0.2, "sentinel", "scripted count", "How many people do you see?"),
-        (0.3, "dispatcher", "Is anyone hurt?", None),
-        (0.5, "sentinel", "I can't verify injuries from the cameras.", "Is anyone hurt?"),
-    ]
-    try:
-        screen = VoiceAgent(screen_pub)
-        await screen.start_scripted_call(rec, assemble_call_brief(rec))
-        await asyncio.sleep(1.0)
-        said = [getattr(e, "text", "") for e in screen_events if getattr(e, "speaker", "") == "sentinel"]
-        assert said == ["They are in the ground-floor lobby.",
-                        "I can't verify injuries from the cameras."], said
-        assert [q for q, _ in asked] == ["How many people do you see?", "Is anyone hurt?"]
-        assert all(t == 6.0 for _, t in asked), asked
-        await screen.cancel()
-    finally:
-        agent_mod.call_model.configured, agent_mod.call_model.answer, agent_mod.plan = saved_cm
-
-    # Demo recording: lines run from call start and finish inside DURATION.
-    from services.voice.demo_call import DURATION
-
-    scripted_events: list[object] = []
-
-    async def scripted_pub(ev: object) -> None:
-        scripted_events.append(ev)
-
-    demo = VoiceAgent(scripted_pub, zrt=qwen)  # type: ignore[arg-type]
-    demo.clock = lambda: 0.0
-    await demo.start_scripted_call(rec, assemble_call_brief(rec))
-    await asyncio.sleep(1.0)
-    assert len(scripted_events) == 1, scripted_events
-    await asyncio.sleep(3.2)
-    await demo.cancel()
-    said = [(getattr(e, "speaker", ""), getattr(e, "text", "")) for e in scripted_events]
-    assert said[0] == ("dispatcher", "911, what's your emergency?"), said
-    assert len(said) == 2, said
-    assert said[1] == ("sentinel", "Hi, this is First Witness at San Jose State."), said
-    script_blob = " ".join(text for _, text in said).lower()
-    assert "simulat" not in script_blob and "psap" not in script_blob
-    assert "deterministic" not in script_blob and "never emergency" not in script_blob
-    from services.voice.demo_call import DEMO_CALL as _LINES, OPENING
-
-    # The recorded call's opening, at its own seconds after connect.
-    assert _LINES[1] == OPENING[1]
-    assert [at_s for at_s, _, _ in _LINES[:3]] == [0.0, 2.5, 5.62], _LINES
-    assert not any("ibm" in text.lower() for _, _, text in _LINES), _LINES
-
-    # A real camera handoff only updates internal call context. It must not
-    # insert an out-of-order transcript message into the fixed demo timeline.
-    scripted_events.clear()
-    demo = VoiceAgent(scripted_pub, zrt=qwen)  # type: ignore[arg-type]
-    await demo.start_scripted_call(rec, assemble_call_brief(rec))
-    event_count = len(scripted_events)
-    await demo.notify_whereabouts("cam-02", assemble_call_brief(rec).address)
-    await asyncio.sleep(1.2)
-    handoff_events = scripted_events[event_count:]
-    handoff_lines = [getattr(event, "text", "") for event in handoff_events]
-    assert not any(line.startswith("Update:") for line in handoff_lines), handoff_lines
-    await asyncio.sleep(2.6)
-    handoff_events = scripted_events[event_count:]
-    handoff_lines = [getattr(event, "text", "") for event in handoff_events]
-    assert not any("monitoring" in line.lower() for line in handoff_lines), handoff_lines
-    assert not any("keep tracking" in line.lower() for line in handoff_lines), handoff_lines
-    await demo.cancel()
-    assert DURATION > _LINES[-1][0]
+    clip = [20.0]
+    screen = VoiceAgent(screen_pub, zrt=qwen)  # type: ignore[arg-type]
+    screen.pace_wpm = 0
+    screen.use_model = False
+    screen.clock = lambda: clip[0]
+    await screen.start_scripted_call(rec, assemble_call_brief(rec))
+    await asyncio.sleep(0.3)
+    said = [(getattr(e, "speaker", ""), getattr(e, "text", "")) for e in screen_events if getattr(e, "speaker", "")]
+    assert said and all(who == "sentinel" for who, _ in said), said  # nothing scripted for the dispatcher
+    first = " ".join(text for _, text in said)
+    assert first.startswith("This is First Witness") and "MacQuarrie Hall" in first, first
+    assert "ground-floor lobby" in first and ("handgun" in first or "knife" in first), first
+    for bad in ("simulat", "psap", "deterministic", "never emergency", "ibm", "frame", "foreground"):
+        assert bad not in first.lower(), (bad, first)
+    # The story moves into the east corridor: an update names the move and who is there.
+    count = len(screen_events)
+    clip[0] = 140.0
+    await asyncio.sleep(1.5)
+    update = [getattr(e, "text", "") for e in screen_events[count:]]
+    assert any(t.startswith("Update: they've moved from the ground-floor lobby into the east corridor") for t in update), update
+    # A vision handoff never adds its own line on top of the narrator's.
+    count = len(screen_events)
+    await screen.notify_whereabouts("cam-02", assemble_call_brief(rec).address)
+    assert not [e for e in screen_events[count:] if getattr(e, "speaker", "")]
+    await screen.cancel()
 
     from services.voice.media_bridge import MediaStreamBridge
 
