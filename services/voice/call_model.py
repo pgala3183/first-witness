@@ -8,6 +8,7 @@ finetune/build_dataset.py imports them from here, so training and live
 answers can't drift apart.
 
 Env: CS_CALL_MODEL_URL, CS_CALL_MODEL, CS_CALL_MODEL_TIMEOUT_S (default 1.5),
+CS_CALL_MODEL_REASONING_EFFORT (e.g. none, for a reasoning base model),
 and the bearer key in FIREWORKS_API_KEY. Self-check: python -m services.voice.call_model
 """
 
@@ -94,6 +95,8 @@ def answer(
         ],
         "temperature": 0,
         "max_tokens": MAX_TOKENS,
+        # A reasoning base model would otherwise think through MAX_TOKENS and say nothing.
+        **({"reasoning_effort": effort} if (effort := os.environ.get("CS_CALL_MODEL_REASONING_EFFORT", "").strip()) else {}),
     }).encode("utf-8")
     req = urllib.request.Request(
         url + "/chat/completions",
