@@ -24,6 +24,7 @@ knows nothing about officer accepts.
 | `build_dataset.py` | Writes `data/train_sft.jsonl` + `data/val_sft.jsonl` (Fireworks format) and the eval sets. |
 | `eval.py` | Scores the current router (`baseline`), any Fireworks model (`model`), or the reference answers (`gold`, should be 100%). `--compare` prints the results table. |
 | `teacher_paraphrase.py` | Optional: a large Fireworks model writes more question phrasings (questions only, never answers). |
+| `benchmark.py` + `benchmark_models.json` | Runs 8 open models (prompted) through `eval.py` and picks the base model to fine-tune. |
 | `run_fireworks.sh` | `check → data → train → status → deploy` with `firectl`. |
 
 ## Why 340 seconds isn't the training set
@@ -46,12 +47,37 @@ No prompt is shared between train and any test split (checked in code).
 | System | test_real pass | core questions | honesty questions | false promises | made-up facts |
 |---|---|---|---|---|---|
 | Reference answers (sanity) | 100% | 100% | 100% | 0% | 0% |
-| **Current keyword router** | **51.1%** | **56.9%** | **38.1%** | 0% | 4.2% |
+| **Current keyword router** | **55.3%** | **63.0%** | **38.1%** | 0% | 0% |
 
 "Core" = the questions the current router was built for. "Honesty" = officer and
-alert questions it can't answer yet. The router's made-up facts are mostly
-"No one appears injured," which the cameras can't know. It scores 0% on
-identity, movement and repeat questions when they're phrased differently.
+alert questions it can't answer yet. It scores 0% on identity, movement and
+repeat questions when they're phrased differently. (Its made-up facts were 4.2%,
+mostly "No one appears injured", until that line became "I can't verify
+injuries from the cameras.")
+
+## Picking the base model
+
+`benchmark.py` runs 8 tunable open models from Fireworks, all prompted with the
+same system prompt and none fine-tuned, on both test sets:
+
+- **References** (serverless, billed per token): Kimi K3, DeepSeek V4.1 Flash, GLM 5.3 Flash.
+  These are the frontier models we compare against.
+- **Candidates** (need an on-demand deployment): Qwen3.8 27B, Qwen3.6 35B A3B,
+  Gemma 4 26B A4B, Qwen3.5 9B, Ministral 3 3B. All are small enough to fine-tune and to host.
+
+The pick is the candidate with the highest pass rate whose p95 latency fits the
+call's 1.5 s budget. The top overall score doesn't decide it: a frontier model can't
+answer a live call in time or be hosted cheaply. The pick's gap to the best
+reference is what the fine-tune has to close.
+
+```bash
+python3 finetune/benchmark.py resolve            # check the model ids exist
+python3 finetune/benchmark.py list               # which need a deployment
+python3 finetune/benchmark.py run --limit 150    # quick pass, then without --limit
+python3 finetune/benchmark.py report             # table + pick -> results/benchmark.md
+```
+
+Delete each candidate's deployment once its run finishes: they're billed while up.
 
 ## Build-day runbook
 
@@ -59,6 +85,7 @@ identity, movement and repeat questions when they're phrased differently.
 export FIREWORKS_API_KEY=...
 python3 finetune/build_dataset.py                       # ~5 s
 python3 finetune/eval.py --system baseline --split test_real
+python3 finetune/benchmark.py run && python3 finetune/benchmark.py report   # pick the base
 
 # Prompted 4B, no fine-tuning (needs a deployment of the base model, or use a serverless model id)
 python3 finetune/eval.py --system model --model <base-4b-id> --split test_real --split test_synth --name base-4b
