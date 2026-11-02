@@ -150,11 +150,26 @@ export function incidentActions(inc, actions, store) {
     }),
   );
   box.appendChild(row2);
-  // Before dispatch, Confirm stays available on its own row.
+  // Before dispatch, a person decides: nothing calls 911 until this is pressed.
   if (!dispatched) {
-    const row3 = el("div", { className: "lp-actions__row lp-actions__row--one" });
-    row3.appendChild(confirm());
-    box.appendChild(row3);
+    const ask = el("p", {
+      className: "lp-actions__note",
+      text: "AI flagged this. Review the camera, then confirm to start the 911 call.",
+      attrs: { role: "status" },
+    });
+    const row0 = el("div", { className: "lp-actions__row lp-actions__row--one" });
+    row0.appendChild(
+      actionBtn({
+        text: dispatchSt?.state === "pending" ? "Calling…" : "Confirm & call 911",
+        iconName: "check",
+        cls: "lp-act--primary",
+        key: "dispatch",
+        disabled: dispatchSt?.state === "pending",
+        onClick: () => actions.callForHelp(id),
+      }),
+    );
+    box.prepend(row0);
+    box.prepend(ask);
   }
   return box;
 }
