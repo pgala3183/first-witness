@@ -105,7 +105,7 @@ export function findCallIncident(state) {
  * Call provider label: the active call's DISPATCHED note says whether the api
  * placed a SignalWire call; with no call, /voice/status says what it would do.
  */
-export const CALL_TITLE = "911 Call";
+export const CALL_TITLE = "Campus police call";
 
 /** Status line on the call card. Empty when there is no call. */
 export function callNoteText(state) {
@@ -208,7 +208,7 @@ export function mountCallHost(host, store, actions) {
     <div class="call-console">
       <header class="card call-head-card lc-headcard" data-head>
         <div class="lc-head">
-          <h2 class="lc-title" data-class>911 Call</h2>
+          <h2 class="lc-title" data-class>Campus police call</h2>
           <div class="lc-timer" data-timerbox hidden>
             <span class="lc-timer__t mono" data-timer>00:00</span>
             <span class="lc-timer__live mono" data-live><span class="lc-timer__dot" aria-hidden="true"></span>LIVE</span>
@@ -378,7 +378,7 @@ export function mountCallHost(host, store, actions) {
     const cand = inc ? null : callCandidate(state);
     paintAction(cand);
     if (!inc) {
-      setText(classEl, "911 Call");
+      setText(classEl, "Campus police call");
       // -2 = "no call" empty state, distinct from a call with no lines yet.
       if (lastThreadLen !== -2) {
         renderChat([]);
@@ -391,7 +391,7 @@ export function mountCallHost(host, store, actions) {
       return;
     }
 
-    setText(classEl, "911 Call");
+    setText(classEl, "Campus police call");
 
     const all = (state.call?.transcript || []).filter(
       (t) => !state.call.incidentId || t.incident_id === inc.incident_id,
@@ -490,7 +490,7 @@ export function mountLiveCall(host, store, actions) {
   host.innerHTML = `
     <section class="card lc" aria-label="Call">
       <header class="lc-head">
-        <h2 class="lc-title" data-title>911 Call</h2>
+        <h2 class="lc-title" data-title>Campus police call</h2>
         <div class="lc-timer" data-timerbox hidden>
           <span class="lc-timer__t mono" data-timer>00:00</span>
           <span class="lc-timer__live mono" data-live><span class="lc-timer__dot" aria-hidden="true"></span>LIVE</span>
@@ -584,7 +584,7 @@ export function mountLiveCall(host, store, actions) {
     paintTimes(state);
     const cand = inc ? null : callCandidate(state);
     paintAction(cand);
-    setText(titleEl, "911 Call");
+    setText(titleEl, "Campus police call");
     const all = inc
       ? (state.call?.transcript || []).filter((t) => !state.call.incidentId || t.incident_id === inc.incident_id)
       : [];
@@ -828,7 +828,7 @@ export function mountCallPanel(root, store, actions) {
     }
 
     const ended = ENDED_CALL_STATES.has(inc.state);
-    setText(classEl, "911 Call");
+    setText(classEl, "Campus police call");
     headCamEl.hidden = false;
     setText(headCamEl, cameraTitle(inc.camera_id));
 

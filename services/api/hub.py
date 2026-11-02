@@ -232,7 +232,7 @@ class DemoHub:
             return
         if human_confirm_required():
             # The AI flags; a person decides. The call starts only from the
-            # console's "Confirm & call 911" (dispatch_incident).
+            # console's "Confirm & call campus police" (dispatch_incident).
             if (
                 getattr(rec, "severity", None) is Severity.SEVERE
                 and getattr(rec, "state", None) is IncidentState.ALERTED
@@ -329,7 +329,7 @@ class DemoHub:
                     state=IncidentState.DISPATCHED,
                     severity=Severity.SEVERE,
                     ts=now,
-                    note="SignalWire call started" if dial else "911 call started",
+                    note="SignalWire call started" if dial else "Campus police call started",
                 )
             )
             await self._publish_brief(brief, "dispatch")
