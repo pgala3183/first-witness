@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local Kokoro TTS serve — matches services/voice/kokoro.py's StubKokoro contract.
+"""Local Kokoro TTS serve — matches services/voice/kokoro.py's HttpKokoro client.
 
   POST /synthesize   body: {"text": "..."}
                       reply: raw bytes, PCM16 mono 16kHz (no header, no JSON)

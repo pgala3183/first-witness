@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local ASR serve for services/voice/parakeet.py's StubParakeet contract.
+"""Local ASR serve for services/voice/parakeet.py's HttpAsr client.
 
   POST /transcribe   body: raw PCM16 mono 16kHz bytes (octet-stream)
                       reply: plain UTF-8 text transcript
@@ -16,7 +16,7 @@ and pytorch-lightning; installing that into a venv on this shared box risked
 version-colliding with the torch/numpy the *live* YOLO/vision process already
 depends on, for real GPU-toolkit weight this box doesn't have spare headroom
 for anyway (see docs/STABILITY.md). faster-whisper's `transcribe(pcm16) ->
-str` fulfills the exact same contract the stub already defines, on CPU, with
+str` fulfills the exact same contract the client expects, on CPU, with
 ~10 deps instead of 236. Swap to real Parakeet later if the NVIDIA-specific
 branding matters for judging and there's a safe machine/time to install it.
 

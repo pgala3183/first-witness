@@ -41,10 +41,10 @@ export const routes = {
  * One row per model found in the code and on the running Nano (Step 0
  * inventory, 2026-09-26). `id` is the key the backend's usage.tick uses.
  *
- * TODO(team): fill each `price` (USD per `per` units of `key`) from the
- * vendor's official price page, and set `checked` to that date
- * ("YYYY-MM-DD"). While a price is null the model shows "Price not set" and
- * is left out of every dollar total. Never enter a price from memory.
+ * `price` is USD per `per` units of `key`, copied from the vendor's official
+ * price page on the `checked` date ("YYYY-MM-DD"). A null price shows
+ * "Price not set" and is left out of every dollar total; never enter a price
+ * from memory.
  *
  * `cloud: true` marks work that really runs on a cloud API (its cost is
  * real spend, not savings). Category "none" never counts in dollars.
@@ -66,17 +66,20 @@ export const CLOUD_EQUIV = [
     checked: null,
   },
   {
-    id: "first-witness-call-4b",
-    name: "Qwen3-4B call agent (fine-tuned)",
+    // services/voice/call_model.py records the training-pool call model as "<base>-ft".
+    id: "qwen3p6-35b-a3b-ft",
+    name: "Qwen3.6 35B A3B + LoRA call agent (fine-tuned)",
     tier: "Cloud",
     category: "cloud LLM API",
     usage: "tokens",
     cloud: true,
+    // Fireworks serverless training pool: prefill and sample rates
+    // (docs.fireworks.ai/fine-tuning/training-api/serverless).
     units: [
-      { key: "tokens_in", unit: "per 1M input tokens", per: 1e6, price: null },
-      { key: "tokens_out", unit: "per 1M output tokens", per: 1e6, price: null },
+      { key: "tokens_in", unit: "per 1M input tokens", per: 1e6, price: 0.45 },
+      { key: "tokens_out", unit: "per 1M output tokens", per: 1e6, price: 1.335 },
     ],
-    checked: null,
+    checked: "2026-11-02",
   },
   {
     id: "yolo26s-pose",

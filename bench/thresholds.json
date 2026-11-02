@@ -1,6 +1,6 @@
 {
   "minor_at": 0.55,
   "severe_at": 0.80,
-  "source": "demo-stub — replace with Naman precision curve",
-  "notes": "SEVERE slightly lower than code placeholder so WEAPON chase alerts dispatch path in demo"
+  "source": "Demo settings: not calibrated on labelled data (README, Results: honest note)",
+  "notes": "SEVERE is set a little below the code default (0.85) so a visible weapon reaches the call path in the demo"
 }

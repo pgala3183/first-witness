@@ -21,7 +21,7 @@ Inbound audio (the dispatcher's real speech) is decoded, closed after 500 ms
 of silence, sent serially to the ASR service (CS_PARAKEET_URL)
 for transcription, and published back as a CallTranscriptDelta(speaker=
 "dispatcher", ...) so it lands on the dashboard the same way a scripted line
-would. If CS_PARAKEET_URL is unset the stub returns "" and nothing is
+would. If CS_PARAKEET_URL is unset the ASR client returns "" and nothing is
 published — silent, not broken.
 
 No third-party deps: audio conversion uses stdlib `audioop`.

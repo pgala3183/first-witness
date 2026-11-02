@@ -1,6 +1,7 @@
-"""Parakeet ASR stub — swap for local NeMo Parakeet when Naman lands the serve.
+"""Speech-to-text client for the local serve (scripts/serve_parakeet.py, CS_PARAKEET_URL).
 
-transcribe(pcm16_mono_16k) -> str
+transcribe(pcm16_mono_16k) -> str; "" when CS_PARAKEET_URL is unset. The serve
+runs faster-whisper; the Parakeet name is historical.
 Target p95 < 800 ms for a short utterance.
 """
 
@@ -14,8 +15,8 @@ class AsrBackend(Protocol):
     def transcribe(self, pcm16_mono_16k: bytes) -> str: ...
 
 
-class StubParakeet:
-    """Returns empty string until CS_PARAKEET_URL or local weights are set."""
+class HttpAsr:
+    """POSTs raw PCM to CS_PARAKEET_URL; empty string when it is unset."""
 
     def transcribe(self, pcm16_mono_16k: bytes) -> str:
         if not pcm16_mono_16k:
@@ -39,4 +40,4 @@ class StubParakeet:
 
 
 def get_asr() -> AsrBackend:
-    return StubParakeet()
+    return HttpAsr()

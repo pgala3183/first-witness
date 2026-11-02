@@ -641,7 +641,15 @@ async def main() -> None:
     await server.wait_closed()
     await srv.hub.stop_loops()
     from services.api.vision_bridge import vision_enabled, VisionBridge
+    saved_flag = os.environ.get("CS_VISION_SEVILLE")
+    os.environ["CS_VISION_SEVILLE"] = "0"
     assert vision_enabled() is False
+    os.environ["CS_VISION_SEVILLE"] = "1"
+    assert vision_enabled() is True
+    if saved_flag is None:
+        os.environ.pop("CS_VISION_SEVILLE")
+    else:
+        os.environ["CS_VISION_SEVILLE"] = saved_flag
     class _Hub:
         paused = False
         frames_screened = 0
@@ -683,8 +691,6 @@ async def _usage_check() -> None:
     buckets = h.usage_buckets("2000-01-01")
     assert len(buckets) == 1 and buckets[0][1]["hf:Qwen"]["tokens_in"] == 150
     assert [e["type"] for e in sent].count("usage.total") == 2
-    # Demo token history is seeded once (7 days of 5-minute rows), never twice.
-    assert h.seed_demo_usage("hf:Qwen") > 2000 and h.seed_demo_usage("hf:Qwen") == 0
 
 
 if __name__ == "__main__":

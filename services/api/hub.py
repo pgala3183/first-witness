@@ -390,17 +390,14 @@ class DemoHub:
             await self.publish(CameraOnline(camera_id=cid, online=True, ts=now))
         await self._health()
         if not vision_enabled() and run_scenario:
-            await self._overlays()
-            # Scenario seed only when not on live Seville vision.
+            # Explicit opt-in only (tests): never on its own at startup.
             await self.run_scenario("armed-intruder")
 
     async def start_loops(self) -> None:
         if self._health_task is not None:
             return
+        # Boxes come only from the live vision bridge; without it the wall shows none.
         self._health_task = asyncio.create_task(self._health_loop())
-        # Live vision bridge publishes real overlay.boxes; skip synthetic ones.
-        if not vision_enabled():
-            self._overlay_task = asyncio.create_task(self._overlay_loop())
 
     async def stop_loops(self) -> None:
         for t in (self._health_task, self._overlay_task):
@@ -656,24 +653,6 @@ class DemoHub:
             )
         )
 
-    async def _overlays(self) -> None:
-        now = _utcnow()
-        for cid in WALL_CAMS:
-            n = 1 + (ord(cid[-1]) % 3)
-            boxes = [
-                BBox(
-                    x=0.1 + 0.15 * i,
-                    y=0.35,
-                    w=0.08,
-                    h=0.22,
-                    track_id=f"T-{i + 1}",
-                    label="person",
-                    score=0.55 + 0.1 * i,
-                )
-                for i in range(n)
-            ]
-            await self.publish(OverlayBoxes(camera_id=cid, ts=now, boxes=boxes))
-
     async def _activity_tick(self) -> None:
         """`activity.tick`: every pipeline stage, in order, and what it is doing now."""
         live_call = bool(self._call_sid and self._voice is not None and self._voice.busy())
@@ -685,26 +664,11 @@ class DemoHub:
     async def _usage_tick(self) -> None:
         # Per-window counts since the last tick; nothing sent when idle.
         by_model = usage.swap()
-        self._demo_tokens(by_model)
         if by_model:
             ts = _utcnow()
             await self.publish(UsageTick(window_s=USAGE_WINDOW_S, by_model=by_model, ts=ts))
             self._add_usage_total(ts.isoformat(), by_model)
         await self.broadcast(self.usage_total())
-
-    def _demo_tokens(self, by_model: dict[str, dict[str, Any]]) -> None:
-        """CS_DEMO_TOKEN_RATE=<tokens/s>: synthetic Qwen load for demo recordings,
-        stored like real usage so the title, strip and System graphs agree."""
-        rate = float(os.environ.get("CS_DEMO_TOKEN_RATE", "0") or 0)
-        if rate <= 0:
-            return
-        from services.brain.zrt_client import DEFAULT_MODEL
-
-        tokens = rate * USAGE_WINDOW_S * (0.75 + 0.5 * self._rng.random())
-        row = by_model.setdefault(DEFAULT_MODEL, {})
-        row["tokens_in"] = row.get("tokens_in", 0) + int(tokens * 0.92)
-        row["tokens_out"] = row.get("tokens_out", 0) + int(tokens * 0.08)
-        row["requests"] = row.get("requests", 0) + max(1, int(tokens / 1800))
 
     def _add_usage_total(self, ts: str, by_model: dict[str, dict[str, Any]]) -> None:
         """Persist the window and grow the all-time total (Reset never clears it)."""
@@ -721,12 +685,6 @@ class DemoHub:
             print(f"[hub] usage write failed: {exc}", flush=True)
 
     def _usage_totals(self) -> dict[str, float]:
-        if self._usage_sum is None and self.history is not None and float(
-            os.environ.get("CS_DEMO_TOKEN_RATE", "0") or 0
-        ) > 0:
-            from services.brain.zrt_client import DEFAULT_MODEL
-
-            self.history.seed_demo_usage(DEFAULT_MODEL)
         if self._usage_sum is None:
             self._usage_sum = (
                 self.history.usage_totals()
@@ -761,15 +719,6 @@ class DemoHub:
                 if tick % USAGE_WINDOW_S == 0:
                     await self._usage_tick()
                 await asyncio.sleep(1.0)
-        except asyncio.CancelledError:
-            raise
-
-    async def _overlay_loop(self) -> None:
-        try:
-            while True:
-                if not self.paused:
-                    await self._overlays()
-                await asyncio.sleep(0.4)
         except asyncio.CancelledError:
             raise
 

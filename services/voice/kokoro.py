@@ -1,6 +1,7 @@
-"""Kokoro TTS stub — swap for local Kokoro when Naman lands the serve.
+"""Kokoro TTS client for the local serve (scripts/serve_kokoro.py, CS_KOKORO_URL).
 
-synthesize(text) -> pcm16_mono_16k bytes
+synthesize(text) -> pcm16_mono_16k bytes; b"" when CS_KOKORO_URL is unset.
+ElevenLabs is the default call voice; Kokoro is the optional local one.
 Target first audio < 500 ms for a short sentence.
 """
 
@@ -14,7 +15,7 @@ class TtsBackend(Protocol):
     def synthesize(self, text: str) -> bytes: ...
 
 
-class StubKokoro:
+class HttpKokoro:
     def synthesize(self, text: str) -> bytes:
         text = (text or "").strip()
         if not text:
@@ -37,4 +38,4 @@ class StubKokoro:
 
 
 def get_tts() -> TtsBackend:
-    return StubKokoro()
+    return HttpKokoro()
