@@ -12,7 +12,7 @@ token. That is what lets us train and evaluate without a dedicated GPU.
 Evaluate base vs fine-tuned with the usual grader:
   python finetune/eval.py --system serverless --model accounts/fireworks/models/qwen3p6-35b-a3b \\
       --split test_real --split test_synth --name sl-base-q36
-  python finetune/eval.py --system serverless --snapshot <path from results/serverless_run.json> \\
+  python finetune/eval.py --system serverless --snapshot latest \\
       --split test_real --split test_synth --name sl-ft-q36
 
 Prompts are rendered client-side with the model's own chat template (thinking
@@ -146,6 +146,22 @@ def connect():
     return FiretitanServiceClient(api_key=api_key(), base_url=f"{root}/training/v1/serverless")
 
 
+def snapshot_path(ref: str | None) -> str | None:
+    """`latest` or a checkpoint name (fw-ep2) -> its path from the last train run."""
+    if not ref or "/" in ref or ":" in ref:
+        return ref
+    if not RUN_FILE.exists():
+        sys.exit(f"No training run yet ({RUN_FILE.name} is missing): run `python finetune/serverless.py train` first.")
+    snaps = json.loads(RUN_FILE.read_text(encoding="utf-8"))["snapshots"]
+    if not snaps:
+        sys.exit("The last training run saved no checkpoints.")
+    name = sorted(snaps)[-1] if ref == "latest" else ref
+    if name not in snaps:
+        sys.exit(f"No checkpoint {name!r}; have: {', '.join(sorted(snaps))}")
+    print(f"snapshot {name}: {snaps[name]}")
+    return snaps[name]
+
+
 def make_sampler_runner(base_model: str, snapshot: str | None, max_tokens: int):
     """eval.py runner: row -> (answer, ms, usage), sampling the base model or a snapshot."""
     from fireworks.training import sdk
@@ -255,7 +271,7 @@ def cmd_train(args: argparse.Namespace) -> None:
         print(f"saved {name}: {path}")
     print(f"\nDone: {step} steps in {(time.time() - t0) / 60:.1f} min. Snapshots in {RUN_FILE}.")
     print("The session stays open so the checkpoints can be promoted (idle sessions aren't billed).")
-    print("Next: evaluate with eval.py --system serverless --snapshot <path>, then `serverless.py promote`.")
+    print("Next: evaluate with eval.py --system serverless --snapshot latest, then `serverless.py promote`.")
 
 
 def cmd_promote(args: argparse.Namespace) -> None:

@@ -97,7 +97,7 @@ python finetune/serverless.py check              # 3 answers from the base model
 python finetune/serverless.py train --limit-train 64 --yes    # paid smoke run, about $0.13
 python finetune/serverless.py train              # full run: asks before spending
 python finetune/eval.py --system serverless --split test_real --split test_synth --name sl-base-q36
-python finetune/eval.py --system serverless --snapshot <fw-ep2 path from results/serverless_run.json> \
+python finetune/eval.py --system serverless --snapshot latest \
     --split test_real --split test_synth --name sl-ft-q36
 python finetune/serverless.py promote --as first-witness-call-q36   # register as a model (deploying it needs a card)
 ```

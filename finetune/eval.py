@@ -203,7 +203,8 @@ def main() -> None:
     ap.add_argument("--system", choices=["gold", "baseline", "model", "serverless"])
     ap.add_argument("--split", action="append", help="test_real | test_synth | val (repeatable)")
     ap.add_argument("--model", help="model id; for --system serverless, the base model")
-    ap.add_argument("--snapshot", help="--system serverless: sampler checkpoint path from serverless.py train")
+    ap.add_argument("--snapshot", help="--system serverless: `latest`, a checkpoint name (fw-ep1) "
+                                       "or a path from results/serverless_run.json")
     ap.add_argument("--name", help="label for the results files")
     ap.add_argument("--base-url", default="https://api.fireworks.ai/inference/v1")
     ap.add_argument("--key-env", default="FIREWORKS_API_KEY")
@@ -229,8 +230,9 @@ def main() -> None:
         runner, workers = run_baseline, 1
     elif args.system == "serverless":
         # Fireworks serverless training pool: base model or a fine-tuned snapshot, no deployment.
-        from serverless import BASE_MODEL, make_sampler_runner
+        from serverless import BASE_MODEL, make_sampler_runner, snapshot_path
         args.model = args.model or BASE_MODEL
+        args.snapshot = snapshot_path(args.snapshot)
         runner, workers = make_sampler_runner(args.model, args.snapshot, args.max_tokens), args.workers
     else:
         if not args.model:
