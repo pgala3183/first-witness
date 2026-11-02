@@ -126,6 +126,22 @@ python3 finetune/eval.py --system model --model <large-teacher-id> --split test_
 python3 finetune/eval.py --compare finetune/results/*_test_real.json
 ```
 
+### Is the gain real?
+
+```bash
+# Every system against the router on test_real (the router can't answer test_synth: n=0)
+python3 finetune/stats.py finetune/results/baseline_test_real.jsonl \
+    finetune/results/base-4b_test_real.jsonl finetune/results/ft-4b_test_real.jsonl
+# The fine-tune against its own prompted base: the before/after the rubric asks for
+python3 finetune/stats.py finetune/results/base-4b_test_real.jsonl finetune/results/ft-4b_test_real.jsonl --out finetune/results/stats_ft_vs_base_real
+python3 finetune/stats.py finetune/results/base-4b_test_synth.jsonl finetune/results/ft-4b_test_synth.jsonl --out finetune/results/stats_ft_vs_base_synth
+```
+
+McNemar (exact, on the disagreements) and a cluster bootstrap (resamples whole
+Seville seconds / synthetic snapshots, 5,000 times). A gain is real only when both
+agree. Writes a markdown table and two charts per run. Results files from before
+`id`/`cluster` were added must be re-run through `eval.py`.
+
 Add `--price-in/--price-out` (USD per 1M tokens) to get cost per 1,000 answers.
 Read `results/<name>_<split>.jsonl` for every failed answer and why it failed.
 Add `--no-think` if you evaluate a hybrid Qwen3 model that thinks by default.
