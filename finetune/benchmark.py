@@ -128,6 +128,8 @@ def _eval(m: dict[str, Any], model: str, name: str, splits: tuple[str, ...], lim
         cmd.append("--no-think")
     if m.get("reasoning_effort"):
         cmd += ["--reasoning-effort", m["reasoning_effort"]]
+    if m.get("snapshot"):
+        cmd += ["--snapshot", m["snapshot"]]
     if m.get("price_in") or m.get("price_out"):
         cmd += ["--price-in", str(m.get("price_in", 0)), "--price-out", str(m.get("price_out", 0))]
     return subprocess.call(cmd)
@@ -282,8 +284,9 @@ def cmd_report(args: argparse.Namespace) -> None:
         sys.exit("No benchmark results yet: run `python finetune/benchmark.py run` first.")
     rows.sort(key=lambda r: -(r[1]["pass_rate"] or 0))
 
-    lines = ["# Call-agent benchmark (prompted, no fine-tune)", "",
-             f"Same system prompt and held-out questions for every model. Pass = no false promise, "
+    lines = ["# Call-agent benchmark", "",
+             f"Same system prompt and held-out questions for every model; all are prompted except the "
+             f"fine-tuned row. Pass = no false promise, "
              f"no made-up fact, and the required facts present. Latency budget: {BUDGET_MS:.0f} ms p95.", "",
              "| Model | Role | Pass (both) | test_real | test_synth | Honesty | False promises | Made-up facts "
              "| p50 ms | p95 ms | $/1k answers | Errors | Blank |",
@@ -302,6 +305,19 @@ def cmd_report(args: argparse.Namespace) -> None:
             f"| {_cell(s['false_promise_rate'], '%')} | {_cell(s['made_up_fact_rate'], '%')} "
             f"| {_cell(s['latency_ms_p50'])} | {_cell(s['latency_ms_p95'])} | {cost} "
             f"| {_cell(s['error_rate'], '%')} | {_cell(s['empty_rate'], '%')} |")
+
+    tuned = [(m, s) for m, s in rows if m["role"] == "fine-tuned"]
+    for m, s in tuned:
+        base_s = next((bs for bm, bs in rows if bm["role"] == "candidate" and bm["id"] == m["id"]), None)
+        top = next(((rm, rs) for rm, rs in rows if rm["role"] == "reference"), None)
+        lines += ["", "## Result", f"**{m['name']}: {s['pass_rate']}% pass**, "
+                  f"{s['false_promise_rate']}% false promises, {s['made_up_fact_rate']}% made-up facts."]
+        if base_s:
+            lines.append(f"- vs the same model prompted: {base_s['pass_rate']}% -> {s['pass_rate']}% "
+                         f"({s['pass_rate'] - base_s['pass_rate']:+.1f} points).")
+        if top:
+            lines.append(f"- vs the best frontier model ({top[0]['name']}, {top[1]['pass_rate']}%): "
+                         f"{s['pass_rate'] - top[1]['pass_rate']:+.1f} points.")
 
     ok = [(m, s) for m, s in rows
           if m["role"] == "candidate" and (s["error_rate"] or 0) < 5 and (s["empty_rate"] or 0) < 5]
