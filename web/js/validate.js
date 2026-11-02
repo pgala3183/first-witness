@@ -179,6 +179,8 @@ export function validateEvent(raw) {
         speaker: raw.speaker,
         text,
         ts: isOptStr(raw.ts) ? raw.ts : null,
+        source: isStr(raw.source) ? raw.source : "",
+        model: isStr(raw.model) ? raw.model : "",
       };
     }
     case "tool.call_live": {

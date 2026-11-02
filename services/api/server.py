@@ -199,6 +199,26 @@ class ApiServer:
         if method == "POST" and path.split("?", 1)[0].startswith("/api/"):
             await self._api_post(reader, writer, path.split("?", 1)[0], headers)
             return
+        if method == "GET" and path.startswith("/voice/say"):
+            # Console speaker: ElevenLabs MP3 for one call line. No phone involved.
+            from urllib.parse import parse_qs, urlparse
+
+            from services.voice.speak import say, status as speak_status
+
+            qs = parse_qs(urlparse(path).query)
+            if qs.get("check"):
+                await self._http_json(writer, 200, speak_status())
+                return
+            code, audio, ctype = await asyncio.to_thread(
+                say, (qs.get("text") or [""])[0], (qs.get("who") or ["fw"])[0]
+            )
+            await self._http_raw(
+                writer,
+                code,
+                audio,
+                extra={"Content-Type": ctype, "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store"},
+            )
+            return
         if method == "GET" and (path == "/voice/status" or path.startswith("/voice/status?")):
             from services.voice.elevenlabs import status as tts_status
             from services.voice.signalwire_bridge import service_ready, status as signalwire_status
@@ -679,7 +699,7 @@ class ApiServer:
         *,
         extra: dict[str, str] | None = None,
     ) -> None:
-        reason = {200: "OK", 201: "Created", 204: "No Content", 400: "Bad Request", 404: "Not Found", 409: "Conflict", 413: "Content Too Large", 416: "Range Not Satisfiable", 503: "Unavailable"}.get(
+        reason = {200: "OK", 201: "Created", 204: "No Content", 400: "Bad Request", 404: "Not Found", 409: "Conflict", 413: "Content Too Large", 502: "Bad Gateway", 416: "Range Not Satisfiable", 503: "Unavailable"}.get(
             code, "OK"
         )
         headers = {

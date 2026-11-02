@@ -471,7 +471,7 @@ export function mountOperator(root, store, actions) {
     body.appendChild(
       el("p", {
         className: "dismiss__lead",
-        text: "Places the 911 call for this incident.",
+        text: "Calls campus police dispatch for this incident.",
       }),
     );
     if (inc.severity !== "SEVERE") {

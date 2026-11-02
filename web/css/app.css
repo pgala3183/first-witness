@@ -8464,3 +8464,22 @@ body.route-live {
 .page--live .cam-slot--main .cam-tile__osd--bl {
   font-size: 11px;
 }
+
+/* Honesty: a First Witness line that declines to guess. */
+.cv-group--self .cv-bubble.cv-bubble--honest {
+  border-color: #2a7de1;
+  box-shadow: inset 3px 0 0 #2a7de1;
+}
+.cv-src {
+  align-self: flex-end;
+  margin: -2px 4px 4px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #6b7280;
+}
+.cv-src--guard {
+  color: #b45309;
+}
+/* Call speaker toggle */
+.lc-speak { margin-left: auto; margin-right: 8px; font-size: 11px; white-space: nowrap; }
+.lc-speak.is-on { background: #2a7de1; border-color: #2a7de1; color: #fff; }
