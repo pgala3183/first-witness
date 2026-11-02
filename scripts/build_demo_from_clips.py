@@ -47,26 +47,43 @@ FEEDS = ROOT / "data" / "feeds"
 CACHE = ROOT / "data" / "runtime" / "vlm_cache.json"
 FPS = 5
 # Story order. `src` is a glob in data/clips; `out` is the synced feed the app plays.
+# `view` tells the vision model what the camera looks at, so it can describe movement in
+# building directions a dispatcher can use, not positions in the picture.
 CAMERAS = [
     {"camera_id": "CAM-01", "src": "*1.53.43 PM.mp4", "out": "CAM01_lobby_entrance.mp4",
-     "location": "Lobby entrance", "seville_label": "CAM5", "place": "the ground-floor lobby"},
+     "location": "Lobby entrance", "seville_label": "CAM5", "place": "the ground-floor lobby",
+     "view": "the ground-floor lobby, looking at the glass entrance doors. Walking toward the doors means heading "
+             "for the exit; walking away from the doors means heading into the building, toward the corridors"},
     {"camera_id": "CAM-02", "src": "*1.52.58 PM.mp4", "out": "CAM02_hallway_east.mp4",
      "location": "Yellow hallway east", "seville_label": "CAM1",
-     "place": "the east corridor on the ground floor"},
+     "place": "the east corridor on the ground floor",
+     "view": "a long corridor, looking down it from the lobby end. Walking away from the camera means going further "
+             "down the corridor, deeper into the building; walking toward it means heading back toward the lobby"},
     {"camera_id": "CAM-03", "src": "*1.52.32 PM.mp4", "out": "CAM03_hallway_west.mp4",
      "location": "Yellow hallway west", "seville_label": "CAM1",
-     "place": "the west corridor near the stairwell"},
+     "place": "the west corridor near the stairwell",
+     "view": "a long corridor near the stairwell. Walking away from the camera means going further down the "
+             "corridor toward the stairwell; walking toward it means heading back toward the east corridor"},
 ]
 VLM = "accounts/fireworks/models/deepseek-v4p1-flash-1017"
 VLM_EVERY = 2  # frames: 2.5 samples per second
 PROMPT = (
     "Security camera frame. Find every weapon visible: handgun, rifle (any long gun) or knife. Look closely at every "
     "hand; small dark handguns held low count too. Reply ONLY JSON: {\"weapons\":[{\"type\":\"handgun|rifle|knife\","
-    "\"bbox_2d\":[x1,y1,x2,y2],\"holder_bbox_2d\":[x1,y1,x2,y2],\"holder\":\"male|female, build, top, bottom, hair\"}],"
-    "\"scene\":\"one plain sentence: how many people and what they are doing\","
-    "\"movement\":\"one plain sentence: which way the people are moving, or No movement.\"} "
+    "\"bbox_2d\":[x1,y1,x2,y2],\"holder_bbox_2d\":[x1,y1,x2,y2],\"holder\":\"male|female, build, top, bottom, hair\"}]} "
     "Coordinates on a 0-1000 scale. Empty weapons list if none."
 )
+# Once per second: what is happening, in words a dispatcher can repeat.
+SCENE_PROMPT = (
+    "Security camera in a university building. This camera shows {view}. Describe the frame for a 911 dispatcher "
+    "who cannot see it. Never use positions in the picture: no left, right, foreground, background, top, bottom, "
+    "corner, frame, or toward/away from the camera. Use the building instead: doors, entrance, exit, corridor, "
+    "lobby, stairwell. Reply ONLY JSON: {{\"scene\":\"one plain sentence: how many people and what they are doing\","
+    "\"movement\":\"one plain sentence: where they are heading in the building, or No one is moving.\"}}"
+)
+# Picture-relative wording a dispatcher can't use; such a sentence is dropped.
+PICTURE_WORDS = re.compile(r"\b(left|right|foreground|background|top|bottom|upper|lower|corner|edge|frame|screen|"
+                           r"camera|viewer)\b", re.I)
 
 
 def _ffmpeg() -> str:
@@ -108,11 +125,22 @@ def build_feeds() -> tuple[list[dict[str, Any]], int, int, int]:
     cap = cv2.VideoCapture(str(CAMERAS[0]["path"]))
     w, h = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     cap.release()
+    # What each feed was built from: an unchanged feed is not rewritten, so rebuilding
+    # only the timing data never disturbs a running API.
+    stamp_path = CLIPS / ".feeds.json"
+    stamps = json.loads(stamp_path.read_text(encoding="utf-8")) if stamp_path.exists() else {}
     for cam in CAMERAS:
         out = CLIPS / cam["out"]
+        stamp = {"src": cam["path"].name, "size": cam["path"].stat().st_size, "start": cam["start"],
+                 "n": cam["n"], "total": total, "w": w, "h": h}
+        if out.exists() and stamps.get(cam["out"]) == stamp:
+            print(f"{cam['camera_id']}: {out.name} up to date")
+            continue
+        # Written next to the feed and swapped in whole: a reader never sees a half-written file.
+        tmp = out.with_name(out.stem + ".part.mp4")
         cmd = [_ffmpeg(), "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}",
                "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "veryfast",
-               "-crf", "23", "-g", str(FPS), "-movflags", "+faststart", str(out)]
+               "-crf", "23", "-g", str(FPS), "-movflags", "+faststart", str(tmp)]
         proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
         cap = cv2.VideoCapture(str(cam["path"]))
         ok, first = cap.read()
@@ -133,6 +161,12 @@ def build_feeds() -> tuple[list[dict[str, Any]], int, int, int]:
         proc.stdin.close()
         if proc.wait() != 0:
             sys.exit(f"ffmpeg failed for {out}")
+        try:
+            os.replace(tmp, out)
+        except PermissionError:
+            sys.exit(f"{out.name} is open in another program (the API?). Stop it, then run this again.")
+        stamps[cam["out"]] = stamp
+        stamp_path.write_text(json.dumps(stamps, indent=1), encoding="utf-8")
         print(f"{cam['camera_id']}: {cam['path'].name} -> {out.name}  live {cam['start'] / FPS:.1f}-"
               f"{(cam['start'] + cam['n']) / FPS:.1f} s of {total / FPS:.1f} s")
     return CAMERAS, total, w, h
@@ -159,12 +193,12 @@ def write_manifest(total: int) -> None:
 
 # ---------------------------------------------------------------- vision model
 
-def _ask(job: tuple[str, int, bytes]) -> tuple[str, dict[str, Any] | None]:
-    key, _, jpg = job
+def _ask(job: tuple[str, str, bytes]) -> tuple[str, dict[str, Any] | None]:
+    key, prompt, jpg = job
     body = {"model": VLM, "temperature": 0, "max_tokens": 500, "reasoning_effort": "none", "messages": [{
         "role": "user", "content": [
             {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + base64.b64encode(jpg).decode()}},
-            {"type": "text", "text": PROMPT}]}]}
+            {"type": "text", "text": prompt}]}]}
     req = urllib.request.Request("https://api.fireworks.ai/inference/v1/chat/completions",
                                  data=json.dumps(body).encode(), headers={
                                      "Authorization": "Bearer " + os.environ["FIREWORKS_API_KEY"],
@@ -181,19 +215,26 @@ def _ask(job: tuple[str, int, bytes]) -> tuple[str, dict[str, Any] | None]:
 
 
 def vlm_pass(w: int, h: int) -> dict[str, Any]:
+    """Weapons on every VLM_EVERY-th frame; scene + movement once per second."""
     cache: dict[str, Any] = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
     jobs = []
     for cam in CAMERAS:
         cap = cv2.VideoCapture(str(cam["path"]))
+        scene_prompt = SCENE_PROMPT.format(view=cam["view"])
         for i in range(cam["n"]):
             ok, bgr = cap.read()
             if not ok:
                 break
-            key = f"{cam['path'].name}:{i}"  # by source clip, so swapping a camera's clip never reuses labels
-            if i % VLM_EVERY or key in cache:
+            # Keyed by source clip, so swapping a camera's clip never reuses labels.
+            want = []
+            if i % VLM_EVERY == 0 and f"{cam['path'].name}:{i}" not in cache:
+                want.append((f"{cam['path'].name}:{i}", PROMPT))
+            if i % FPS == 0 and f"scene:{cam['camera_id']}:{cam['path'].name}:{i}" not in cache:
+                want.append((f"scene:{cam['camera_id']}:{cam['path'].name}:{i}", scene_prompt))
+            if not want:
                 continue
             jpg = cv2.imencode(".jpg", cv2.resize(bgr, (w, h)), [cv2.IMWRITE_JPEG_QUALITY, 90])[1].tobytes()
-            jobs.append((key, i, jpg))
+            jobs += [(key, prompt, jpg) for key, prompt in want]
         cap.release()
     print(f"vision model: {len(jobs)} new frames ({len(cache)} cached)")
     done = 0
@@ -284,9 +325,19 @@ def write_timeline_and_script(cache: dict[str, Any], total: int, w: int, h: int,
 
     place = {c["camera_id"]: c["place"] for c in CAMERAS}
     seconds = []
-    last: dict[str, Any] = {"scene": "", "movement": ""}
+    last: dict[str, str] = {"scene": "", "movement": ""}
+    dropped = 0
     for t in range(total // FPS + (1 if total % FPS else 0)):
-        cam = next(c["camera_id"] for c in CAMERAS if c["start"] <= t * FPS < c["start"] + c["n"])
+        c = next(c for c in CAMERAS if c["start"] <= t * FPS < c["start"] + c["n"])
+        cam = c["camera_id"]
+        local = max(0, (t * FPS - c["start"]) // FPS * FPS)
+        said = cache.get(f"scene:{cam}:{c['path'].name}:{local}") or {}
+        for field in ("scene", "movement"):
+            text = str(said.get(field) or "").strip()
+            if text and not PICTURE_WORDS.search(text):
+                last[field] = text
+            elif text:
+                dropped += 1  # picture wording: keep the last good sentence instead
         samples = [s for s in per_sec.get(t, []) if s[0] == cam]
         weapons: dict[str, int] = {}
         armed: list[dict[str, str]] = []
@@ -298,17 +349,16 @@ def write_timeline_and_script(cache: dict[str, Any], total: int, w: int, h: int,
                 weapons[k] = max(weapons.get(k, 0), n)
             if len(wpns) >= len(armed):
                 armed = [{"weapon": x["type"], "person": x["person"]} for x in wpns]
-            last = {"scene": str(ans.get("scene") or last["scene"]),
-                    "movement": str(ans.get("movement") or last["movement"])}
         n_people = max(people.get(t, 0), sum(weapons.values()))
         seconds.append({"t": t, "camera": cam, "place": place[cam], "people": n_people, "weapons": weapons,
                         "armed": armed, "scene": last["scene"], "movement": last["movement"]})
     (FEEDS / "seville_scene_script.json").write_text(json.dumps({
-        "source": f"YOLO26s-pose people counts; weapons, holders and scene from {VLM} "
+        "source": f"YOLO26s-pose people counts; weapons, holders, scene and movement from {VLM} "
                   "(scripts/build_demo_from_clips.py)", "seconds": seconds}, indent=1) + "\n", encoding="utf-8")
     armed_s = sum(1 for s in seconds if s["weapons"])
     print(f"scene script: {len(seconds)} s, weapons visible in {armed_s} s; "
-          f"timeline: {sum(len(v) for v in timeline.values())} annotated frames")
+          f"timeline: {sum(len(v) for v in timeline.values())} annotated frames; "
+          f"{dropped} sentences dropped for picture wording")
 
 
 def main() -> None:

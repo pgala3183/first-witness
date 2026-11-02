@@ -1,5 +1,5 @@
 {
- "source": "YOLO26s-pose people counts; weapons, holders and scene from accounts/fireworks/models/deepseek-v4p1-flash-1017 (scripts/build_demo_from_clips.py)",
+ "source": "YOLO26s-pose people counts; weapons, holders, scene and movement from accounts/fireworks/models/deepseek-v4p1-flash-1017 (scripts/build_demo_from_clips.py)",
  "seconds": [
   {
    "t": 0,
@@ -8,8 +8,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "One person is partially visible at the lower left, standing near a blue bin by the doorway.",
-   "movement": "No movement."
+   "scene": "No people are visible in the lobby.",
+   "movement": "No one is moving."
   },
   {
    "t": 1,
@@ -18,8 +18,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are walking through a lobby toward an open glass door.",
-   "movement": "The people are moving from the left side of the frame toward the door on the right."
+   "scene": "One person is walking through the lobby near the entrance doors.",
+   "movement": "The person is heading toward the exit doors."
   },
   {
    "t": 2,
@@ -28,8 +28,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two men are walking through a tiled entryway near an open glass door and a row of tall cabinets.",
-   "movement": "Both men are moving from left to right across the frame."
+   "scene": "Two people are in the lobby, a woman standing near the corridor and a man walking across the floor.",
+   "movement": "The man is heading toward the exit doors while the woman remains near the corridor."
   },
   {
    "t": 3,
@@ -45,8 +45,8 @@
      "person": "male, medium build, light blue t-shirt, dark pants, short hair"
     }
    ],
-   "scene": "Two men are standing in a hallway near a glass door, one facing the camera and one facing away.",
-   "movement": "No movement."
+   "scene": "Two men are walking through the lobby, one in a black shirt and shorts and the other in a blue shirt and dark pants.",
+   "movement": "Both men are heading toward the glass entrance doors to exit the building."
   },
   {
    "t": 4,
@@ -62,8 +62,8 @@
      "person": "male, medium build, blue t-shirt, black pants, short brown hair"
     }
    ],
-   "scene": "Two men are in a hallway, one standing near a door and the other walking toward the camera.",
-   "movement": "The man in the blue shirt is walking toward the camera while the other man stands still."
+   "scene": "Two men are in the lobby, one standing on a mat near the entrance and the other walking across the floor.",
+   "movement": "The man on the mat is heading toward the exit doors, and the other man is heading into the building toward the corridors."
   },
   {
    "t": 5,
@@ -79,8 +79,8 @@
      "person": "male, medium build, light blue t-shirt, dark jeans, short dark hair"
     }
    ],
-   "scene": "Two men are standing and walking near a doorway and large cabinets in a hallway.",
-   "movement": "The man in the black shirt walks toward the doorway while the man in the blue shirt turns and moves toward the right."
+   "scene": "Two men are walking through the lobby, with one man in a blue t-shirt holding a folder and the other in a black t-shirt following behind.",
+   "movement": "Both men are heading toward the glass entrance doors to exit the building."
   },
   {
    "t": 6,
@@ -97,8 +97,8 @@
      "person": "male, slim, light blue t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Two men stand facing each other near a doorway, one holding a knife at his side.",
-   "movement": "The man in the blue shirt is stepping toward the man in the black shirt."
+   "scene": "Two men are standing in the lobby, one in a black t-shirt and shorts and the other in a light blue shirt and dark pants holding a small object.",
+   "movement": "The man in the black t-shirt is heading for the exit through the glass entrance doors, and the man in the blue shirt is heading into the building toward the corridors."
   },
   {
    "t": 7,
@@ -114,8 +114,8 @@
      "person": "male, slim, black t-shirt, black shorts, black cap"
     }
    ],
-   "scene": "Two men stand near a doorway, one in a black t-shirt and cap facing the other in a light blue shirt.",
-   "movement": "The man in the black t-shirt is walking toward the doorway while the man in the blue shirt stands still."
+   "scene": "Two young men are standing in the lobby near the glass entrance doors, one in a black t-shirt and shorts and the other in a light blue t-shirt and dark pants.",
+   "movement": "The man in the light blue t-shirt is walking toward the entrance doors, heading for the exit, while the man in the black t-shirt stands near the doors."
   },
   {
    "t": 8,
@@ -131,8 +131,8 @@
      "person": "male, medium build, light blue t-shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "Two men stand near a doorway, one in a black t-shirt and the other in a light blue t-shirt holding a handgun at his side.",
-   "movement": "No movement."
+   "scene": "Two people are standing near the glass entrance doors in the lobby, one in a black t-shirt and shorts and the other in a light blue t-shirt and dark pants.",
+   "movement": "The person in the light blue t-shirt is walking toward the exit doors while the other person stands near the entrance."
   },
   {
    "t": 9,
@@ -148,8 +148,8 @@
      "person": "male, slim, light blue t-shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "Two men are standing near a doorway and a row of tall cabinets in a hallway.",
-   "movement": "No movement."
+   "scene": "Two men are standing together in the lobby near the glass entrance doors.",
+   "movement": "No one is moving."
   },
   {
    "t": 10,
@@ -165,8 +165,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, short dark hair"
     }
    ],
-   "scene": "Two men stand near a doorway, one holding a handgun while the other watches.",
-   "movement": "No movement."
+   "scene": "Two men are standing together in the lobby near the glass entrance doors, one in a black t-shirt and the other in a light blue shirt.",
+   "movement": "They appear to be pausing near the entrance, with the man in the blue shirt facing the doors and the other man facing the lobby."
   },
   {
    "t": 11,
@@ -182,8 +182,8 @@
      "person": "male, medium build, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Two men stand near a doorway, one holding a handgun while the other faces him.",
-   "movement": "No movement."
+   "scene": "Two men are standing and talking near the glass entrance doors in the lobby.",
+   "movement": "No one is moving."
   },
   {
    "t": 12,
@@ -200,8 +200,8 @@
      "person": "male, medium build, light blue t-shirt, dark pants, short brown hair"
     }
    ],
-   "scene": "Two men are walking through an indoor hallway, one in a black t-shirt and the other in a light blue t-shirt.",
-   "movement": "Both men are moving forward toward the camera."
+   "scene": "Two men are walking through the lobby, one in a black t-shirt and shorts and the other in a light blue t-shirt and dark pants.",
+   "movement": "Both men are heading for the exit through the glass entrance doors."
   },
   {
    "t": 13,
@@ -218,8 +218,8 @@
      "person": "male, medium build, light blue t-shirt, dark pants, short brown hair"
     }
    ],
-   "scene": "Two men are walking through a tiled entryway, one in a black t-shirt and one in a light blue t-shirt holding a handgun.",
-   "movement": "Both men are moving forward toward the camera."
+   "scene": "Two men are walking through the lobby, one in a black t-shirt and shorts and the other in a blue t-shirt and dark pants.",
+   "movement": "Both men are heading toward the glass entrance doors to exit the building."
   },
   {
    "t": 14,
@@ -235,8 +235,8 @@
      "person": "male, medium build, black t-shirt, black shorts, short dark hair"
     }
    ],
-   "scene": "Two men are walking through an indoor hallway toward the camera, the front one holding a handgun at his side.",
-   "movement": "Both people are moving forward toward the camera."
+   "scene": "Two men are walking through the lobby, with the leading man in a black t-shirt and shorts holding a phone and the second man in a grey t-shirt following behind.",
+   "movement": "Both men are heading for the exit through the glass entrance doors."
   },
   {
    "t": 15,
@@ -252,8 +252,8 @@
      "person": "male, medium build, light blue t-shirt, dark jeans, short brown hair"
     }
    ],
-   "scene": "Two men are walking through a tiled entryway near a glass door and tall cabinets.",
-   "movement": "Both men are moving toward the right side of the frame."
+   "scene": "Two men are walking through the lobby, with the man in the black t-shirt holding a phone and the man in the blue t-shirt carrying a lanyard.",
+   "movement": "Both men are heading toward the glass entrance doors to exit the building."
   },
   {
    "t": 16,
@@ -270,8 +270,8 @@
      "person": "male, medium build, light blue t-shirt, dark jeans, short brown hair"
     }
    ],
-   "scene": "Two men are standing in a hallway, one holding a handgun at his side, while a third person is partially visible at the left edge.",
-   "movement": "The man in the blue shirt is walking toward the right, and the man in the black shirt is walking toward the left."
+   "scene": "Two men are standing and talking in the lobby near the glass entrance doors.",
+   "movement": "No one is moving."
   },
   {
    "t": 17,
@@ -287,8 +287,8 @@
      "person": "male, medium build, light blue t-shirt, dark jeans, short brown hair"
     }
    ],
-   "scene": "Four men are standing and talking in a tiled room near a doorway and some tall cabinets.",
-   "movement": "The man in the red shirt walks toward the left, while the others stand mostly still."
+   "scene": "Four people are standing and walking in the lobby near the glass entrance doors and a row of tall cabinets.",
+   "movement": "Two people are heading toward the exit doors, while two others are standing near the corridor."
   },
   {
    "t": 18,
@@ -304,8 +304,8 @@
      "person": "male, medium build, light blue t-shirt, dark jeans, short dark hair"
     }
    ],
-   "scene": "Five men stand and walk in a tiled entryway near a glass door and tall cabinets.",
-   "movement": "The men are moving in various directions: one walks left, one walks right, and others stand or step toward the door."
+   "scene": "Five men are standing in the lobby, with one in a red shirt and one in a black t-shirt facing each other while the others stand nearby.",
+   "movement": "The man in the red shirt and the man in the black t-shirt near the entrance appear to be heading toward the exit, while the others stand near the corridor."
   },
   {
    "t": 19,
@@ -321,8 +321,8 @@
      "person": "male, medium build, red polo shirt, blue jeans, short brown hair"
     }
    ],
-   "scene": "Six men stand in a hallway near a doorway and large cabinets, one holding a handgun at his side.",
-   "movement": "The man in the red shirt walks toward the right while the others stand mostly still."
+   "scene": "Five men are standing and walking in the lobby near the glass entrance doors, with two large gray cabinets along the wall.",
+   "movement": "One man in a red shirt is heading toward the exit, while the others are standing or moving near the entrance and corridor."
   },
   {
    "t": 20,
@@ -338,8 +338,8 @@
      "person": "male, slim, light blue t-shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "Seven men stand in a hallway near large cabinets, some facing each other as if talking.",
-   "movement": "Mostly standing still, with slight shifting and turning toward each other."
+   "scene": "About eight people are standing and walking in the lobby near the glass entrance doors and a row of tall cabinets.",
+   "movement": "Several people are heading toward the exit doors while others are moving into the lobby from the entrance."
   },
   {
    "t": 21,
@@ -356,8 +356,8 @@
      "person": "male, medium build, black t-shirt, khaki shorts, short dark hair"
     }
    ],
-   "scene": "Seven men are standing and walking in a hallway near a doorway and large cabinets.",
-   "movement": "The men are moving generally toward the right side of the frame."
+   "scene": "Nine men are standing and walking in the lobby, some in conversation and others in motion.",
+   "movement": "Several men are heading toward the glass entrance doors to exit, while others are moving into the building toward the corridors."
   },
   {
    "t": 22,
@@ -373,8 +373,8 @@
      "person": "male, slim, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Seven men stand and talk in a hallway near a glass door and tall cabinets.",
-   "movement": "No movement."
+   "scene": "Nine men are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "Several men are heading toward the exit through the doors, while others are moving into the building toward the corridors."
   },
   {
    "t": 23,
@@ -390,8 +390,8 @@
      "person": "male, medium build, black t-shirt, tan shorts, dark hair"
     }
    ],
-   "scene": "Eight men stand in a tiled room near a glass door and large cabinets, talking in a group.",
-   "movement": "No movement."
+   "scene": "Seven men are standing and talking in the lobby near the glass entrance doors and a row of tall cabinets.",
+   "movement": "No one is moving."
   },
   {
    "t": 24,
@@ -400,8 +400,8 @@
    "people": 8,
    "weapons": {},
    "armed": [],
-   "scene": "Eight men stand and talk in a tiled room near a glass door and tall cabinets.",
-   "movement": "No movement."
+   "scene": "Nine men are standing and walking in the lobby, some near the glass entrance doors and others near the corridor and stairwell.",
+   "movement": "Several men are heading for the exit through the glass doors, while others are heading into the building toward the corridors."
   },
   {
    "t": 25,
@@ -417,8 +417,8 @@
      "person": "male, medium build, light blue long-sleeve shirt, dark trousers, dark hair"
     }
    ],
-   "scene": "Eight men stand and talk in a hallway near a glass door and tall cabinets.",
-   "movement": "Mostly standing still, with slight shifting and turning toward each other."
+   "scene": "Nine men are standing and talking in the lobby near the glass entrance doors.",
+   "movement": "No one is moving."
   },
   {
    "t": 26,
@@ -434,8 +434,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Seven men stand and walk in a tiled hallway near a glass door and gray cabinets.",
-   "movement": "The men are moving generally toward the left and center of the hallway."
+   "scene": "Nine men are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "Several men are heading toward the exit doors, while others are moving into the building toward the corridors."
   },
   {
    "t": 27,
@@ -451,8 +451,8 @@
      "person": "male, slim, light blue t-shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Eight men stand and walk in a tiled hallway near a glass door and large cabinets.",
-   "movement": "People are moving generally toward the left and toward the glass door."
+   "scene": "Eight people are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "Several people are heading toward the exit doors while others are heading into the building toward the corridors."
   },
   {
    "t": 28,
@@ -468,8 +468,8 @@
      "person": "male, slim, dark blue t-shirt, light blue jeans, short dark hair"
     }
    ],
-   "scene": "Seven men are standing and walking in a hallway near a glass door and some large cabinets.",
-   "movement": "The men are generally moving towards the left side of the hallway."
+   "scene": "Nine men are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "Several men are heading toward the exit doors while others are heading into the building toward the corridors."
   },
   {
    "t": 29,
@@ -478,8 +478,8 @@
    "people": 7,
    "weapons": {},
    "armed": [],
-   "scene": "Seven men stand and talk in a tiled hallway near a glass door and tall cabinets.",
-   "movement": "Mostly standing still, with slight shifting and gesturing among the group."
+   "scene": "Nine people are standing and talking in the lobby near the glass entrance doors.",
+   "movement": "Most people are standing still, while a few appear to be heading toward the entrance or the corridor."
   },
   {
    "t": 30,
@@ -495,8 +495,8 @@
      "person": "male, medium build, black t-shirt, khaki shorts, dark hair"
     }
    ],
-   "scene": "Eight men are standing and walking in a tiled hallway near a glass door and large cabinets.",
-   "movement": "Most people are moving toward the left side of the frame, with one man in a red shirt walking toward the right."
+   "scene": "Nine men are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "Several men are heading toward the exit doors while others are heading into the building toward the corridors."
   },
   {
    "t": 31,
@@ -512,8 +512,8 @@
      "person": "male, medium build, light blue t-shirt, dark jeans, short dark hair"
     }
    ],
-   "scene": "Eight men are standing and walking in a hallway near a glass door and large cabinets.",
-   "movement": "The men are moving generally from the left side of the frame toward the right and toward the door."
+   "scene": "Nine men are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "Several men are heading toward the exit doors while others are heading into the building toward the corridors."
   },
   {
    "t": 32,
@@ -522,8 +522,8 @@
    "people": 9,
    "weapons": {},
    "armed": [],
-   "scene": "Six men are standing and walking in a hallway near a glass door and large cabinets.",
-   "movement": "The men are moving generally from the left side of the frame toward the right and center."
+   "scene": "Nine people are standing and walking in the lobby of a university building near the glass entrance doors.",
+   "movement": "Several people are heading toward the exit doors, while others are moving into the building toward the corridors."
   },
   {
    "t": 33,
@@ -539,8 +539,8 @@
      "person": "male, slim, light blue t-shirt, dark jeans, short dark hair"
     }
    ],
-   "scene": "Six men are standing and walking in a hallway near a glass door and large cabinets.",
-   "movement": "The men are moving generally from the left side of the hallway toward the right and toward the door."
+   "scene": "Six men are walking through the lobby, with one man in a red shirt and another in a black shirt near the large grey columns, while four others are closer to the entrance doors.",
+   "movement": "The group near the doors is heading for the exit, and the men in the red and black shirts are heading into the building toward the corridors."
   },
   {
    "t": 34,
@@ -556,8 +556,8 @@
      "person": "male, medium build, light blue t-shirt, dark jeans, short brown hair"
     }
    ],
-   "scene": "Six men are standing and walking in a hallway near a doorway and large cabinets.",
-   "movement": "The men appear to be moving generally toward the left side of the hallway."
+   "scene": "Six men are standing in the lobby, with one man in a red shirt facing the others as they look in his direction.",
+   "movement": "The group is gathered near the entrance, with the man in the red shirt facing the others while they appear to be pausing or conversing in the lobby."
   },
   {
    "t": 35,
@@ -573,8 +573,8 @@
      "person": "male, slim, light blue t-shirt, dark jeans, short brown hair"
     }
    ],
-   "scene": "Five men stand in a hallway while a sixth man in a black t-shirt holds a handgun and appears to be speaking to them.",
-   "movement": "The armed man gestures toward the group while the others stand mostly still, with the man in the red shirt walking toward the right."
+   "scene": "Six men are standing and talking in the lobby near the glass entrance doors.",
+   "movement": "No one is moving."
   },
   {
    "t": 36,
@@ -590,8 +590,8 @@
      "person": "male, slim, light blue t-shirt, dark jeans, short brown hair"
     }
    ],
-   "scene": "Five men stand in a hallway talking while one man in a red shirt walks past them.",
-   "movement": "The man in the red shirt is walking toward the right foreground; the others are mostly stationary."
+   "scene": "Six men are standing and talking in the lobby near the glass entrance doors.",
+   "movement": "No one is moving."
   },
   {
    "t": 37,
@@ -611,8 +611,8 @@
      "person": "male, slim, black t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Six men are standing and walking in a hallway near a glass door and large cabinets.",
-   "movement": "The men are moving generally toward the right side of the frame."
+   "scene": "Six men are standing and walking in the lobby near the glass entrance doors, with one man holding a handgun.",
+   "movement": "The man in the red shirt is heading into the building toward the corridors, while the others are gathered near the entrance."
   },
   {
    "t": 38,
@@ -628,8 +628,8 @@
      "person": "male, slim, black t-shirt, dark shorts, dark hair"
     }
    ],
-   "scene": "Five men are standing and walking in a hallway, with one man in a red shirt approaching the group.",
-   "movement": "The group is moving generally toward the right side of the frame while the man in red moves toward them."
+   "scene": "Five men are standing and walking in the lobby near the glass entrance doors, with some holding items.",
+   "movement": "Two men are heading toward the exit through the doors, while the others are moving through the lobby near the corridor."
   },
   {
    "t": 39,
@@ -645,8 +645,8 @@
      "person": "male, slim, black t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Five men are standing and walking in a hallway, one holding a handgun low by his side.",
-   "movement": "The men are moving generally toward the right side of the frame."
+   "scene": "Five men are walking through the lobby, with one in a red shirt and four others in dark clothing near the glass entrance doors.",
+   "movement": "The group is heading toward the exit doors."
   },
   {
    "t": 40,
@@ -666,8 +666,8 @@
      "person": "male, medium, black t-shirt, black shorts, short dark hair"
     }
    ],
-   "scene": "Six men are walking through a lobby area near a glass door and tall cabinets.",
-   "movement": "The men are moving from the doorway toward the left side of the frame."
+   "scene": "Six men are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "One man is heading toward the exit doors while the others are moving into the building toward the corridors."
   },
   {
    "t": 41,
@@ -683,8 +683,8 @@
      "person": "male, slim, black t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Six men stand in a hallway, some looking at phones, near a doorway and large cabinets.",
-   "movement": "Mostly stationary, with one man walking toward the left foreground."
+   "scene": "Six men are standing and walking in the lobby near the glass entrance doors, with one man in a white shirt and jeans stepping briskly and others gathered by the doors and cabinets.",
+   "movement": "The man in the white shirt is heading toward the corridor, while the group near the doors is moving toward the exit."
   },
   {
    "t": 42,
@@ -704,8 +704,8 @@
      "person": "male, heavy, red t-shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Six people stand in a hallway; one man in a red shirt holds a handgun while others stand near a doorway and cabinets.",
-   "movement": "The man in the light shirt walks left toward the doorway while the others stand mostly still."
+   "scene": "Six men are standing and walking in the lobby near the glass entrance doors, with one man in a white shirt and jeans stepping briskly and others gathered by the doors and cabinets.",
+   "movement": "Several people are heading toward the exit doors while others are heading into the building toward the corridors."
   },
   {
    "t": 43,
@@ -721,8 +721,8 @@
      "person": "male, slim, black t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Six people are standing and walking in a hallway near a doorway and large cabinets.",
-   "movement": "The group is generally moving from the doorway toward the left side of the frame."
+   "scene": "Six people are standing and walking in the lobby near the glass entrance doors, with some looking at phones.",
+   "movement": "Several people are heading toward the exit doors while others are heading into the building toward the corridors."
   },
   {
    "t": 44,
@@ -738,8 +738,8 @@
      "person": "male, slim, black t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Six people stand in a hallway; one man in a red shirt faces the others while several look at phones.",
-   "movement": "The group is mostly stationary, with slight shifting toward the doorway."
+   "scene": "Six people are standing or walking in the lobby, several looking at their phones.",
+   "movement": "Two people are heading toward the entrance doors, while the others are standing near the corridor."
   },
   {
    "t": 45,
@@ -755,8 +755,8 @@
      "person": "male, slim, black t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Six people stand in a hallway; one man in a black t-shirt holds a handgun while others stand nearby, and a man in a red shirt faces away.",
-   "movement": "The group is mostly standing still, with slight shifting toward the doorway."
+   "scene": "Six people are standing in the lobby, most of them looking at their phones.",
+   "movement": "Several people are heading toward the exit doors, while others are heading into the building toward the corridors."
   },
   {
    "t": 46,
@@ -776,8 +776,8 @@
      "person": "male, medium build, red t-shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Six people stand in a hallway near a glass door, some looking at phones and others talking.",
-   "movement": "The man in the light shirt walks toward the left while the others stand mostly still."
+   "scene": "Six people are standing in the lobby, with one man in a red shirt holding a handgun and another man in a black shirt holding a long firearm.",
+   "movement": "The armed men are near the entrance doors while the other individuals stand near the corridor."
   },
   {
    "t": 47,
@@ -793,8 +793,8 @@
      "person": "male, medium build, black t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Six people stand in a hallway near a glass door, several looking at phones or talking.",
-   "movement": "Mostly stationary, with slight shifting and turning toward the door."
+   "scene": "Six people are standing or walking in the lobby, some looking at phones, near the glass entrance doors and tall cabinets.",
+   "movement": "One person is heading toward the corridor, while the others are standing near the entrance or moving toward the exit."
   },
   {
    "t": 48,
@@ -814,8 +814,8 @@
      "person": "male, medium, red polo shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Six people stand in a hallway, several holding handguns, while one man in a red shirt faces them.",
-   "movement": "No movement."
+   "scene": "Six men are standing in the lobby, most of them looking at their phones.",
+   "movement": "No one is moving."
   },
   {
    "t": 49,
@@ -839,8 +839,8 @@
      "person": "male, medium, black t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Six people stand in a hallway, several holding handguns, while one man in a red shirt stands with his back to the camera.",
-   "movement": "The armed men are moving toward the man in the red shirt, who is moving away toward the right."
+   "scene": "Six men are standing and walking in the lobby near the glass entrance doors, with one man in a red shirt facing the exit and others gathered by the doors and corridor.",
+   "movement": "The man in the red shirt is heading for the exit, while the other men are moving through the lobby near the entrance and corridor."
   },
   {
    "t": 50,
@@ -856,8 +856,8 @@
      "person": "male, medium build, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Six people are standing and walking in a hallway near a doorway and large cabinets.",
-   "movement": "People are moving generally from the doorway toward the left and foreground."
+   "scene": "Six men are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "Two men are heading toward the exit doors, while the others are heading into the building toward the corridors."
   },
   {
    "t": 51,
@@ -881,8 +881,8 @@
      "person": "male, medium, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Six men are standing in a hallway, several holding handguns, while one man in a light shirt walks toward them.",
-   "movement": "The men are mostly stationary, with the man in the light shirt moving left toward the group."
+   "scene": "Six people are standing or walking in the lobby, with one person in a red shirt and another in a black shirt near the entrance doors.",
+   "movement": "The person in the red shirt is heading into the building toward the corridors, while the others are near the entrance and exit."
   },
   {
    "t": 52,
@@ -898,8 +898,8 @@
      "person": "male, slim, light blue t-shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Nine people stand and walk in a tiled lobby near a glass door and tall cabinets.",
-   "movement": "People are moving generally toward the left and toward the glass door."
+   "scene": "Eight men are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "Several men are heading toward the exit doors while others are moving into the lobby toward the corridors."
   },
   {
    "t": 53,
@@ -915,8 +915,8 @@
      "person": "male, medium build, black t-shirt, black pants, short black hair"
     }
    ],
-   "scene": "Nine men stand in a hallway, several facing each other as if in a confrontation or discussion.",
-   "movement": "The men are mostly standing still, with slight shifting and one man walking toward the group from the right."
+   "scene": "About ten people are standing and walking in the lobby near the glass entrance doors and a row of tall cabinets.",
+   "movement": "Several people are heading toward the exit doors while others are moving into the lobby toward the corridors."
   },
   {
    "t": 54,
@@ -932,8 +932,8 @@
      "person": "male, slim, black t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Nine men stand and talk in a tiled hallway near a glass door, one holding a small object in his hand.",
-   "movement": "Mostly standing still, with slight shifting and gesturing among the group."
+   "scene": "About ten people are standing and talking in small groups in the lobby near the glass entrance doors.",
+   "movement": "No one is moving."
   },
   {
    "t": 55,
@@ -949,8 +949,8 @@
      "person": "male, medium build, light blue shirt, dark pants, dark hair"
     }
    ],
-   "scene": "About nine people are gathered near a doorway, some entering and others standing around.",
-   "movement": "People are moving toward and through the doorway, with some walking left across the room."
+   "scene": "About ten people are standing and talking in small groups in the lobby near the glass entrance doors.",
+   "movement": "Most people are standing still, while a few near the doors appear to be heading toward the exit."
   },
   {
    "t": 56,
@@ -966,8 +966,8 @@
      "person": "male, medium build, red polo shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Nine people are gathered in a hallway, most standing near a doorway while one man in a red shirt walks toward the camera.",
-   "movement": "The man in the red shirt moves toward the lower right foreground while the others stand or move near the doorway."
+   "scene": "About ten people are standing and walking in the lobby near the glass entrance doors.",
+   "movement": "Several people are heading for the exit through the doors, while others are heading into the building toward the corridors."
   },
   {
    "t": 57,
@@ -983,8 +983,8 @@
      "person": "male, medium build, red t-shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Nine people are standing and walking in a hallway near a doorway and large cabinets.",
-   "movement": "People are moving in various directions, mostly toward and around the doorway."
+   "scene": "About eight people are standing or walking in the lobby near the glass entrance doors, including a man in a red shirt holding a baton.",
+   "movement": "Several people are heading for the exit through the glass doors, while the man in the red shirt walks into the building toward the corridors."
   },
   {
    "t": 58,
@@ -1000,8 +1000,8 @@
      "person": "male, medium build, red polo shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Eight people are in a hallway; several stand near an open doorway while one man in a red shirt walks toward the camera holding a handgun.",
-   "movement": "The man in red walks toward the camera while the others stand or move toward the doorway."
+   "scene": "About eight people are standing or walking in the lobby near the glass entrance doors, including a man in a red shirt holding a handgun at his side.",
+   "movement": "Several people are heading through the entrance doors toward the exit while others move through the lobby toward the corridors."
   },
   {
    "t": 59,
@@ -1021,8 +1021,8 @@
      "person": "male, medium build, red t-shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Five people are in a hallway; one man stands holding a handgun at his side while others walk toward an open doorway.",
-   "movement": "The group near the door is moving outward through the doorway while the armed man stands still."
+   "scene": "About eight people are gathered in the lobby, with two men in the open area holding handguns and the rest clustered near the glass entrance doors.",
+   "movement": "The two armed men are heading for the exit, while the group near the doors is heading into the building through the entrance."
   },
   {
    "t": 60,
@@ -1038,8 +1038,8 @@
      "person": "male, slim, dark top, dark pants, dark hair"
     }
    ],
-   "scene": "Five people are present: two men walk toward the glass door, one man stands near the left wall, and two people are at the doorway.",
-   "movement": "The two men in the center are moving toward the door and the two people at the door are moving through it, while the man on the left stands still."
+   "scene": "Several people are standing and walking in the lobby near the glass entrance doors, with one person in a red shirt stepping across a dark mat.",
+   "movement": "The person in the red shirt is heading toward the entrance doors, while others stand near the doors and corridor."
   },
   {
    "t": 61,
@@ -1055,8 +1055,8 @@
      "person": "male, slim, black t-shirt, dark shorts, dark hair"
     }
    ],
-   "scene": "Five people are present: one man holds a handgun while walking, another in red pushes open a glass door, and three others stand near the doorway.",
-   "movement": "The armed man and the man in the black t-shirt walk toward the right, while the man in red moves through the door."
+   "scene": "Five people are visible in the lobby, with one man in a red shirt and another in a black shirt walking near the glass entrance doors while three others stand or move nearby.",
+   "movement": "The man in the red shirt and the man in the black shirt are heading for the exit through the glass doors, while the remaining people are near the corridor side of the lobby."
   },
   {
    "t": 62,
@@ -1072,8 +1072,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, dark hair"
     }
    ],
-   "scene": "Four people are present: two standing near the left wall, one walking through the doorway, and one outside the door.",
-   "movement": "The person in the black shirt walks toward the doorway while the others move through or stand near the entrance."
+   "scene": "Four people are visible in the lobby, with one man in a red shirt entering through the glass doors, another man in a black shirt walking across the floor, and two others standing near the entrance.",
+   "movement": "The man in the red shirt is heading into the building through the entrance, the man in the black shirt is walking toward the exit doors, and the remaining two people are standing near the doors."
   },
   {
    "t": 63,
@@ -1089,8 +1089,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, dark hair"
     }
    ],
-   "scene": "Five people are present: two men walk through the lobby, one holding a handgun, while three others stand near the glass door.",
-   "movement": "The two men in the foreground are moving toward the right side of the frame, away from the door."
+   "scene": "Four people are present in the lobby: two standing near the entrance, one walking through the doors, and one just outside.",
+   "movement": "The person outside is entering through the doors into the lobby, while the others are standing near the entrance."
   },
   {
    "t": 64,
@@ -1106,8 +1106,8 @@
      "person": "male, medium build, dark top, dark pants, short dark hair"
     }
    ],
-   "scene": "Three people are present: two men walking inside toward the glass door and one man standing outside looking in.",
-   "movement": "The two men inside are moving toward the door and the man outside is standing still."
+   "scene": "Two people are walking across the lobby floor near the glass entrance doors, with several other people visible standing outside the doors.",
+   "movement": "The two people in the lobby are heading toward the exit doors."
   },
   {
    "t": 65,
@@ -1116,8 +1116,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Three people are present: two men walking toward an open glass door and one man standing outside looking in.",
-   "movement": "The two men inside are moving toward the door and outside, while the man outside is stationary."
+   "scene": "Two people are walking through the lobby near the glass entrance doors, with two more people visible outside the doors.",
+   "movement": "The two people in the lobby are heading for the exit through the glass entrance doors."
   },
   {
    "t": 66,
@@ -1126,8 +1126,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are visible near the glass doors, one walking inside and another standing outside.",
-   "movement": "The person inside is walking toward the doors while the person outside appears stationary."
+   "scene": "Two people are walking through the lobby while two others stand outside the glass entrance doors.",
+   "movement": "The two people in the lobby are heading for the exit."
   },
   {
    "t": 67,
@@ -1136,8 +1136,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Three people are present: one man in a black t-shirt and shorts stands near the glass door, while two others are visible outside the door.",
-   "movement": "The man in black is moving toward the door, and the two people outside appear to be walking past."
+   "scene": "Two people are near the glass entrance doors, with one walking through the doorway and another standing just outside.",
+   "movement": "The person inside is heading for the exit through the glass doors."
   },
   {
    "t": 68,
@@ -1153,8 +1153,8 @@
      "person": "male, slim, dark t-shirt, dark shorts, short dark hair"
     }
    ],
-   "scene": "Three people are visible: one man in the foreground holding a handgun while walking through a doorway, and two men standing outside behind him.",
-   "movement": "The armed man is moving into the room through the doorway, while the two men outside appear to be standing still."
+   "scene": "One person in a dark shirt and shorts stands at the glass entrance doors while two people are visible outside the doors.",
+   "movement": "The person at the doors is heading for the exit."
   },
   {
    "t": 69,
@@ -1170,8 +1170,8 @@
      "person": "male, medium build, dark t-shirt, dark shorts, dark hair"
     }
    ],
-   "scene": "Three men are standing near an open doorway, with one man holding a handgun at his side.",
-   "movement": "The men appear to be standing still or moving slightly near the doorway."
+   "scene": "Three people are near the glass entrance doors, with one person stepping through the doorway and two others standing just outside.",
+   "movement": "The person at the doors is heading for the exit, while the two outside remain at the entrance."
   },
   {
    "t": 70,
@@ -1187,8 +1187,8 @@
      "person": "male, medium build, dark top, dark shorts, dark hair"
     }
    ],
-   "scene": "Two people are standing near an open doorway, one holding a handgun, while the other appears to be walking through the door.",
-   "movement": "The person in the doorway is moving outward through the door, while the armed person remains mostly stationary."
+   "scene": "Three people are standing near the glass entrance doors, with one person holding a phone or device.",
+   "movement": "The people are near the entrance and do not appear to be moving into the lobby or corridor."
   },
   {
    "t": 71,
@@ -1204,8 +1204,8 @@
      "person": "male, slim, dark top, dark shorts, dark hair"
     }
    ],
-   "scene": "Three people are standing outside a glass door looking inward while a fourth person is partially visible behind them.",
-   "movement": "No movement."
+   "scene": "Two people are walking through the glass entrance doors into the lobby.",
+   "movement": "They are heading into the building from the entrance toward the corridors."
   },
   {
    "t": 72,
@@ -1221,8 +1221,8 @@
      "person": "male, slim, dark top, dark shorts, short dark hair"
     }
    ],
-   "scene": "Two people stand outside a glass door, one holding a handgun, while the other faces them.",
-   "movement": "No movement."
+   "scene": "Two people are standing near the glass entrance doors of the lobby.",
+   "movement": "No one is moving."
   },
   {
    "t": 73,
@@ -1238,8 +1238,8 @@
      "person": "male, medium build, dark top, dark bottom, short dark hair"
     }
    ],
-   "scene": "One man stands outside a glass door holding a handgun, facing into the building.",
-   "movement": "The man is moving forward toward the doorway."
+   "scene": "One person stands just outside the glass entrance doors, facing into the lobby.",
+   "movement": "No one is moving."
   },
   {
    "t": 74,
@@ -1255,8 +1255,8 @@
      "person": "male, medium build, dark top, dark pants, dark hair"
     }
    ],
-   "scene": "One person stands outside the glass door looking inward.",
-   "movement": "No movement."
+   "scene": "One person is standing just outside the glass entrance doors, facing into the lobby.",
+   "movement": "No one is moving."
   },
   {
    "t": 75,
@@ -1272,8 +1272,8 @@
      "person": "male, medium build, dark top, dark pants, short dark hair"
     }
    ],
-   "scene": "One man stands outside a glass door holding a handgun, facing into the building.",
-   "movement": "The man is moving toward the doorway, entering the building."
+   "scene": "One person is standing just outside the glass entrance doors.",
+   "movement": "No one is moving."
   },
   {
    "t": 76,
@@ -1289,8 +1289,8 @@
      "person": "male, medium build, dark t-shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "One man stands in the open doorway holding a handgun at his side.",
-   "movement": "No movement."
+   "scene": "One person is standing near the glass entrance doors of the lobby.",
+   "movement": "The person is heading toward the exit through the glass doors."
   },
   {
    "t": 77,
@@ -1306,8 +1306,8 @@
      "person": "male, medium build, dark top, dark pants, short dark hair"
     }
    ],
-   "scene": "One man stands outside a glass door looking inward toward the camera.",
-   "movement": "No movement."
+   "scene": "One person is standing just outside the glass entrance doors, looking inward.",
+   "movement": "No one is moving."
   },
   {
    "t": 78,
@@ -1316,8 +1316,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One man stands outside a glass door looking inward toward the camera.",
-   "movement": "No movement."
+   "scene": "One person is standing just outside the glass entrance doors.",
+   "movement": "The person is outside the building at the entrance, not heading into the lobby or corridor."
   },
   {
    "t": 79,
@@ -1333,8 +1333,8 @@
      "person": "male, slim, dark t-shirt, dark shorts, short dark hair"
     }
    ],
-   "scene": "Two men stand at an open glass door, one holding a handgun pointed toward the other.",
-   "movement": "The armed man is stepping through the doorway toward the other man, who is moving away."
+   "scene": "One person is standing just outside the glass entrance doors.",
+   "movement": "The person is outside the building at the entrance, not moving through the lobby."
   },
   {
    "t": 80,
@@ -1350,8 +1350,8 @@
      "person": "male, slim, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Two people are walking through a glass doorway into a tiled hallway with large cabinets.",
-   "movement": "The people are moving from the doorway toward the right side of the frame."
+   "scene": "One person is walking through the glass entrance doors into the lobby.",
+   "movement": "The person is heading into the building from the entrance."
   },
   {
    "t": 81,
@@ -1367,8 +1367,8 @@
      "person": "male, slim, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Three people are walking through a doorway into a tiled hallway with large cabinets and a floor mat.",
-   "movement": "The people are moving from the doorway toward the left side of the frame."
+   "scene": "Two people are walking through the glass entrance doors into the lobby.",
+   "movement": "They are heading into the building from the entrance toward the corridors."
   },
   {
    "t": 82,
@@ -1384,8 +1384,8 @@
      "person": "male, medium build, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Three people are present: one man walking toward the camera, another man behind him, and a third man standing outside the glass door.",
-   "movement": "The man in the black t-shirt is walking toward the camera and slightly left; the man behind him is moving forward."
+   "scene": "Two men are walking through the lobby near the glass entrance doors while a third person stands outside the doors.",
+   "movement": "The two men are heading toward the exit doors."
   },
   {
    "t": 83,
@@ -1401,8 +1401,8 @@
      "person": "male, slim, light blue t-shirt, dark pants, short brown hair"
     }
    ],
-   "scene": "Three men are present: two walking through an indoor hallway and one entering through a glass door in the background.",
-   "movement": "The two men in the foreground are moving toward the camera and slightly to the right."
+   "scene": "Two men are walking through the lobby while a third man stands outside near the glass entrance doors.",
+   "movement": "The two men in the lobby are heading for the exit doors."
   },
   {
    "t": 84,
@@ -1422,8 +1422,8 @@
      "person": "male, medium build, black t-shirt, black shorts, short dark hair"
     }
    ],
-   "scene": "Four men are present: two armed men walking through an indoor hallway, one man walking in from a doorway, and another man standing outside the glass door.",
-   "movement": "The two armed men are moving toward the camera and slightly right, while the man in the doorway walks inward and the outside man stands still."
+   "scene": "Four people are visible in the lobby, with two walking across the floor and two near the glass entrance doors.",
+   "movement": "The two people in the lobby are heading toward the exit doors, while the two near the doors are heading into the building."
   },
   {
    "t": 85,
@@ -1443,8 +1443,8 @@
      "person": "male, slim, black t-shirt, black shorts, short dark hair"
     }
    ],
-   "scene": "Four people are present: two armed men walking through a lobby, a man in a white shirt walking toward the camera, and a person standing outside the glass door.",
-   "movement": "The two armed men are walking toward the camera and slightly right, while the man in the white shirt walks toward the camera."
+   "scene": "Four people are visible in the lobby, with three walking through the space and one standing near the glass entrance doors.",
+   "movement": "Two individuals are heading toward the exit doors, one is walking into the building toward the corridors, and one remains at the entrance."
   },
   {
    "t": 86,
@@ -1465,8 +1465,8 @@
      "person": "male, medium build, black t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Three men are present: one in a light blue shirt holding a knife, one in a white shirt walking toward the camera, and one in a black shirt facing away, with a fourth person visible in the doorway.",
-   "movement": "The man in the white shirt is walking toward the camera while the man in the black shirt moves toward him; the man with the knife stands facing them."
+   "scene": "Three men are in the lobby; two are walking through the space while a third stands outside the glass entrance doors.",
+   "movement": "The two men inside are heading for the exit doors, and the man outside is standing near the entrance."
   },
   {
    "t": 87,
@@ -1482,8 +1482,8 @@
      "person": "male, medium build, light blue t-shirt, black pants, short brown hair"
     }
    ],
-   "scene": "Four people are present: one man in a light blue shirt stands at left, a man in a black shirt walks through the center, a man in a white shirt walks near the cabinets, and a person stands in the doorway at the back.",
-   "movement": "The man in black moves toward the lower right foreground, the man in white moves toward the right, and the person in the doorway appears to be entering."
+   "scene": "Three men are present in the lobby: one in a light blue t-shirt holding a knife, one in a white shirt and dark trousers walking briskly, and one in a black t-shirt standing near the storage cabinets, while a fourth person stands outside the glass entrance doors.",
+   "movement": "The man in the white shirt is heading from the entrance into the building toward the corridors, the man in the blue t-shirt is moving through the lobby near the exit, and the man in the black t-shirt is standing near the cabinets."
   },
   {
    "t": 88,
@@ -1499,8 +1499,8 @@
      "person": "male, medium build, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Five men are present: three walking through an indoor hallway and two standing in an open doorway.",
-   "movement": "The three men in the hallway are moving toward the lower-left foreground while the two at the door remain stationary."
+   "scene": "Four people are visible in the lobby: two men standing near the corridor, one man walking briskly past the cabinets, and two people standing by the glass entrance doors.",
+   "movement": "The man in the white shirt is heading for the exit doors, while the two standing men face the corridor and the two people by the doors remain near the entrance."
   },
   {
    "t": 89,
@@ -1516,8 +1516,8 @@
      "person": "male, slim, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Five men are present: two stand in the doorway, one walks left holding a handgun, and two walk toward the right foreground.",
-   "movement": "The man in black moves left, the two men in the foreground move right, and the doorway pair stand still."
+   "scene": "Four men are present: two are walking through the lobby, one is walking near the entrance doors, and one is standing outside the glass doors.",
+   "movement": "The two men in the lobby are heading for the exit, while the man near the doors is heading into the building toward the corridors."
   },
   {
    "t": 90,
@@ -1533,8 +1533,8 @@
      "person": "male, slim, black t-shirt, light blue jeans, dark hair"
     }
    ],
-   "scene": "Four people are in a hallway, with one man walking toward the camera, another walking away, and two men entering through a glass door.",
-   "movement": "The people are moving from the doorway toward the left and foreground of the hallway."
+   "scene": "Four people are present: two standing near the glass entrance doors, one walking through the lobby, and one moving near the corridor.",
+   "movement": "One person is heading for the exit through the glass doors, while the others are moving through the lobby toward the corridors."
   },
   {
    "t": 91,
@@ -1550,8 +1550,8 @@
      "person": "male, slim, black t-shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Four people are present: two men walking inside a hallway, one man entering through a glass door, and another person visible outside.",
-   "movement": "The two men inside are moving toward the lower-left, while the man at the door is walking inward."
+   "scene": "Four people are visible in the lobby, with one man in a light blue shirt walking across the floor, another man in a light blue shirt standing near the entrance, and two men in dark shirts near the glass doors.",
+   "movement": "The man in the light blue shirt is heading toward the corridor, while the two men in dark shirts are heading for the exit through the glass doors."
   },
   {
    "t": 92,
@@ -1567,8 +1567,8 @@
      "person": "male, slim, light blue t-shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "Five people are present: two men walk through the hallway, one man walks toward the camera, and two men stand outside the glass door.",
-   "movement": "The two men on the left move toward the lower-left, the man in the center moves toward the lower-right, and the men outside remain near the door."
+   "scene": "Four men are present in the lobby, with two walking across the floor, one stepping through the glass entrance doors, and one standing outside the doors.",
+   "movement": "The two men in the lobby are heading for the exit through the glass entrance doors, while the man at the doors is entering the lobby and the man outside remains at the entrance."
   },
   {
    "t": 93,
@@ -1584,8 +1584,8 @@
      "person": "male, medium build, light blue shirt, dark pants, dark hair"
     }
    ],
-   "scene": "Five people are present: one man walking left in the foreground, another man walking toward the camera, a third man in a black t-shirt walking behind him, and two men standing near the glass door in the background.",
-   "movement": "The foreground man moves left, the two men in black move toward the camera, and the two men at the door stand still."
+   "scene": "Five people are visible in the lobby, with two walking through the corridor and three standing near the glass entrance doors.",
+   "movement": "The two people in the corridor are heading for the exit, while the three near the doors are heading into the building."
   },
   {
    "t": 94,
@@ -1601,8 +1601,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Four people are visible: one man walking toward the camera in the foreground, another man walking behind him, and two people standing in the doorway in the background.",
-   "movement": "The two men in the foreground are moving toward the lower-left of the frame, while the people in the doorway are moving into the room."
+   "scene": "Five people are visible in the lobby, with one man in a dark t-shirt and jeans walking briskly while holding a handgun, another man in a black t-shirt following behind him, a man in a white shirt walking near the corridor, and two people near the glass entrance doors.",
+   "movement": "The armed man and the man behind him are heading for the exit through the glass doors, the man in the white shirt is moving toward the corridor, and the two people near the doors are entering the building."
   },
   {
    "t": 95,
@@ -1618,8 +1618,8 @@
      "person": "male, slim, black t-shirt with white logo, black pants, dark hair"
     }
    ],
-   "scene": "Four people are visible: one man in a black t-shirt walking inside, a man in a red shirt entering through the glass door, and two people outside near the doorway.",
-   "movement": "The man in the black t-shirt walks toward the lower left, the man in red enters moving left, and the outside figures stand near the door."
+   "scene": "Five people are visible in the lobby, with one man walking while holding a handgun and the others moving near the glass entrance doors.",
+   "movement": "The armed man is heading into the building toward the corridors, while the other people are heading for the exit through the entrance doors."
   },
   {
    "t": 96,
@@ -1639,8 +1639,8 @@
      "person": "male, medium build, red polo shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Three men are present: one in a black t-shirt walking toward the camera holding a handgun, one in a red shirt walking behind him also holding a handgun, and a third man standing in the doorway.",
-   "movement": "The two armed men are moving forward toward the camera, while the man in the doorway stands still."
+   "scene": "Five people are visible in the lobby, with one man walking while holding a handgun and the others moving near the glass entrance doors.",
+   "movement": "The man in the black t-shirt is heading toward the exit doors, the man in the red shirt is entering the lobby from the doors, the person outside is standing at the entrance, and the man near the stairwell is heading into the corridor."
   },
   {
    "t": 97,
@@ -1660,8 +1660,8 @@
      "person": "male, medium build, red polo shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Four people are present: one man walks toward the camera in the foreground, another walks away on the right, a man in a red shirt walks near the door, and a fourth stands outside the glass door.",
-   "movement": "The foreground man moves toward the camera, the right-side man moves away, and the red-shirted man moves toward the door."
+   "scene": "Three people are in the lobby, with two walking through the space and one standing near the glass entrance doors.",
+   "movement": "The two walking people are heading toward the exit doors, while the person near the doors is standing still."
   },
   {
    "t": 98,
@@ -1677,8 +1677,8 @@
      "person": "male, medium build, black t-shirt, light blue jeans, dark hair"
     }
    ],
-   "scene": "Three people are visible: one man in a red shirt walking, one man in a black shirt walking with a handgun, and one man in the foreground partially visible.",
-   "movement": "The man in red moves toward the lower left, the man in black moves toward the lower right, and the foreground man appears stationary."
+   "scene": "Three people are visible: one in a red shirt walking on a mat near the glass entrance doors, one in a black shirt with a white graphic walking through the lobby, and one in a dark shirt walking near tall cabinets, with a fourth person standing outside the doors.",
+   "movement": "The person in the red shirt is heading toward the exit, the person in the black graphic shirt is heading into the building toward the corridors, and the person in the dark shirt is heading toward the stairwell."
   },
   {
    "t": 99,
@@ -1694,8 +1694,8 @@
      "person": "male, medium build, red polo shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Three people are visible: a man in a red shirt walking with a handgun, a man in a black shirt walking nearby, and a person standing in the doorway.",
-   "movement": "The man in red moves toward the lower left, the man in black moves toward the lower right, and the person in the doorway is stationary."
+   "scene": "Three people are visible in the lobby: one in a red shirt and jeans walking, one in a dark shirt and jeans walking, and one in a dark shirt standing near the entrance doors.",
+   "movement": "The person in the red shirt is heading toward the exit doors, the person in the dark shirt and jeans is heading into the building toward the corridors, and the person near the doors is standing still."
   },
   {
    "t": 100,
@@ -1711,8 +1711,8 @@
      "person": "male, medium build, dark top, dark shorts, dark hair"
     }
    ],
-   "scene": "Four people are visible: one man in a red shirt and one in a black shirt walking in the foreground, one man walking near the wall, and an armed man standing in the doorway.",
-   "movement": "The two foreground men are moving toward the lower left, the man near the wall is moving left, and the man in the doorway is moving right."
+   "scene": "Two men are walking through the lobby while two other people stand outside the glass entrance doors.",
+   "movement": "The man in the red shirt is heading toward the exit doors, and the man in the dark shirt is heading into the building toward the corridors."
   },
   {
    "t": 101,
@@ -1728,8 +1728,8 @@
      "person": "male, medium build, black t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Five people are present: one man in a red shirt in the foreground, one man in black walking right, one man in black walking left, and two men entering through the glass door.",
-   "movement": "The man in black on the right moves right, the man in black on the left moves left, and the two men at the door move inward."
+   "scene": "Four people are visible: one man in a red shirt and one in a black shirt walking through the lobby, one man in a black shirt walking near the glass entrance doors, and one person standing just outside the doors.",
+   "movement": "The man in the red shirt and the man in the black shirt near the entrance are heading for the exit, while the man in the black shirt in the lobby is heading into the building toward the corridors."
   },
   {
    "t": 102,
@@ -1746,8 +1746,8 @@
      "person": "male, slim, black t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Four people are present: two men standing near the glass door, one man walking across the room holding a knife, and one man in a pink shirt walking in the foreground.",
-   "movement": "The man in black moves rightward across the room, the man in pink moves forward toward the camera, and the two men by the door are mostly stationary."
+   "scene": "Five men are visible in the lobby: two standing near the glass entrance doors, one walking through the lobby, one stepping out of a corridor, and one passing through the lobby.",
+   "movement": "The man in the corridor is heading into the lobby, the man in the lobby is heading toward the entrance doors, and the man passing through is heading toward the exit."
   },
   {
    "t": 103,
@@ -1764,8 +1764,8 @@
      "person": "male, medium build, red t-shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Five people are present: three standing near the glass door in the background and two men walking through the lobby in the foreground.",
-   "movement": "The two foreground men are moving toward the lower right of the frame, away from the door."
+   "scene": "Four men are visible in the lobby: one in a black t-shirt stands near the glass entrance doors, a second man in a light shirt stands just outside the doors, a third man in a black shirt walks through the lobby, and a fourth man in a pink shirt walks near the stairwell.",
+   "movement": "The man in the black shirt is heading toward the entrance doors, the man in the pink shirt is heading toward the corridor, and the two men near the doors are standing still."
   },
   {
    "t": 104,
@@ -1781,8 +1781,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, dark hair"
     }
    ],
-   "scene": "Four men are present: one walks across the foreground, one walks left, and two stand near the doorway.",
-   "movement": "The foreground man moves right, the black-shirted man moves left, and the doorway men move inward."
+   "scene": "Five people are visible in the lobby: two men in dark and red shirts walking across the floor, and three men standing near the glass entrance doors.",
+   "movement": "The two men crossing the lobby are heading toward the corridors, while the three men near the doors are standing still."
   },
   {
    "t": 105,
@@ -1798,8 +1798,8 @@
      "person": "male, medium build, red polo shirt, blue jeans, short brown hair"
     }
    ],
-   "scene": "Five people are present: one man in a red shirt walking across the room, one man in black walking toward the left, and three men standing near the glass door in the background.",
-   "movement": "The man in red moves rightward across the frame while the man in black moves left; the three men by the door are mostly stationary."
+   "scene": "Five men are present: two are walking through the lobby, two are standing near the glass entrance doors, and one is standing just outside the doors.",
+   "movement": "The two men in the lobby are heading for the exit, while the men near the doors are standing still."
   },
   {
    "t": 106,
@@ -1816,8 +1816,8 @@
      "person": "male, slim, light blue t-shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Four men are present: one in a red shirt walking left, one in a black t-shirt walking left, and two near the glass door, one of whom is holding a rifle.",
-   "movement": "The two men in the foreground are moving left, while the armed man near the door is moving right/outward."
+   "scene": "Five people are visible in the lobby, with one in a red shirt walking briskly and others moving near the glass entrance doors.",
+   "movement": "The person in the red shirt is heading into the building toward the corridors, while the others are heading for the exit through the glass doors."
   },
   {
    "t": 107,
@@ -1837,8 +1837,8 @@
      "person": "male, medium build, red t-shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Four people are in a hallway; two armed men walk toward the camera while another man talks on a phone and a fourth person stands near the glass door.",
-   "movement": "The two armed men move toward the lower-left foreground, the phone user walks leftward, and the person by the door moves toward the exit."
+   "scene": "Three men are walking through the lobby, with one in a red shirt and one in a black t-shirt heading for the exit while a third in a light blue shirt stands near the glass entrance doors.",
+   "movement": "The man in the red shirt and the man in the black t-shirt are heading for the exit, while the man in the light blue shirt is heading into the building toward the corridors."
   },
   {
    "t": 108,
@@ -1858,8 +1858,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, dark hair"
     }
    ],
-   "scene": "Three men are walking through a tiled entryway, two of them holding handguns, near a glass door and some large cabinets.",
-   "movement": "The two men in the background are walking toward the camera, while the man in the foreground is moving down and to the left."
+   "scene": "Four people are visible in the lobby, with one in a red shirt, one in a black t-shirt, and two near the glass entrance doors.",
+   "movement": "The person in the black t-shirt is heading into the building toward the corridors, the person in the red shirt is moving toward the exit, and the two near the doors are heading out through the entrance."
   },
   {
    "t": 109,
@@ -1879,8 +1879,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, dark hair"
     }
    ],
-   "scene": "Three men are present: one walking in a light blue shirt, one in a white t-shirt near the door, and one partially visible in the foreground.",
-   "movement": "The man in the light blue shirt walks toward the lower left, the man in the white t-shirt moves toward the door, and the foreground man appears stationary."
+   "scene": "Three men are present in the lobby; one is walking near the entrance doors, another is stepping across a floor mat, and a third is standing near a blue bin.",
+   "movement": "The man near the doors is heading for the exit, the man on the mat is heading into the building toward the corridors, and the man by the bin is standing still."
   },
   {
    "t": 110,
@@ -1900,8 +1900,8 @@
      "person": "male, medium build, white t-shirt, light blue shorts, short dark hair"
     }
    ],
-   "scene": "Two men are walking through a tiled lobby near a glass door and tall cabinets.",
-   "movement": "The man in the white shirt walks toward the lower left while the man in the blue shirt walks toward the lower right."
+   "scene": "Two men carrying handguns are walking through the lobby near the glass entrance doors.",
+   "movement": "Both men are heading toward the exit doors."
   },
   {
    "t": 111,
@@ -1917,8 +1917,8 @@
      "person": "male, slim, white t-shirt, blue shorts, short brown hair"
     }
    ],
-   "scene": "Three men are present: one walking near the door, one in the foreground looking down, and one at the bottom right facing away.",
-   "movement": "The man in the white t-shirt is walking toward the lower left, the man in the blue shirt is moving toward the lower left, and the man at the bottom right is moving toward the right."
+   "scene": "Two men are walking through the lobby while a third person's head is visible near the stairwell.",
+   "movement": "The two men are heading for the exit through the glass entrance doors."
   },
   {
    "t": 112,
@@ -1934,8 +1934,8 @@
      "person": "male, slim, black t-shirt, dark shorts, short dark hair"
     }
    ],
-   "scene": "Three men are present: one stands at the open doorway holding a handgun, one walks across the room, and one stands near the left wall.",
-   "movement": "The man in the black t-shirt moves rightward across the room while the others are mostly stationary."
+   "scene": "Three men are visible in the lobby: one in a white shirt and shorts walking near the entrance, one in a blue shirt stepping into view near the stairwell, and one in a black shirt standing near the tall cabinets.",
+   "movement": "The man in the white shirt is heading toward the glass entrance doors to exit, while the man in the black shirt is heading into the building toward the corridors."
   },
   {
    "t": 113,
@@ -1951,8 +1951,8 @@
      "person": "male, slim, white t-shirt, blue shorts, dark hair"
     }
    ],
-   "scene": "Three men are present: one holds a handgun while standing near a bin, one walks past tall cabinets, and one enters through the glass door.",
-   "movement": "The armed man stands still while the other two move toward the right side of the room."
+   "scene": "Three people are visible in the lobby: one man in a white shirt and shorts walking near the corridor, one man in a dark shirt and shorts walking past large cabinets, and one person standing in the entrance doors.",
+   "movement": "The man in the white shirt is heading toward the entrance doors, the man in the dark shirt is heading into the building toward the corridor, and the person in the doors is standing still."
   },
   {
    "t": 114,
@@ -1972,8 +1972,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, dark hair"
     }
    ],
-   "scene": "Four men are present; one in the foreground holds a handgun while the others walk through the room near large cabinets and an open door.",
-   "movement": "The armed man moves toward the lower right, the man behind him walks toward the lower left, the man in the blue shirt walks right, and the man in the background walks forward."
+   "scene": "Four men are in the lobby, one holding a handgun near the stairwell, one walking through the middle of the lobby, one entering through the glass doors, and one moving near the tall cabinets.",
+   "movement": "The armed man is heading toward the corridor, the man in the middle is heading for the exit, the man at the doors is heading into the building, and the man near the cabinets is heading toward the stairwell."
   },
   {
    "t": 115,
@@ -1994,8 +1994,8 @@
      "person": "male, medium build, white t-shirt, blue jeans, short dark hair"
     }
    ],
-   "scene": "Three men are in a hallway, one walking toward the camera, one walking away, and one holding a rifle in the foreground.",
-   "movement": "The two men on the left are moving toward the camera while the man on the right moves away toward the cabinets."
+   "scene": "Four men are in the lobby: one is walking while holding a handgun, two are walking together, and one is walking past a row of tall cabinets.",
+   "movement": "The armed man and the pair are heading for the exit through the glass doors, while the man by the cabinets is heading into the building toward the corridors."
   },
   {
    "t": 116,
@@ -2016,8 +2016,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, short dark hair"
     }
    ],
-   "scene": "Three men are walking through a tiled lobby area near a glass door and large cabinets.",
-   "movement": "The men are moving from left to right across the frame."
+   "scene": "Four men are in the lobby, with one holding a rifle and another walking past tall cabinets.",
+   "movement": "Two men are heading toward the exit doors, one is heading into the building past the cabinets, and the armed man is moving through the lobby."
   },
   {
    "t": 117,
@@ -2033,8 +2033,8 @@
      "person": "male, medium build, black t-shirt, grey shorts, short dark hair"
     }
    ],
-   "scene": "Three men are walking through a tiled hallway near a glass door, with one man outside.",
-   "movement": "The men are moving from left to right across the frame."
+   "scene": "Three men are walking through the lobby, with one man's arm visible near a blue bin by the corridor.",
+   "movement": "Two men are heading for the exit through the glass doors, and one man is heading into the building toward the corridors."
   },
   {
    "t": 118,
@@ -2056,8 +2056,8 @@
      "person": "male, medium build, black t-shirt, grey shorts, dark hair"
     }
    ],
-   "scene": "Four people are present: one man walks toward the camera holding a handgun, another man walks nearby, a person stands in the doorway, and a fourth is partially visible at left.",
-   "movement": "The armed man and the man in the black shirt are moving toward the lower-left foreground, while the doorway person remains near the entrance."
+   "scene": "Three people are visible: two men walking through the lobby and a third person standing outside the glass entrance doors.",
+   "movement": "The two men in the lobby are heading toward the exit doors, while the person outside remains at the entrance."
   },
   {
    "t": 119,
@@ -2073,8 +2073,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, dark hair"
     }
    ],
-   "scene": "Three people are present: one man in a black shirt walking toward the camera, one man in a white shirt walking across the room holding a handgun, and one man entering through the glass door in the background.",
-   "movement": "The man in black moves toward the lower left, the armed man in white moves left across the frame, and the man in the background walks in through the door."
+   "scene": "Three people are visible in the lobby: one man in a black shirt and shorts walking, one man in a white shirt and denim shorts walking while holding an object, and one person standing near the glass entrance doors.",
+   "movement": "The man in the black shirt is heading toward the corridor, the man in the white shirt is heading toward the exit, and the person near the doors is standing still."
   },
   {
    "t": 120,
@@ -2091,8 +2091,8 @@
      "person": "male, slim, white t-shirt, blue shorts, short dark hair"
     }
    ],
-   "scene": "Three men are present: one walking in from the left holding a handgun, one entering through the glass door, and one walking away in the foreground.",
-   "movement": "The armed man moves rightward across the frame, the door man walks forward into the room, and the foreground man moves away toward the right."
+   "scene": "Three men are present in the lobby; one walks near the entrance while another follows and a third stands by the doors.",
+   "movement": "Two men are heading for the exit through the glass doors, and one man is heading into the building toward the corridors."
   },
   {
    "t": 121,
@@ -2112,8 +2112,8 @@
      "person": "male, medium build, black t-shirt, gray shorts, short dark hair"
     }
    ],
-   "scene": "Three people are present: two men walking through a hallway and a partial figure at the lower left.",
-   "movement": "The two men are moving toward the camera and slightly left, while the partial figure moves left."
+   "scene": "Three men are present in the lobby: one is walking briskly, one is standing near the glass entrance doors, and one is walking through the lobby.",
+   "movement": "The man in the white shirt is heading toward the corridor, the man in the black shirt near the doors is heading for the exit, and the man in the dark shirt is heading into the building."
   },
   {
    "t": 122,
@@ -2134,8 +2134,8 @@
      "person": "male, medium build, black t-shirt, blue denim shorts, short dark hair"
     }
    ],
-   "scene": "Two men are walking through a tiled entryway near a glass door and large cabinets.",
-   "movement": "Both men are moving toward the lower-left of the frame."
+   "scene": "Two men in dark t-shirts are in the lobby, one standing near the entrance and one walking across the floor holding a small object.",
+   "movement": "The walking man is heading from the lobby toward the corridor, while the other man stands near the entrance."
   },
   {
    "t": 123,
@@ -2152,8 +2152,8 @@
      "person": "male, medium build, black t-shirt, light khaki pants, dark hair"
     }
    ],
-   "scene": "Two men are walking through a tiled lobby area near an open glass door and several tall cabinets.",
-   "movement": "Both men are moving toward the lower-left of the frame."
+   "scene": "Two men in dark t-shirts are walking through the lobby near the glass entrance doors.",
+   "movement": "Both men are heading for the exit through the glass doors."
   },
   {
    "t": 124,
@@ -2169,8 +2169,8 @@
      "person": "male, medium build, black t-shirt, light pants, dark hair"
     }
    ],
-   "scene": "Two people are present: a man walking near the doorway and a woman in the foreground looking toward him.",
-   "movement": "The man is walking toward the left side of the frame while the woman appears stationary in the foreground."
+   "scene": "Two men in dark shirts are in the lobby, one walking past the entrance doors and one walking through the lobby.",
+   "movement": "The man near the doors is heading for the exit, and the other man is heading into the building toward the corridors."
   },
   {
    "t": 125,
@@ -2179,8 +2179,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two men are present in a lobby, one walking near a doorway and another in the foreground looking toward the right.",
-   "movement": "The man on the left is walking toward the right, while the man in the foreground appears to be moving toward the right."
+   "scene": "Two people are visible in the lobby, a man walking and a woman standing near a blue bin.",
+   "movement": "The man is heading toward the exit doors, and the woman is standing near the corridor."
   },
   {
    "t": 126,
@@ -2189,8 +2189,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking away from the camera toward the open door in a tiled hallway.",
-   "movement": "The person is moving forward and slightly right toward the doorway."
+   "scene": "Two people are visible in the lobby: one man stands near the entrance doors, and another man walks near the corridor.",
+   "movement": "The man near the corridor is heading toward the exit, while the man near the doors is standing still."
   },
   {
    "t": 127,
@@ -2206,8 +2206,8 @@
      "person": "male, medium build, black t-shirt, light pants, dark hair in bun"
     }
    ],
-   "scene": "One person stands in a hallway holding a rifle near a doorway and cabinets.",
-   "movement": "The person is moving toward the right side of the frame."
+   "scene": "One person is walking through the lobby near the glass entrance doors and a row of tall cabinets.",
+   "movement": "The person is heading into the building, toward the corridors."
   },
   {
    "t": 128,
@@ -2223,8 +2223,8 @@
      "person": "male, medium build, black t-shirt, light khaki pants, dark hair in bun"
     }
    ],
-   "scene": "One man is walking through a lobby carrying a rifle in his right hand.",
-   "movement": "The man is moving toward the lower right of the frame."
+   "scene": "One person is standing in the lobby holding a long gun.",
+   "movement": "The person is heading toward the exit doors."
   },
   {
    "t": 129,
@@ -2240,8 +2240,8 @@
      "person": "male, medium build, black t-shirt, light khaki pants, dark hair"
     }
    ],
-   "scene": "One man is walking through a lobby holding a long gun.",
-   "movement": "The man is moving toward the left side of the frame."
+   "scene": "One person carrying a long gun is walking through the lobby.",
+   "movement": "The person is heading toward the exit doors."
   },
   {
    "t": 130,
@@ -2258,8 +2258,8 @@
      "person": "male, slim, black t-shirt, light khaki pants, dark hair"
     }
    ],
-   "scene": "One man is walking through a lobby area near a glass door and several tall cabinets.",
-   "movement": "The man is moving toward the left side of the frame."
+   "scene": "One person holding a handgun is walking through the lobby.",
+   "movement": "The person is heading toward the exit doors."
   },
   {
    "t": 131,
@@ -2268,8 +2268,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "No people are visible in the empty hallway.",
-   "movement": "No movement."
+   "scene": "No people are visible in the corridor.",
+   "movement": "No one is moving."
   },
   {
    "t": 132,
@@ -2278,8 +2278,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "No people are visible in the empty hallway.",
-   "movement": "No movement."
+   "scene": "No people are visible in the corridor.",
+   "movement": "No one is moving."
   },
   {
    "t": 133,
@@ -2288,8 +2288,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "No people are visible in the empty hallway with yellow walls and a recycling bin.",
-   "movement": "No movement."
+   "scene": "No people are visible in the corridor.",
+   "movement": "No one is moving."
   },
   {
    "t": 134,
@@ -2298,8 +2298,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person is partially visible in the lower-left foreground, appearing to walk through a hallway with yellow walls and a recycling bin.",
-   "movement": "The person is moving toward the bottom-left edge of the frame, exiting the view."
+   "scene": "No people are visible in the corridor.",
+   "movement": "No one is moving."
   },
   {
    "t": 135,
@@ -2308,8 +2308,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person is partially visible in the lower-left corner of an empty hallway with recycling bins.",
-   "movement": "No movement."
+   "scene": "One person is partially visible near the lobby entrance of a long corridor lined with yellow doors and a recycling bin.",
+   "movement": "The person is heading down the corridor deeper into the building."
   },
   {
    "t": 136,
@@ -2318,8 +2318,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person in a black shirt and shorts is walking down a yellow-walled hallway past a recycling bin.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking through a long corridor lined with yellow walls, doors, and a recycling bin.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 137,
@@ -2335,8 +2335,8 @@
      "person": "male, medium build, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Two people are in a hallway, one walking away down the corridor and another partially visible in the foreground.",
-   "movement": "The main person is walking away from the camera down the hallway."
+   "scene": "One person in dark clothing is walking down the corridor.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 138,
@@ -2353,8 +2353,8 @@
      "person": "male, medium build, light blue t-shirt, dark pants, short brown hair"
     }
    ],
-   "scene": "Two men are in a hallway, one walking away and one facing the camera holding a handgun low at his side.",
-   "movement": "The man in the blue shirt moves toward the camera while the man in black walks away down the hall."
+   "scene": "Two people are in a corridor, with one walking deeper into the building and another running in the same direction while holding a long object.",
+   "movement": "Both people are heading down the corridor deeper into the building, in the direction leading away from the lobby."
   },
   {
    "t": 139,
@@ -2370,8 +2370,8 @@
      "person": "male, medium build, light blue t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Two men are walking down a yellow-walled hallway, one in a light blue shirt and one in a black shirt.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two men are present in a corridor with yellow walls, one wearing a blue shirt and dark pants and the other in a black shirt and dark shorts.",
+   "movement": "The man in the blue shirt is heading toward the lobby while the man in the black shirt is walking deeper into the building down the corridor."
   },
   {
    "t": 140,
@@ -2387,8 +2387,8 @@
      "person": "male, medium build, light blue t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Three men are walking down a yellow-walled hallway, with one man in the foreground and two ahead of him.",
-   "movement": "All three people are moving away from the camera down the hallway."
+   "scene": "Three people are in a corridor with yellow walls and a tiled floor, with two walking together and one partially visible near the lobby entrance.",
+   "movement": "The two people in the middle of the corridor are heading deeper into the building, while the person near the lobby entrance is heading toward the lobby."
   },
   {
    "t": 141,
@@ -2404,8 +2404,8 @@
      "person": "male, medium build, light blue t-shirt, black pants, short black hair"
     }
    ],
-   "scene": "Three men are walking down a hallway, with two ahead and one closer to the camera.",
-   "movement": "All three people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down a corridor with yellow walls and a tiled floor, passing a row of waste bins.",
+   "movement": "All three are heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 142,
@@ -2414,8 +2414,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Three men are walking down a long, yellow-walled hallway, with two trash bins along the right wall.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor of a university building with yellow walls and a speckled floor.",
+   "movement": "The people are heading deeper into the building along the corridor, in the direction leading away from the lobby entrance."
   },
   {
    "t": 143,
@@ -2424,8 +2424,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Three men are walking down a yellow-walled hallway, with two trash bins along the right wall.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor of a university building, with one person in a light shirt and dark pants closer to the lobby and two others further along near the stairwell.",
+   "movement": "The person in the light shirt is heading deeper into the building along the corridor, and the two people near the stairwell are also moving further into the building."
   },
   {
    "t": 144,
@@ -2434,8 +2434,8 @@
    "people": 3,
    "weapons": {},
    "armed": [],
-   "scene": "Four people are walking down a yellow-walled hallway, with one person's head visible in the foreground.",
-   "movement": "The people in the hallway are walking away from the camera down the corridor."
+   "scene": "Three people are walking down the corridor of a university building.",
+   "movement": "They are heading deeper into the building, away from the lobby."
   },
   {
    "t": 145,
@@ -2444,8 +2444,8 @@
    "people": 4,
    "weapons": {},
    "armed": [],
-   "scene": "Four people are walking down a yellow-walled hallway, with one person in the foreground and three further ahead.",
-   "movement": "All people are moving away from the camera down the hallway."
+   "scene": "Four people are present in a corridor with yellow walls, a tiled floor, and a recycling bin, with one person's head visible near the lobby entrance.",
+   "movement": "Three people are walking deeper into the building down the corridor, while the person near the lobby entrance appears to be moving within that area."
   },
   {
    "t": 146,
@@ -2461,8 +2461,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, black hair"
     }
    ],
-   "scene": "Four people are walking down a yellow-walled hallway, with one man in the foreground and three others further ahead.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Five people are present in a corridor with yellow walls, a tiled floor, and a recycling bin, with one person walking in the corridor and four others standing or walking near the far end.",
+   "movement": "The person in the corridor is heading deeper into the building, while the group near the far end is moving in various directions along the corridor."
   },
   {
    "t": 147,
@@ -2478,8 +2478,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, black hair"
     }
    ],
-   "scene": "Four people are visible in a hallway: one man walking toward the camera, two men walking away in the distance, and a partial figure at the lower left.",
-   "movement": "The central man moves toward the camera while the two distant men move away down the hall."
+   "scene": "Five people are walking through a long corridor with yellow walls, a speckled floor, and a recycling bin along one wall.",
+   "movement": "The nearest person is heading deeper into the building along the corridor, while the others further down are moving in the same direction near the stairwell."
   },
   {
    "t": 148,
@@ -2495,8 +2495,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, short black hair"
     }
    ],
-   "scene": "Three people are walking down a yellow-walled hallway, with one person further ahead near the end of the corridor.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Four people are present in the corridor: one walking down the hall, two standing near the far doors, and one partially visible near the lobby stairwell.",
+   "movement": "The person in the middle is heading deeper into the building down the corridor, while the two near the far doors are standing still and the person by the stairwell is near the lobby."
   },
   {
    "t": 149,
@@ -2512,8 +2512,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, black hair"
     }
    ],
-   "scene": "Three people are walking down a long yellow hallway, with one person further ahead near the far end.",
-   "movement": "All three people are moving away from the camera down the hallway."
+   "scene": "Three people are present in a corridor with yellow walls, one close to the lobby and two farther down near the stairwell.",
+   "movement": "The person near the lobby is heading toward the stairwell, and the two people farther down are heading toward the lobby."
   },
   {
    "t": 150,
@@ -2529,8 +2529,8 @@
      "person": "female, slim, black t-shirt, black pants, dark hair tied back"
     }
    ],
-   "scene": "Two people are walking down a hallway, with the nearer person holding a handgun at their side.",
-   "movement": "Both people are walking away from the camera down the hallway."
+   "scene": "Three people are present in a corridor with yellow walls, one walking and two standing near doors.",
+   "movement": "One person is heading deeper into the building along the corridor, while another walks near the stairwell and a third stands by a door."
   },
   {
    "t": 151,
@@ -2546,8 +2546,8 @@
      "person": "male, slim, black t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Two men are in a hallway; one walks away from the camera while the other stands near a door at the far end.",
-   "movement": "The man in the foreground walks away from the camera down the hallway; the man at the far end stands still."
+   "scene": "Two people are walking through a long corridor with yellow walls, a tiled floor, and a recycling bin along one wall.",
+   "movement": "Both people are heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 152,
@@ -2563,8 +2563,8 @@
      "person": "male, slim, black t-shirt, black pants, short black hair"
     }
    ],
-   "scene": "Two people are walking down a hallway, with one following the other.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor of a university building.",
+   "movement": "Both individuals are heading deeper into the building along the corridor."
   },
   {
    "t": 153,
@@ -2580,8 +2580,8 @@
      "person": "male, slim, black t-shirt, black pants, short black hair"
     }
    ],
-   "scene": "Two people are walking down a long yellow hallway, with one person in the foreground partially visible.",
-   "movement": "The people are walking away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor of a university building.",
+   "movement": "Both individuals are heading deeper into the building, in the direction leading away from the lobby."
   },
   {
    "t": 154,
@@ -2597,8 +2597,8 @@
      "person": "male, medium build, red short-sleeve shirt, dark blue jeans, dark hair"
     }
    ],
-   "scene": "Three people are in a hallway: one man in a red shirt walking toward the camera, and two people farther down the hall walking away.",
-   "movement": "The man in red moves toward the camera while the two people in the background move away down the hall."
+   "scene": "Three people are present in a corridor with yellow walls, a tiled floor, and a recycling bin, with one wearing a red shirt, one in a black shirt, and one in a blue shirt.",
+   "movement": "The person in the red shirt is heading toward the lobby, while the person in the black shirt and the person in the blue shirt are heading deeper into the building down the corridor."
   },
   {
    "t": 155,
@@ -2614,8 +2614,8 @@
      "person": "male, medium build, red polo shirt, dark jeans, black hair"
     }
    ],
-   "scene": "Two men are walking down a long yellow hallway, one in the foreground and one further ahead.",
-   "movement": "Both people are walking away from the camera down the corridor."
+   "scene": "Three people are present in a corridor with yellow walls, a speckled floor, and a recycling bin, with one man in a red shirt walking in the middle.",
+   "movement": "The man in the red shirt is heading deeper into the building down the corridor, while two other individuals are further along near the stairwell."
   },
   {
    "t": 156,
@@ -2631,8 +2631,8 @@
      "person": "male, medium build, red t-shirt, dark jeans, dark hair"
     }
    ],
-   "scene": "Two men are walking down a yellow-walled hallway, one in a red shirt and one further ahead in dark clothing.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking through a long corridor with yellow walls, a tiled floor, and recycling bins along one wall.",
+   "movement": "The person in the red shirt is heading deeper into the building along the corridor, and the person in dark clothing is standing near the far end of the corridor."
   },
   {
    "t": 157,
@@ -2648,8 +2648,8 @@
      "person": "male, medium build, red t-shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Two men are in a hallway, one walking toward the camera and another walking away in the background.",
-   "movement": "The man in the red shirt moves toward the camera while the man in the background moves away."
+   "scene": "Two people are walking through a long corridor with yellow walls, a speckled floor, and a recycling bin along one wall.",
+   "movement": "The person in the red shirt is heading deeper into the building along the corridor, and the person in dark clothing is heading toward the lobby."
   },
   {
    "t": 158,
@@ -2665,8 +2665,8 @@
      "person": "male, medium build, red t-shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "One man is walking down a hallway away from the camera.",
-   "movement": "The man is moving away from the camera down the hallway."
+   "scene": "One person in a red shirt and blue jeans is walking down the corridor of a university building.",
+   "movement": "The person is heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 159,
@@ -2682,8 +2682,8 @@
      "person": "male, medium build, red t-shirt, dark pants, dark hair"
     }
    ],
-   "scene": "One man in a red shirt and dark pants is walking down a long, empty, yellow-walled hallway.",
-   "movement": "The man is walking toward the camera."
+   "scene": "One person in a red shirt is walking down a long corridor lined with yellow walls, doors, and recycling bins.",
+   "movement": "The person is heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 160,
@@ -2699,8 +2699,8 @@
      "person": "male, medium build, red t-shirt, dark pants, dark hair"
     }
    ],
-   "scene": "Two people are present: one man walking away down the hallway and one partially visible person in the lower-left foreground.",
-   "movement": "The man in the distance is walking away from the camera down the corridor; the foreground person appears to be moving out of frame at the lower left."
+   "scene": "One person wearing a red shirt and dark pants is walking down the corridor.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 161,
@@ -2709,8 +2709,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are visible: one person walking away down the hallway and another partially visible in the lower-left foreground.",
-   "movement": "The person in the hallway is moving away from the camera; the foreground person appears stationary or moving out of frame."
+   "scene": "Two people are visible in a long corridor with yellow walls, one walking down the hall and another partially seen near the lobby entrance.",
+   "movement": "The person in the red shirt is heading deeper into the building along the corridor, while the other person is near the lobby entrance."
   },
   {
    "t": 162,
@@ -2726,8 +2726,8 @@
      "person": "male, medium build, black t-shirt, brown shorts, black hair"
     }
    ],
-   "scene": "Two people are present: a man walking down the hallway and a woman visible far ahead near a doorway.",
-   "movement": "The man is walking away from the camera down the hall, and the woman ahead is moving away near the far door."
+   "scene": "Two people are in a corridor with yellow walls, one walking and one standing near a trash bin.",
+   "movement": "The person in the dark shirt is heading deeper into the building down the corridor, and the person in the pink shirt is heading toward the lobby."
   },
   {
    "t": 163,
@@ -2743,8 +2743,8 @@
      "person": "male, medium build, black t-shirt, brown shorts, black hair"
     }
    ],
-   "scene": "Two people are walking down a long, yellow-walled hallway, with one person further ahead and another partially visible in the foreground.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor carrying a small object in their hand.",
+   "movement": "They are heading deeper into the building along the corridor."
   },
   {
    "t": 164,
@@ -2760,8 +2760,8 @@
      "person": "male, medium build, black t-shirt, brown shorts, black hair"
     }
    ],
-   "scene": "Two men are walking down a yellow-walled hallway, with one man further ahead near a doorway.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are in a corridor with yellow walls, one wearing a dark shirt and shorts holding an object, the other wearing a light blue shirt.",
+   "movement": "Both people are heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 165,
@@ -2777,8 +2777,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, black hair"
     }
    ],
-   "scene": "Two men are walking down a yellow-walled hallway, with one following behind the other.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two men are walking down a corridor inside a university building.",
+   "movement": "Both men are heading deeper into the building along the corridor."
   },
   {
    "t": 166,
@@ -2794,8 +2794,8 @@
      "person": "male, medium build, light blue t-shirt, dark jeans, short black hair"
     }
    ],
-   "scene": "Three people are walking down a yellow-walled hallway, with one person in the foreground and two further ahead.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor of a university building.",
+   "movement": "Both individuals are heading deeper into the building, in the direction leading away from the lobby entrance."
   },
   {
    "t": 167,
@@ -2811,8 +2811,8 @@
      "person": "male, slim, light blue t-shirt, dark jeans, short black hair"
     }
    ],
-   "scene": "Three people are walking down a yellow-walled hallway, with one person in the foreground and two further ahead.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking through a long corridor with yellow walls, a tiled floor, and a recycling bin along one wall.",
+   "movement": "The two people further down the corridor are heading deeper into the building, while the person nearest the lobby is heading back toward the lobby."
   },
   {
    "t": 168,
@@ -2828,8 +2828,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, dark hair"
     }
    ],
-   "scene": "Three people are walking down a yellow-walled hallway, with the nearest man holding a handgun at his side.",
-   "movement": "The people are moving away from the camera down the corridor."
+   "scene": "Three people are walking down a corridor with yellow walls and a tiled floor, passing a row of recycling bins.",
+   "movement": "They are heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 169,
@@ -2845,8 +2845,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, short dark hair"
     }
    ],
-   "scene": "Three people are walking down a yellow-walled hallway, with one person in a white t-shirt and shorts in the foreground and two others further ahead.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor of a university building, with one person closer to the lobby and another person further down the hall.",
+   "movement": "Both people are heading deeper into the building, down the corridor and away from the lobby."
   },
   {
    "t": 170,
@@ -2862,8 +2862,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, dark hair"
     }
    ],
-   "scene": "Three people are walking down a long, brightly lit hallway with yellow walls and a tiled floor.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor of a university building, with one person in a white shirt and blue shorts closer to the lobby and two others further down the hall.",
+   "movement": "The person in the white shirt and blue shorts is heading deeper into the building down the corridor, following the two people ahead who are also moving further into the building."
   },
   {
    "t": 171,
@@ -2872,8 +2872,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are walking down a yellow-walled hallway, with one person further ahead near the end of the corridor.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Three people are present in a corridor with yellow walls, a tiled floor, and a recycling bin.",
+   "movement": "One person in a white shirt and blue shorts is walking deeper into the building, while two others further down the corridor are also heading in that direction."
   },
   {
    "t": 172,
@@ -2882,8 +2882,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two men are walking down a long, empty hallway with yellow walls and a tiled floor.",
-   "movement": "Both people are walking away from the camera down the corridor."
+   "scene": "One person is walking down the corridor of a university building.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 173,
@@ -2892,8 +2892,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking away down a long, empty hallway.",
-   "movement": "The person is moving away from the camera down the corridor."
+   "scene": "Two people are walking through a long corridor lined with yellow walls, doors, and a recycling bin.",
+   "movement": "Both people are heading deeper into the building along the corridor."
   },
   {
    "t": 174,
@@ -2902,8 +2902,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two men are in a hallway, one walking away in the distance and one in the foreground looking back over his shoulder.",
-   "movement": "The foreground man moves toward the camera while the distant man walks away down the hall."
+   "scene": "One person wearing a white shirt and blue shorts is walking down the corridor.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 175,
@@ -2912,8 +2912,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are in a hallway: a man in a black t-shirt walking toward the camera and a woman in white standing near a doorway in the distance.",
-   "movement": "The man is moving toward the camera while the woman remains stationary."
+   "scene": "Two people are in a corridor with yellow walls, one near the lobby end and one farther down by the recycling bins.",
+   "movement": "The nearer person is heading toward the lobby, and the farther person is walking deeper into the building."
   },
   {
    "t": 176,
@@ -2929,8 +2929,8 @@
      "person": "male, medium build, black t-shirt, gray shorts, black cap"
     }
    ],
-   "scene": "One man is walking down a hallway away from the camera while holding a handgun at his side.",
-   "movement": "The man is moving forward, away from the camera down the hallway."
+   "scene": "One person in a dark shirt and shorts is walking through a long corridor lined with yellow walls and doors.",
+   "movement": "The person is heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 177,
@@ -2947,8 +2947,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, dark hair"
     }
    ],
-   "scene": "One man is walking down a hallway past a recycling bin.",
-   "movement": "The man is walking away from the camera down the hallway."
+   "scene": "One person wearing a dark t-shirt, shorts, and a cap is walking down the corridor while holding a handgun.",
+   "movement": "The person is heading deeper into the building along the corridor, in the direction leading away from the lobby entrance."
   },
   {
    "t": 178,
@@ -2964,8 +2964,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, black hair"
     }
    ],
-   "scene": "One man is walking away down a hallway past a recycling bin.",
-   "movement": "The man is moving away from the camera down the corridor."
+   "scene": "One person is walking down the corridor of a university building.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 179,
@@ -2974,8 +2974,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking away down a hallway lined with yellow walls and recycling bins.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person in a dark shirt and shorts is walking down the corridor.",
+   "movement": "They are heading deeper into the building, away from the lobby."
   },
   {
    "t": 180,
@@ -2991,8 +2991,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, short dark hair"
     }
    ],
-   "scene": "Two men are walking down a long, yellow-walled hallway, with one man closer to the camera and another further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are in a corridor with yellow walls, one walking down the hall and another partially visible near the lobby entrance.",
+   "movement": "The person in the middle of the corridor is heading deeper into the building, while the other person near the lobby entrance is moving in an unclear direction."
   },
   {
    "t": 181,
@@ -3008,8 +3008,8 @@
      "person": "male, medium build, black t-shirt, light khaki pants, black cap"
     }
    ],
-   "scene": "Two men are walking down a long yellow hallway, one in the foreground and one further ahead.",
-   "movement": "Both people are walking away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor of a university building.",
+   "movement": "Both individuals are heading deeper into the building, in the direction opposite the lobby."
   },
   {
    "t": 182,
@@ -3025,8 +3025,8 @@
      "person": "male, medium build, black t-shirt, khaki pants, black hair"
     }
    ],
-   "scene": "Two men are walking down a hallway, one in the foreground and one further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor; the nearer person is wearing a dark t-shirt and light pants while holding a handgun, and the farther person is wearing a dark t-shirt and dark shorts.",
+   "movement": "Both people are heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 183,
@@ -3042,8 +3042,8 @@
      "person": "male, medium build, black t-shirt, khaki pants, dark hair"
     }
    ],
-   "scene": "Two men are walking down a long hallway, with one man closer to the camera and another further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor of a university building.",
+   "movement": "Both individuals are heading deeper into the building, in the direction leading away from the lobby."
   },
   {
    "t": 184,
@@ -3060,8 +3060,8 @@
      "person": "male, medium build, black t-shirt, light gray pants, dark hair"
     }
    ],
-   "scene": "Two men are walking down a long yellow hallway, one closer in the foreground and another further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor of a university building.",
+   "movement": "Both individuals are heading deeper into the building along the corridor."
   },
   {
    "t": 185,
@@ -3077,8 +3077,8 @@
      "person": "male, medium build, black t-shirt, light gray pants, short dark hair"
     }
    ],
-   "scene": "Two people are in a hallway, one walking away in the foreground and another standing farther down the corridor.",
-   "movement": "The main person is walking away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor of a university building.",
+   "movement": "Both individuals are heading deeper into the building, in the direction opposite the lobby."
   },
   {
    "t": 186,
@@ -3095,8 +3095,8 @@
      "person": "male, medium build, black t-shirt, tan pants, short dark hair"
     }
    ],
-   "scene": "One person walking away down a hallway lined with yellow doors and a recycling bin.",
-   "movement": "The person is walking away from the camera down the hallway."
+   "scene": "One person is walking down the corridor carrying a red object.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 187,
@@ -3113,8 +3113,8 @@
      "person": "male, medium build, black t-shirt, beige pants, short dark hair"
     }
    ],
-   "scene": "One man is walking down a hallway away from the camera.",
-   "movement": "The man is moving forward, away from the camera down the hallway."
+   "scene": "One person is walking down the corridor of a university building.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 188,
@@ -3130,8 +3130,8 @@
      "person": "male, medium build, black t-shirt, gray pants, short dark hair"
     }
    ],
-   "scene": "One person is walking away down a hallway lined with yellow doors and a recycling bin.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor.",
+   "movement": "The person is heading deeper into the building, away from the lobby."
   },
   {
    "t": 189,
@@ -3140,8 +3140,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking away down a hallway lined with yellow doors and a recycling bin.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor.",
+   "movement": "The person is heading deeper into the building, away from the lobby."
   },
   {
    "t": 190,
@@ -3150,8 +3150,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One man in a light shirt and dark trousers is walking down a yellow-walled corridor past a recycling bin.",
-   "movement": "The man is moving away from the camera down the hallway."
+   "scene": "No people are visible in the corridor.",
+   "movement": "No one is moving."
   },
   {
    "t": 191,
@@ -3167,8 +3167,8 @@
      "person": "male, medium build, white shirt, dark trousers, dark hair"
     }
    ],
-   "scene": "One man is walking down a hallway past a recycling bin.",
-   "movement": "The man is moving away from the camera down the hallway."
+   "scene": "One person in a light shirt and dark trousers is walking through a long corridor lined with yellow walls, doors, and a recycling bin.",
+   "movement": "The person is heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 192,
@@ -3184,8 +3184,8 @@
      "person": "male, slim, dark top, dark bottom, dark hair"
     }
    ],
-   "scene": "Two people are present: one man walks away down the corridor while another partially visible person in the lower left holds a handgun.",
-   "movement": "The man in the corridor is walking away from the camera; the armed person at lower left appears stationary or moving slightly."
+   "scene": "One person in a light shirt and dark trousers is walking down the corridor of a university building.",
+   "movement": "The person is heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 193,
@@ -3201,8 +3201,8 @@
      "person": "male, slim, dark top, dark bottom, dark hair"
     }
    ],
-   "scene": "Two men are walking down a long, yellow-walled hallway, with one man further ahead near a doorway and another closer to the camera.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor while another person stands near the lobby holding a phone.",
+   "movement": "The person in the corridor is heading deeper into the building, in the direction opposite the lobby."
   },
   {
    "t": 194,
@@ -3211,8 +3211,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two men are in a yellow hallway, one walking away in the foreground and another standing farther down the corridor.",
-   "movement": "The foreground man moves away from the camera down the hall, while the distant man stands still."
+   "scene": "Two people are in a corridor with yellow walls, one wearing a light shirt and dark pants and the other wearing a dark shirt.",
+   "movement": "The person in the light shirt is heading deeper into the building down the corridor, and the person in the dark shirt is heading toward the lobby."
   },
   {
    "t": 195,
@@ -3221,8 +3221,8 @@
    "people": 3,
    "weapons": {},
    "armed": [],
-   "scene": "Three people are in a hallway: one man walking away in a black shirt and shorts, another man further ahead in a white shirt, and a boy partially visible in the lower left.",
-   "movement": "The two men are walking away from the camera down the hallway, while the boy in the lower left appears to be moving past the camera."
+   "scene": "Two people are in a long corridor with yellow walls, one wearing a dark shirt and shorts and the other wearing a light shirt and dark trousers.",
+   "movement": "The person in dark clothing is heading deeper into the building along the corridor, and the person in the light shirt is standing near the far doors."
   },
   {
    "t": 196,
@@ -3238,8 +3238,8 @@
      "person": "male, medium build, white top, dark pants, dark hair"
     }
    ],
-   "scene": "Three people are in a hallway, with one in the foreground walking away and two further down the corridor, one appearing to gesture or point.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are present in a corridor with yellow walls, a recycling bin, and exit signs.",
+   "movement": "One person heads deeper into the building, another walks near the stairwell, and a third moves toward the lobby."
   },
   {
    "t": 197,
@@ -3255,8 +3255,8 @@
      "person": "male, medium build, light blue short-sleeve shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "Two men are walking down a long, yellow-walled hallway, with one man closer to the camera and another further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Three people are in a corridor with yellow walls, a tiled floor, and a recycling bin, with one person in a blue shirt walking and two others farther down the hall.",
+   "movement": "The person in the blue shirt is heading deeper into the building along the corridor, while the two people farther down are moving in the same direction."
   },
   {
    "t": 198,
@@ -3272,8 +3272,8 @@
      "person": "male, medium build, light blue short-sleeve shirt, black pants, dark hair"
     }
    ],
-   "scene": "Two men are in a hallway, one walking away in a blue shirt and another standing further down in dark clothing.",
-   "movement": "The man in the blue shirt is walking away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor of a university building.",
+   "movement": "Both individuals are heading deeper into the building, in the direction leading away from the lobby."
   },
   {
    "t": 199,
@@ -3282,8 +3282,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are in a hallway, one walking away down the corridor and another standing near a doorway at the far end.",
-   "movement": "The person in the foreground is moving away from the camera down the hallway, while the other person is stationary."
+   "scene": "Two people are in a corridor with yellow walls, one walking and one standing near a doorway.",
+   "movement": "The walking person is heading deeper into the building along the corridor, while the standing person remains near the doorway."
   },
   {
    "t": 200,
@@ -3292,8 +3292,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One man is walking away down a hallway lined with yellow doors and a recycling bin.",
-   "movement": "The man is moving away from the camera down the corridor."
+   "scene": "Two people are present in the corridor, with one walking down the hallway and another standing near a doorway further along.",
+   "movement": "The walking person is heading deeper into the building along the corridor, while the standing person remains stationary near the doorway."
   },
   {
    "t": 201,
@@ -3302,8 +3302,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are in a hallway, with one man running toward the camera and another person walking away in the distance.",
-   "movement": "The man in the foreground is moving toward the camera, while the person in the background is moving away down the hall."
+   "scene": "One person in a light blue shirt and dark trousers is walking down the corridor.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 202,
@@ -3319,8 +3319,8 @@
      "person": "male, medium build, black t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Two men are in a hallway, one facing away and the other aiming a handgun at him.",
-   "movement": "The man in black is moving forward toward the man in the blue jeans, who is walking away."
+   "scene": "One person is running down the corridor while another person walks near the stairwell.",
+   "movement": "The running person is heading deeper into the building along the corridor, and the other person is moving near the stairwell."
   },
   {
    "t": 203,
@@ -3340,8 +3340,8 @@
      "person": "male, medium build, black t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Three people are in a hallway; one in pink is running toward the camera while two in black stand further down the hall, one aiming a handgun.",
-   "movement": "The person in pink moves toward the camera; the two people in black appear stationary or moving away down the hall."
+   "scene": "Two men are in a corridor, with one man standing still and the other man holding an object up near his head while facing the first man.",
+   "movement": "The man holding the object is moving down the corridor in the direction of the other man, who is standing near the far doors."
   },
   {
    "t": 204,
@@ -3357,8 +3357,8 @@
      "person": "male, slim, black t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Five people are in a hallway, with several running away from the camera and others visible farther down the corridor.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are in a corridor; one in a pink shirt is holding a handgun, one in black is holding a handgun, and one further down the corridor is standing still.",
+   "movement": "The person in pink is heading toward the lobby, the person in black is heading deeper into the building, and the person further down the corridor is not moving."
   },
   {
    "t": 205,
@@ -3374,8 +3374,8 @@
      "person": "male, slim, black t-shirt, black pants, short black hair"
     }
    ],
-   "scene": "Five people are in a hallway; one at the far end is pointing a handgun while others run toward or away from the camera.",
-   "movement": "The foreground people are running away from the camera down the hall, while the armed person stands at the far end."
+   "scene": "Five people are visible in a corridor with yellow walls, tiled floor, and recycling bins, with one person in a red shirt running and others walking or standing near the stairwell.",
+   "movement": "The person in the red shirt is running down the corridor toward the stairwell, while the others are moving in the same direction or standing near the stairwell."
   },
   {
    "t": 206,
@@ -3391,8 +3391,8 @@
      "person": "male, slim, black top, blue jeans, dark hair"
     }
    ],
-   "scene": "Four people are running down a yellow-walled corridor, with one person partially visible in the lower-left foreground.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Five people are visible in a corridor with yellow walls, including a person in a white shirt and blue shorts running, a person in a red shirt walking, and three others near the far end.",
+   "movement": "The person in the white shirt and blue shorts is running down the corridor deeper into the building, the person in the red shirt is walking in the same direction, and the group near the far end is standing near the exit."
   },
   {
    "t": 207,
@@ -3408,8 +3408,8 @@
      "person": "male, medium build, red t-shirt, dark pants, dark hair"
     }
    ],
-   "scene": "Five people are running down a yellow-walled corridor, with one person in a light blue shirt closest to the camera.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Five people are running through a yellow-walled corridor with a tiled floor, passing a recycling bin and emergency exit signs.",
+   "movement": "The group is heading deeper into the building along the corridor, in the direction leading away from the lobby entrance."
   },
   {
    "t": 208,
@@ -3425,8 +3425,8 @@
      "person": "male, medium build, light blue short-sleeve shirt, dark pants, dark hair"
     }
    ],
-   "scene": "Three people are walking down a hallway, with the nearest man in a light blue shirt following two others.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Five people are running down the corridor of a university building, with a man in a light blue shirt closest to the lobby and others further down the hall.",
+   "movement": "The group is heading deeper into the building, down the corridor past the recycling bins and exit signs."
   },
   {
    "t": 209,
@@ -3442,8 +3442,8 @@
      "person": "male, slim, red t-shirt, dark pants, dark hair"
     }
    ],
-   "scene": "Three men are walking down a hallway, with one man in a light blue shirt closer to the camera and two men further ahead.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor of a university building, with one person in a blue shirt following two others further ahead.",
+   "movement": "The group is heading deeper into the building along the corridor, moving in the direction opposite the lobby."
   },
   {
    "t": 210,
@@ -3459,8 +3459,8 @@
      "person": "male, slim, dark top, dark pants, dark hair"
     }
    ],
-   "scene": "Three people are in a hallway, with one person near the far door and two others walking away down the corridor.",
-   "movement": "The two people in the foreground are walking away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor of a university building, passing a row of waste bins placed against the wall.",
+   "movement": "The people are heading deeper into the building along the corridor, in the direction leading away from the lobby."
   },
   {
    "t": 211,
@@ -3469,8 +3469,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are walking down a hallway, one in the foreground and one further ahead near a doorway.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor while a third person appears to be struggling with one of them near a doorway.",
+   "movement": "The group is moving deeper into the building along the corridor."
   },
   {
    "t": 212,
@@ -3479,8 +3479,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Three people are walking down a yellow-walled hallway, with two recycling bins along the right wall.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Two people are walking together down the corridor, passing a row of recycling bins.",
+   "movement": "They are heading deeper into the building along the corridor."
   },
   {
    "t": 213,
@@ -3489,8 +3489,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are walking away down a hallway lined with yellow doors and a recycling bin.",
-   "movement": "Both people are moving away from the camera down the corridor."
+   "scene": "Three people are walking together down the corridor, passing a recycling bin and exit signs mounted on the yellow walls.",
+   "movement": "The group is heading deeper into the building, in the direction opposite the lobby."
   },
   {
    "t": 214,
@@ -3499,8 +3499,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking down a long, empty hallway with yellow walls and a tiled floor.",
-   "movement": "The person is walking away from the camera down the hallway."
+   "scene": "Two people are walking together down the corridor.",
+   "movement": "They are heading deeper into the building, away from the lobby."
   },
   {
    "t": 215,
@@ -3509,8 +3509,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking down a hallway past a recycling bin.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor past a row of recycling bins.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 216,
@@ -3519,8 +3519,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking down a hallway past a recycling bin.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor of a university building.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 217,
@@ -3529,8 +3529,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two men are walking down a hallway past a row of trash bins.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor of a university building.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 218,
@@ -3539,8 +3539,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are walking down a yellow-walled hallway, with one person further ahead near the end of the corridor.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor.",
+   "movement": "Both are heading deeper into the building, in the direction leading away from the lobby."
   },
   {
    "t": 219,
@@ -3556,8 +3556,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, black hair"
     }
    ],
-   "scene": "Two men are in a hallway, one walking away and the other turning toward the camera while holding a handgun.",
-   "movement": "The man in the foreground is moving toward the camera while the man in the background walks away down the hall."
+   "scene": "Two people are running down the corridor of a university building.",
+   "movement": "Both individuals are heading deeper into the building, moving in the direction opposite the lobby."
   },
   {
    "t": 220,
@@ -3573,8 +3573,8 @@
      "person": "male, slim, dark top, dark shorts, dark hair"
     }
    ],
-   "scene": "One person is walking away down a hallway toward a doorway.",
-   "movement": "The person is moving away from the camera down the corridor."
+   "scene": "Two people are walking down the corridor, with one person closer to the lobby and the other further along near the stairwell.",
+   "movement": "Both people are heading deeper into the building along the corridor."
   },
   {
    "t": 221,
@@ -3590,8 +3590,8 @@
      "person": "male, medium build, dark t-shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "Two people are in a hallway, one in the foreground and one walking away in the distance.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "One person wearing a dark t-shirt and dark shorts is walking down the corridor.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 222,
@@ -3607,8 +3607,8 @@
      "person": "male, medium build, black t-shirt, light shorts, dark hair"
     }
    ],
-   "scene": "Two men are in a hallway; the nearer man is walking toward the camera holding a handgun, while the farther man stands facing him.",
-   "movement": "The nearer man is moving toward the camera; the farther man is moving away down the hall."
+   "scene": "Two people are in a long corridor with yellow walls, one closer and one farther down the hall, both walking in the same direction.",
+   "movement": "Both people are heading deeper into the building, down the corridor and away from the lobby."
   },
   {
    "t": 223,
@@ -3625,8 +3625,8 @@
      "person": "male, medium build, black t-shirt, light khaki pants, black cap"
     }
    ],
-   "scene": "One man walks down a hallway holding a handgun, with another person visible far in the background.",
-   "movement": "The man with the gun is walking away from the camera down the hallway."
+   "scene": "Two people are in a corridor; one is walking while holding a long object, and the other is standing further down the hall.",
+   "movement": "The person with the object is heading deeper into the building along the corridor, while the other person remains stationary."
   },
   {
    "t": 224,
@@ -3642,8 +3642,8 @@
      "person": "male, medium build, black t-shirt, light gray pants, dark hair"
     }
    ],
-   "scene": "One person is walking away down a hallway lined with yellow walls and a recycling bin.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor carrying an object, while another person is partially visible near the far doors.",
+   "movement": "The person in the corridor is heading deeper into the building, in the direction opposite the lobby."
   },
   {
    "t": 225,
@@ -3652,8 +3652,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking away down a hallway lined with yellow doors and a recycling bin.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor.",
+   "movement": "The person is heading deeper into the building, further from the lobby."
   },
   {
    "t": 226,
@@ -3662,8 +3662,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking away down a hallway lined with yellow doors and a recycling bin.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor of a university building.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 227,
@@ -3679,8 +3679,8 @@
      "person": "male, slim, black t-shirt, light grey pants, dark hair"
     }
    ],
-   "scene": "One person is walking away down a hallway lined with yellow walls and recycling bins.",
-   "movement": "The person is moving away from the camera down the corridor."
+   "scene": "One person is walking down the corridor.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 228,
@@ -3696,8 +3696,8 @@
      "person": "male, slim, dark top, light gray pants, dark hair"
     }
    ],
-   "scene": "No people are visible in the empty hallway.",
-   "movement": "No movement."
+   "scene": "One person is walking down the corridor of a university building.",
+   "movement": "The person is heading deeper into the building along the corridor."
   },
   {
    "t": 229,
@@ -3706,8 +3706,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "One person is partially visible at the bottom edge of the frame, appearing to move through the hallway.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "No people are visible in the corridor.",
+   "movement": "No one is moving."
   },
   {
    "t": 230,
@@ -3716,8 +3716,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "No people are visible in the empty hallway.",
-   "movement": "No movement."
+   "scene": "No people are visible in the corridor.",
+   "movement": "No one is moving."
   },
   {
    "t": 231,
@@ -3726,8 +3726,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "No people are visible in the empty hallway.",
-   "movement": "No movement."
+   "scene": "No people are visible in the corridor.",
+   "movement": "No one is moving."
   },
   {
    "t": 232,
@@ -3736,8 +3736,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "No people are visible in the empty hallway.",
-   "movement": "No movement."
+   "scene": "No people are visible in the corridor.",
+   "movement": "No one is moving."
   },
   {
    "t": 233,
@@ -3746,8 +3746,8 @@
    "people": 0,
    "weapons": {},
    "armed": [],
-   "scene": "No people are visible in the empty hallway.",
-   "movement": "No movement."
+   "scene": "No people are visible in a long corridor with yellow walls, tiled flooring, doors, and a recycling bin.",
+   "movement": "No one is moving."
   },
   {
    "t": 234,
@@ -3756,8 +3756,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person is partially visible in the lower-left corner, mostly out of frame.",
-   "movement": "No movement."
+   "scene": "One person is partially visible walking through the corridor.",
+   "movement": "The person is heading down the corridor toward the stairwell."
   },
   {
    "t": 235,
@@ -3766,8 +3766,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One man is walking down a hallway past a row of recycling bins.",
-   "movement": "The man is moving toward the camera and slightly to the right."
+   "scene": "One person is walking through the corridor of a university building.",
+   "movement": "The person is heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 236,
@@ -3783,8 +3783,8 @@
      "person": "male, medium build, black t-shirt, black shorts, dark hair"
     }
    ],
-   "scene": "Two people are in a hallway; one man walks away down the corridor while another person's head appears in the lower-left foreground.",
-   "movement": "The man in black walks away from the camera down the hallway; the foreground person shows no clear movement."
+   "scene": "One person in dark clothing is walking through a long corridor with yellow walls and a tiled floor.",
+   "movement": "The person is heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 237,
@@ -3801,8 +3801,8 @@
      "person": "male, medium build, light blue t-shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "Two men are walking down a hallway, with the nearer man holding a handgun at his side.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are in a corridor; one is walking while the other is running with a knife.",
+   "movement": "The person walking is heading toward the stairwell, and the person running is heading toward the east corridor."
   },
   {
    "t": 238,
@@ -3818,8 +3818,8 @@
      "person": "male, medium build, light blue t-shirt, black pants, black hair"
     }
    ],
-   "scene": "Two men are walking down a yellow-walled hallway, one in a light blue shirt and one in a black shirt.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two men are present in the corridor, with one wearing a blue shirt and dark pants and the other wearing a black shirt and dark shorts.",
+   "movement": "The man in the blue shirt is heading toward the east corridor while the man in the black shirt is heading toward the stairwell."
   },
   {
    "t": 239,
@@ -3835,8 +3835,8 @@
      "person": "male, medium build, light blue t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Three people are walking down a hallway, with two men ahead and one person partially visible in the foreground.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are present in a corridor with yellow walls, two walking together and one partially visible near the entrance.",
+   "movement": "The two walking people are heading down the corridor toward the stairwell, while the third person is near the entrance."
   },
   {
    "t": 240,
@@ -3852,8 +3852,8 @@
      "person": "male, medium build, light blue t-shirt, black pants, dark hair"
     }
    ],
-   "scene": "Three men are walking down a hallway with yellow walls and a light-colored floor.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three men are present in a corridor with yellow walls, one wearing a white shirt and two wearing t-shirts, with a row of recycling bins along one wall.",
+   "movement": "The man in the white shirt is heading down the corridor toward the stairwell, following the two men in t-shirts who are also moving in that direction."
   },
   {
    "t": 241,
@@ -3862,8 +3862,8 @@
    "people": 3,
    "weapons": {},
    "armed": [],
-   "scene": "Three men are walking down a yellow-walled hallway, with a partial view of a person in the lower left corner.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor.",
+   "movement": "They are heading toward the stairwell."
   },
   {
    "t": 242,
@@ -3872,8 +3872,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Three men are walking down a yellow-walled hallway, with one man in a white shirt closer to the camera and two others ahead of him.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor, with one person in a light shirt and dark pants closer to the entrance and two others further along near the stairwell.",
+   "movement": "The person in the light shirt is heading down the corridor toward the stairwell, and the two people ahead are also moving in that direction."
   },
   {
    "t": 243,
@@ -3882,8 +3882,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Three men are walking down a yellow-walled hallway, with one man in a light shirt closer to the camera and two men further ahead.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor of a university building.",
+   "movement": "They are heading down the corridor toward the stairwell."
   },
   {
    "t": 244,
@@ -3892,8 +3892,8 @@
    "people": 3,
    "weapons": {},
    "armed": [],
-   "scene": "Four people are walking down a yellow-walled hallway, with one person in the foreground and three further ahead.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Four people are present in a corridor with yellow walls, a tiled floor, and a recycling bin, with one person's head visible near the entrance and three others walking down the hall.",
+   "movement": "The three people in the corridor are heading toward the stairwell, while the person near the entrance is moving through the corridor."
   },
   {
    "t": 245,
@@ -3909,8 +3909,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, black hair"
     }
    ],
-   "scene": "Five people are walking down a yellow-walled hallway, with one man in the foreground and four others further ahead.",
-   "movement": "Everyone is walking away from the camera down the corridor."
+   "scene": "Five people are present in a corridor with yellow walls, a tiled floor, and a recycling bin, with one person walking in the corridor and four others near the stairwell.",
+   "movement": "The person in the corridor is heading toward the stairwell, and the group near the stairwell is moving further down the corridor."
   },
   {
    "t": 246,
@@ -3926,8 +3926,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, black hair"
     }
    ],
-   "scene": "Four people are in a hallway: one man walking away in the foreground, two men walking away farther down the hall, and a partial figure at the lower left.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Five people are present in a corridor with yellow walls, a tiled floor, and a recycling bin, with one person walking in the middle and others near the stairwell.",
+   "movement": "The person in the middle is heading down the corridor toward the stairwell, while the group near the stairwell is moving in that area."
   },
   {
    "t": 247,
@@ -3943,8 +3943,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, black hair"
     }
    ],
-   "scene": "Three people are in a hallway: one man walking away in the foreground, another man further down the hall, and a third person near the far doorway.",
-   "movement": "The people are walking away from the camera down the hallway."
+   "scene": "Four people are present in the corridor: one man in a dark shirt and jeans walking, two men in uniform standing near the stairwell, and one partially visible person near the entrance.",
+   "movement": "The man in the dark shirt is heading down the corridor toward the stairwell, while the two uniformed men are standing near the stairwell and the person near the entrance is not moving."
   },
   {
    "t": 248,
@@ -3960,8 +3960,8 @@
      "person": "male, medium build, black t-shirt, blue jeans, black hair"
     }
    ],
-   "scene": "Three people are in a hallway: one man walks toward the camera, another man walks away down the hall, and a third person is farther ahead near a doorway.",
-   "movement": "The nearest man moves toward the camera while the other two move away down the hallway."
+   "scene": "Three people are walking through a long corridor with yellow walls, a speckled floor, and a recycling bin along one wall.",
+   "movement": "The person nearest the stairwell is heading into the stairwell, the person in the middle is walking down the corridor toward the stairwell, and the person nearest the east corridor is heading back toward the east corridor."
   },
   {
    "t": 249,
@@ -3977,8 +3977,8 @@
      "person": "male, medium build, black t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Two men are walking down a hallway, with the nearer man in black holding a handgun at his side while the farther man walks ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Three people are present in a corridor with yellow walls, one walking and two standing near the stairwell.",
+   "movement": "One person is heading along the corridor toward the stairwell, while the other two remain near the stairwell area."
   },
   {
    "t": 250,
@@ -3994,8 +3994,8 @@
      "person": "male, slim, black t-shirt, black pants, short dark hair"
     }
    ],
-   "scene": "Two men are walking down a yellow-walled hallway, one in the foreground and one further ahead near a doorway.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor; the person closer to the stairwell is wearing a dark t-shirt and jeans, while the other person is further along near the stairwell.",
+   "movement": "Both people are heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 251,
@@ -4011,8 +4011,8 @@
      "person": "male, medium build, black t-shirt, black pants, black hair"
     }
    ],
-   "scene": "Two men are walking down a yellow-walled hallway, with one man closer to the camera and another further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor.",
+   "movement": "Both individuals are heading toward the stairwell."
   },
   {
    "t": 252,
@@ -4028,8 +4028,8 @@
      "person": "male, slim, black t-shirt, black pants, short black hair"
     }
    ],
-   "scene": "Two people are walking down a hallway, with one following the other.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor.",
+   "movement": "Both are heading down the corridor toward the stairwell."
   },
   {
    "t": 253,
@@ -4038,8 +4038,8 @@
    "people": 3,
    "weapons": {},
    "armed": [],
-   "scene": "Three people are walking down a long yellow hallway, with one in the foreground and two further ahead.",
-   "movement": "All three people are moving away from the camera down the hallway."
+   "scene": "Three people are present in a corridor with yellow walls, a tiled floor, and a recycling bin.",
+   "movement": "One person in a red shirt is heading toward the east corridor, while two others are walking down the corridor toward the stairwell."
   },
   {
    "t": 254,
@@ -4055,8 +4055,8 @@
      "person": "male, medium build, red polo shirt, dark jeans, short black hair"
     }
    ],
-   "scene": "Two men are walking down a long yellow hallway, one in the foreground and one further ahead.",
-   "movement": "Both people are moving away from the camera down the corridor."
+   "scene": "Three people are present in the corridor: one man in a red shirt walking, one man in a black shirt walking, and one person near the stairwell.",
+   "movement": "The man in the red shirt is heading down the corridor toward the stairwell, the man in the black shirt is continuing along the corridor near the stairwell, and the person near the stairwell is moving through that area."
   },
   {
    "t": 255,
@@ -4072,8 +4072,8 @@
      "person": "male, medium build, pink t-shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Two men are walking down a long, empty hallway with yellow walls and a tiled floor.",
-   "movement": "Both people are walking away from the camera down the corridor."
+   "scene": "Two people are walking through a long corridor with yellow walls, a tiled floor, and recycling bins placed along the wall.",
+   "movement": "The person in the red shirt is heading down the corridor toward the stairwell, and the person in dark clothing is already near the stairwell entrance."
   },
   {
    "t": 256,
@@ -4089,8 +4089,8 @@
      "person": "male, medium build, red t-shirt, blue jeans, dark hair"
     }
    ],
-   "scene": "Two people are in a hallway; one man in a red shirt walks away from the camera while another person stands further down the corridor.",
-   "movement": "The man in the red shirt is walking away from the camera down the hallway, and the distant person appears to be moving away as well."
+   "scene": "Two men are walking through a corridor with yellow walls, a recycling bin, and exit signs.",
+   "movement": "The man in the red shirt is heading down the corridor toward the stairwell, and the man in black is walking near the stairwell."
   },
   {
    "t": 257,
@@ -4106,8 +4106,8 @@
      "person": "male, medium build, red t-shirt, dark jeans, dark hair"
     }
    ],
-   "scene": "One man is walking down a hallway past a row of recycling bins.",
-   "movement": "The man is moving away from the camera down the hallway."
+   "scene": "One person in a red shirt and blue jeans is walking down the corridor.",
+   "movement": "The person is heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 258,
@@ -4123,8 +4123,8 @@
      "person": "male, medium build, red t-shirt, dark pants, dark hair"
     }
    ],
-   "scene": "One man in a red shirt walks down a long, empty, yellow-walled hallway past a recycling bin.",
-   "movement": "The man is walking toward the camera down the corridor."
+   "scene": "One person in a red shirt and dark pants is walking down the corridor.",
+   "movement": "The person is heading down the corridor toward the stairwell."
   },
   {
    "t": 259,
@@ -4140,8 +4140,8 @@
      "person": "male, medium build, red t-shirt, dark pants, short dark hair"
     }
    ],
-   "scene": "One man in a red shirt is walking down a long, empty hallway.",
-   "movement": "The man is walking away from the camera, down the hallway."
+   "scene": "One person wearing a red shirt and dark pants is walking through the corridor.",
+   "movement": "The person is heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 260,
@@ -4150,8 +4150,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are visible: one person walking away down the hallway and another partially visible in the lower-left foreground.",
-   "movement": "The person in the hallway is moving away from the camera; the foreground person appears stationary or moving out of frame."
+   "scene": "Two people are present in a long corridor with yellow walls, one walking down the hall and another partially visible near the entrance.",
+   "movement": "The person in the red shirt is heading down the corridor toward the stairwell."
   },
   {
    "t": 261,
@@ -4160,8 +4160,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are in a hallway, with one man walking away from the camera in the foreground and another person walking in the background.",
-   "movement": "The man in the foreground is moving away from the camera down the hall, and the person in the background is walking across the far end of the hallway."
+   "scene": "Two people are walking through a long corridor with yellow walls, a tiled floor, and a recycling bin.",
+   "movement": "One person is heading down the corridor toward the stairwell, and the other is walking back toward the east corridor."
   },
   {
    "t": 262,
@@ -4177,8 +4177,8 @@
      "person": "male, medium build, black t-shirt, brown shorts, black hair"
     }
    ],
-   "scene": "Two people are in a hallway, one walking away down the corridor and another partially visible in the foreground.",
-   "movement": "The person in the foreground is moving toward the camera while the person in the hallway walks away from the camera."
+   "scene": "One person is walking down the corridor carrying a small object.",
+   "movement": "The person is heading down the corridor toward the stairwell."
   },
   {
    "t": 263,
@@ -4194,8 +4194,8 @@
      "person": "male, medium build, black t-shirt, khaki shorts, black hair"
     }
    ],
-   "scene": "Two men are walking down a hallway, one in a light blue shirt and the other in a black shirt.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking through a long corridor with yellow walls, one wearing a dark shirt and shorts and the other a light blue shirt.",
+   "movement": "The person in the dark shirt is heading down the corridor toward the stairwell while the person in the light blue shirt follows in the same direction."
   },
   {
    "t": 264,
@@ -4211,8 +4211,8 @@
      "person": "male, medium build, light blue short-sleeve shirt, dark pants, dark hair"
     }
    ],
-   "scene": "Two men are walking down a yellow-walled hallway past a recycling bin.",
-   "movement": "Both people are walking away from the camera down the corridor."
+   "scene": "Two men are walking down the corridor.",
+   "movement": "Both men are heading down the corridor toward the stairwell."
   },
   {
    "t": 265,
@@ -4228,8 +4228,8 @@
      "person": "male, medium build, light blue t-shirt, dark jeans, short dark hair"
     }
    ],
-   "scene": "Two men are walking down a hallway, one in a light blue shirt and one in a black shirt ahead of him.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor, with one person closer and another person further ahead near the stairwell.",
+   "movement": "Both people are heading down the corridor toward the stairwell."
   },
   {
    "t": 266,
@@ -4245,8 +4245,8 @@
      "person": "male, slim, light blue t-shirt, dark jeans, short black hair"
     }
    ],
-   "scene": "Three people are in a hallway, with one running toward the camera and two walking away in the distance.",
-   "movement": "The nearest person moves toward the camera while the two farther people move away down the hall."
+   "scene": "Three people are walking through a long corridor with yellow walls, a tiled floor, and a recycling bin against one wall.",
+   "movement": "The people are heading down the corridor toward the stairwell."
   },
   {
    "t": 267,
@@ -4262,8 +4262,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, black hair"
     }
    ],
-   "scene": "Two people are walking down a yellow-walled hallway, with the nearer man holding a handgun at his side.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down a corridor with yellow walls and a tiled floor, passing a row of recycling bins and a fire exit sign.",
+   "movement": "The people are heading down the corridor toward the stairwell."
   },
   {
    "t": 268,
@@ -4279,8 +4279,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, dark hair"
     }
    ],
-   "scene": "Three people are walking down a yellow-walled hallway, with one person in a white t-shirt and shorts in the foreground and two others further ahead.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor; the nearest person wears a white t-shirt and dark shorts while holding a phone, and two others are further along near the stairwell.",
+   "movement": "All three people are heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 269,
@@ -4296,8 +4296,8 @@
      "person": "male, medium build, white t-shirt, blue shorts, dark hair"
     }
    ],
-   "scene": "Three people are in a hallway, with one man walking toward the camera and two others farther down the corridor.",
-   "movement": "The people are moving away from the camera down the hallway."
+   "scene": "Three people are walking down the corridor, with one person closer and two people further ahead near the stairwell.",
+   "movement": "The person closest is heading down the corridor toward the stairwell, and the two people ahead are also moving in that direction."
   },
   {
    "t": 270,
@@ -4306,8 +4306,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are walking away down a hallway, with one closer in a white shirt and shorts and another further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Three people are present in a corridor with yellow walls, a tiled floor, and a recycling bin, with one person walking and two others near the stairwell.",
+   "movement": "One person is heading down the corridor toward the stairwell, while the other two are near the stairwell area."
   },
   {
    "t": 271,
@@ -4316,8 +4316,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "Two men are walking away down a hallway, one in a white t-shirt and shorts and another in a light blue shirt.",
-   "movement": "Both people are moving away from the camera down the corridor."
+   "scene": "One person is walking down the corridor while another person stands near the stairwell.",
+   "movement": "The walking person is heading down the corridor toward the stairwell."
   },
   {
    "t": 272,
@@ -4326,8 +4326,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking away down a long, empty hallway.",
-   "movement": "The person is moving away from the camera, down the hallway."
+   "scene": "Two people are walking down the corridor, with one person closer and another person further ahead near the stairwell.",
+   "movement": "Both people are heading down the corridor toward the stairwell."
   },
   {
    "t": 273,
@@ -4336,8 +4336,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are in a hallway, one running away in the distance and one partially visible in the foreground.",
-   "movement": "The distant person is moving away down the hall while the foreground person appears to be moving toward the camera."
+   "scene": "One person wearing a white shirt and blue shorts is walking down the corridor.",
+   "movement": "The person is heading down the corridor toward the stairwell."
   },
   {
    "t": 274,
@@ -4346,8 +4346,8 @@
    "people": 2,
    "weapons": {},
    "armed": [],
-   "scene": "Two people are present: a man in a black t-shirt walking down the hallway toward the camera, and a woman in white standing near the far end of the corridor.",
-   "movement": "The man is moving toward the camera in the foreground, while the woman in the background appears to be walking away down the hall."
+   "scene": "Two people are present in the corridor: one man wearing a dark shirt and glasses is walking, and another person in a light shirt and shorts is standing near the stairwell.",
+   "movement": "The man in the dark shirt is heading along the corridor toward the stairwell, while the person in the light shirt is moving near the stairwell."
   },
   {
    "t": 275,
@@ -4363,8 +4363,8 @@
      "person": "male, medium build, black t-shirt, gray shorts, black cap"
     }
    ],
-   "scene": "One man is walking down a hallway away from the camera.",
-   "movement": "The man is moving forward, away from the camera down the hallway."
+   "scene": "One person in a dark shirt and shorts is walking down the corridor.",
+   "movement": "The person is heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 276,
@@ -4381,8 +4381,8 @@
      "person": "male, medium build, black t-shirt, gray shorts, dark hair"
     }
    ],
-   "scene": "One man is walking away down a hallway past recycling bins.",
-   "movement": "The man is moving away from the camera down the hallway."
+   "scene": "One person wearing a dark shirt, shorts, and a cap is walking through the corridor while holding a handgun.",
+   "movement": "The person is heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 277,
@@ -4398,8 +4398,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, short dark hair"
     }
    ],
-   "scene": "One man is walking down a hallway past a recycling bin.",
-   "movement": "The man is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor.",
+   "movement": "The person is heading toward the stairwell."
   },
   {
    "t": 278,
@@ -4408,8 +4408,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One man is walking down a hallway past a row of recycling bins.",
-   "movement": "The man is walking away from the camera down the hallway."
+   "scene": "One person in a dark shirt and shorts is walking down the corridor.",
+   "movement": "The person is heading along the corridor in the direction of the stairwell."
   },
   {
    "t": 279,
@@ -4425,8 +4425,8 @@
      "person": "male, medium build, black t-shirt, dark shorts, short dark hair"
     }
    ],
-   "scene": "Two people are in a hallway, one walking away in the distance and another closer to the camera.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are present in the corridor: one person is walking down the hall, and another person's head is partially visible near the entrance.",
+   "movement": "The person in the corridor is heading toward the stairwell."
   },
   {
    "t": 280,
@@ -4442,8 +4442,8 @@
      "person": "male, medium build, black t-shirt, light khaki pants, black cap"
     }
    ],
-   "scene": "Two men are walking down a long yellow hallway, one in the foreground and one further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking through a long corridor with yellow walls, a tiled floor, and a recycling bin.",
+   "movement": "The person nearer the stairwell is heading toward it, and the other person is following in the same direction."
   },
   {
    "t": 281,
@@ -4459,8 +4459,8 @@
      "person": "male, medium build, black t-shirt, tan pants, dark hair"
     }
    ],
-   "scene": "Two men are walking down a long hallway, with one man closer to the camera and another further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking through a corridor with yellow walls, doors, and recycling bins.",
+   "movement": "Both individuals are heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 282,
@@ -4476,8 +4476,8 @@
      "person": "male, medium build, black t-shirt, khaki pants, dark hair"
     }
    ],
-   "scene": "Two men are walking down a hallway, with one man closer to the camera and another further ahead.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor.",
+   "movement": "Both people are heading toward the stairwell."
   },
   {
    "t": 283,
@@ -4493,8 +4493,8 @@
      "person": "male, medium build, black t-shirt, gray pants, dark hair"
     }
    ],
-   "scene": "Two people are walking down a yellow-walled hallway, with one person further ahead near the end of the corridor.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down the corridor, with one person closer and another person further ahead near the stairwell.",
+   "movement": "Both people are heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 284,
@@ -4511,8 +4511,8 @@
      "person": "male, medium build, black t-shirt, light gray pants, dark hair"
     }
    ],
-   "scene": "Two people are in a hallway, one walking away in the foreground and another further down the corridor.",
-   "movement": "Both people are moving away from the camera down the hallway."
+   "scene": "Two people are walking down a corridor with yellow walls and a tiled floor, passing a row of waste bins and exit signs.",
+   "movement": "Both individuals are heading down the corridor in the direction of the stairwell."
   },
   {
    "t": 285,
@@ -4530,8 +4530,8 @@
      "person": "male, medium build, black t-shirt, tan pants, dark hair"
     }
    ],
-   "scene": "One man is walking down a hallway away from the camera.",
-   "movement": "The man is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor carrying a dark object.",
+   "movement": "The person is heading down the corridor toward the stairwell."
   },
   {
    "t": 286,
@@ -4548,8 +4548,8 @@
      "person": "male, medium build, black t-shirt, gray pants, short dark hair"
     }
    ],
-   "scene": "One man is walking down a long, empty hallway lined with yellow doors and a recycling bin.",
-   "movement": "The man is walking away from the camera, down the hallway."
+   "scene": "One person is walking down the corridor.",
+   "movement": "The person is heading down the corridor toward the stairwell."
   },
   {
    "t": 287,
@@ -4565,8 +4565,8 @@
      "person": "male, medium build, black t-shirt, gray pants, dark hair"
     }
    ],
-   "scene": "One person is walking away down a hallway lined with yellow walls and recycling bins.",
-   "movement": "The person is moving away from the camera down the corridor."
+   "scene": "One person is walking down the corridor.",
+   "movement": "The person is heading toward the stairwell."
   },
   {
    "t": 288,
@@ -4575,8 +4575,8 @@
    "people": 1,
    "weapons": {},
    "armed": [],
-   "scene": "One person is walking away down a hallway lined with yellow doors and a recycling bin.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor.",
+   "movement": "The person is heading toward the stairwell."
   },
   {
    "t": 289,
@@ -4592,8 +4592,8 @@
      "person": "male, medium build, black t-shirt, light gray pants, dark hair"
     }
    ],
-   "scene": "One person is walking away down a hallway toward a door.",
-   "movement": "The person is moving away from the camera down the hallway."
+   "scene": "One person is walking down the corridor.",
+   "movement": "The person is heading toward the stairwell."
   }
  ]
 }
