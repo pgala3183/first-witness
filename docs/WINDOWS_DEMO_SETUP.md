@@ -53,7 +53,7 @@ Open `http://127.0.0.1:8090/?ws=ws://127.0.0.1:8080/ws` (add `&nosplash=1` to sk
 The API reads `.env`. Look for these startup lines:
 
 - `[vision-bridge] started cams=[...]`: live vision is on. It turns on by itself when the three feeds and the YOLO weights are present; `CS_VISION_SEVILLE=0` forces it off.
-- `[api] call model: training-pool ...`: the fine-tuned call agent is configured. It answers the dispatcher in the on-screen call; without it the call reads answers from the scene script.
+- `[api] call model: training-pool ...`: the fine-tuned call agent is configured. It answers the dispatcher's questions on a live phone call. The call's own report and updates (`services/voice/briefing.py`) need no model.
 
 Stop both processes when you are done.
 
@@ -65,7 +65,7 @@ python services/brain/check.py
 python services/api/check.py
 python services/voice/check.py
 python -m services.voice.call_model
-python -m services.voice.demo_call
+python -m services.voice.briefing
 python services/vision/check.py
 node web/check.mjs
 ```

@@ -44,7 +44,7 @@ python -m services.api --host 127.0.0.1 --port 8080
 python -m http.server 8090 --bind 127.0.0.1 --directory web   # open http://127.0.0.1:8090/?ws=ws://127.0.0.1:8080/ws
 ```
 
-Three CCTV cameras from the University of Seville's *US Mock Attack* recordings play in sync: an armed group gathers in the **ground-floor lobby**, then moves down the **east corridor** and into the **west corridor**. YOLO boxes every person live, a vision model's weapon labels turn the armed ones red, and First Witness calls in. In the on-screen 911 call, **the fine-tuned model answers the dispatcher's questions live** from what the cameras show at that second.
+Three CCTV cameras from the University of Seville's *US Mock Attack* recordings play in sync: an armed group gathers in the **ground-floor lobby**, then moves down the **east corridor** and into the **west corridor**. YOLO boxes every person live, a vision model's weapon labels turn the armed ones red, and First Witness calls in. First Witness then calls in **by itself** and explains the situation: who is armed and what they're wearing, the weapon, where they are, and which way they're heading, with an update at every change. On a live call, **the fine-tuned model answers the dispatcher's questions** from what the cameras show at that second.
 
 ---
 
@@ -153,19 +153,15 @@ The system prompt, message format, facts snapshot, honesty checks and chat templ
 
 **00:00.** People start walking into the **ground-floor lobby (Camera 1)**. Every person gets a box the moment they appear.
 
-**00:05.** A man coming through the doors is carrying a handgun. His box turns red. **Weapon, Severe.** A red alert appears on the security console, and the call starts:
+**00:05.** A man coming through the doors is carrying a handgun. His box turns red. **Weapon, Severe.** A red alert appears on the security console, and First Witness places the call **by itself** and reports what the cameras show:
 
-> 👮 *"911, what's your emergency?"*
->
-> 🤖 *"Hi, this is First Witness at San Jose State. I'm reporting armed people inside MacQuarrie Hall, One Washington Square. I see one knife and one handgun in the ground-floor lobby."*
->
-> 👮 *"Okay, how many people do you see?"*
->
-> 🤖 *"Give me a moment. Nine people in the ground-floor lobby; one of them armed."*
+> 🤖 *"This is First Witness, the automated camera system at San Jose State University. I'm reporting armed people in MacQuarrie Hall, One Washington Square. They're in the ground-floor lobby. I see two people; two of them armed. I can see one handgun and one knife. A man in a light blue t-shirt and black pants with a knife. The man in the black t-shirt is heading for the exit through the glass entrance doors, and the man in the blue shirt is heading into the building toward the corridors. I can't verify injuries from the cameras. I'll update you as they move."*
 
-**02:08.** A man with a rifle crosses the lobby, and the dispatcher hears it the next time they ask.
+**00:49.** More weapons come out: *"Update: I now see three handguns in the ground-floor lobby,"* with a description of each armed man.
 
-**02:11.** The group moves into the **east corridor (Camera 2)**. First Witness follows. The map extends the red path, and the **same call** gets an update: *"Update: they have moved from the ground-floor lobby into the east corridor on the ground floor."*
+**02:01.** A man with a rifle crosses the lobby, and the next update names it.
+
+**02:14.** The group moves into the **east corridor (Camera 2)**. First Witness follows. The map extends the red path, and the **same call** gets an update: *"Update: they've moved from the ground-floor lobby into the east corridor on the ground floor,"* with who is there now and where they're heading.
 
 **03:49.** They reach the **west corridor near the stairwell (Camera 3)**. Same incident, same call, updated live.
 
@@ -341,7 +337,7 @@ flowchart LR
 
 - **Live:** person detection (YOLO26s-pose), tracking, camera handoffs, escalation, the dashboard, the fine-tuned call agent's answers, and (in live mode) the phone call.
 - **Pre-computed:** weapon *boxes*, and the per-second scene facts the call answers from. Small handguns in 864×480 CCTV aren't detected reliably live, so [`scripts/build_demo_from_clips.py`](./scripts/build_demo_from_clips.py) has a vision model (DeepSeek V4.1 Flash on Fireworks) label every 2nd frame ahead of time. `data/feeds/seville_weapon_timeline.json` replays those boxes by clip time and the armed person's box turns red. These are model labels, spot-checked by eye, not hand labels, so a few may be wrong.
-- **Recording mode:** the default (`CS_CALL_MODE` unset) plays the on-screen 911 conversation from `services/voice/demo_call.py`. The dispatcher's lines are scripted; **First Witness's answers come from the fine-tuned model at that moment**, from that clip second's facts and through the honesty guard. If the model is off or slow, the answer is read from the scene script instead. Each "they have moved" update lands on the camera handoff. **Recording mode never dials.**
+- **The call narrates itself:** when a severe weapon is detected, First Witness calls and reports on its own ([`services/voice/briefing.py`](./services/voice/briefing.py)): who is armed and how they look, which weapon, where they are, how many people, and which way they're heading in the building, then an update on every camera handoff, new weapon, change of heading, or officer accept. Every sentence is built from the facts for that second and passes the honesty guard. With `CS_CALL_MODE` unset (the default) the call is on screen only and **never dials**; with `CS_CALL_MODE=live` and SignalWire configured, the same lines are spoken on a real call to the one verified handset, and the dispatcher's questions are answered by the fine-tuned model.
 - **Footage:** the three clips in `data/clips` are joined into one 290-second story (lobby 0–131 s, east corridor 131–229 s, west corridor 229–290 s); each camera holds its frame while the action is on another. The west-corridor clip is the same Seville camera as the east one (its first 61 seconds), so those people appear twice.
 - **Qwen3-VL classification** of escalated clips needs `ZRT_BASE_URL`; without it the incident class is forced from the detection rules.
 - **Not yet trained:** cross-camera re-identification is a stub (`services/vision/osnet.py`). Handoffs use camera timing and an appearance hash.
@@ -426,7 +422,7 @@ flowchart LR
 │   ├── brain/          Qwen client, fusion, thresholds, state machine, guardrails
 │   ├── vision/         Video decode, YOLO26s-pose, ByteTrack, motion rules, CLIP scorer, weapon timeline
 │   ├── voice/          SignalWire bridge, media bridge, ElevenLabs client, call agent + model client,
-│   │                   facts snapshot, honesty guard, chat template, scene facts, demo call
+│   │                   facts snapshot, honesty guard, chat template, scene facts, call narrator
 │   └── mediamtx/       Optional RTSP relay config (not used in the demo)
 ├── finetune/           Call-agent training data, grader, eval, 8-model benchmark, serverless training
 │   └── benchmarks/     Committed results: comparison table, every graded answer, training log
@@ -486,13 +482,13 @@ python -m http.server 8090 --bind 127.0.0.1 --directory web
 # open http://127.0.0.1:8090/?ws=ws://127.0.0.1:8080/ws   (add &nosplash=1 to skip the intro)
 ```
 
-With the `CS_CALL_MODEL_*` settings from `.env.example`, the on-screen call is answered by the fine-tuned model; without them it reads answers from the scene script. Windows notes are in [`docs/WINDOWS_DEMO_SETUP.md`](./docs/WINDOWS_DEMO_SETUP.md).
+When a weapon is detected, First Witness narrates the call on screen by itself. For a real phone call, set `CS_CALL_MODE=live` plus the SignalWire, ElevenLabs and speech-to-text settings (`.env.example`); the fine-tuned model (`CS_CALL_MODEL_*`) then answers the dispatcher's questions. Windows notes are in [`docs/WINDOWS_DEMO_SETUP.md`](./docs/WINDOWS_DEMO_SETUP.md).
 
 **Make targets:**
 
 ```bash
 make help    # list the targets
-make check   # every self-check: brain, api, voice, call model, demo call, vision, web
+make check   # every self-check: brain, api, voice, call model, briefing, vision, web
 make api     # run the API on 127.0.0.1:8080 (no Docker)
 make web     # serve the console on 127.0.0.1:8090
 make feeds   # rebuild the feeds and timing data from data/clips
