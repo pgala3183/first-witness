@@ -1,6 +1,7 @@
 /** Call Console — single chat thread + tool cards. No floating overlay. */
 
 import { now, subscribeTick } from "../clock.js?v=pro9";
+import * as speaker from "../speaker.js?v=pro1";
 import {
   awaiting,
   classLabel,
@@ -105,7 +106,7 @@ export function findCallIncident(state) {
  * Call provider label: the active call's DISPATCHED note says whether the api
  * placed a SignalWire call; with no call, /voice/status says what it would do.
  */
-export const CALL_TITLE = "911 Call";
+export const CALL_TITLE = "Campus police call";
 
 /** Status line on the call card. Empty when there is no call. */
 export function callNoteText(state) {
@@ -138,6 +139,7 @@ export function buildThread(transcript) {
     const canMerge =
       last &&
       last.speaker === line.speaker &&
+      (last.source || "") === (line.source || "") &&
       !Number.isNaN(ms) &&
       !Number.isNaN(last.lastMs) &&
       ms - last.lastMs <= STREAM_MERGE_MS;
@@ -156,6 +158,8 @@ export function buildThread(transcript) {
         speaker: line.speaker,
         text,
         ts: line.ts ?? null,
+        source: line.source || "",
+        model: line.model || "",
         lastMs: Number.isNaN(ms) ? 0 : ms,
       });
     }
@@ -205,7 +209,7 @@ export function mountCallHost(host, store, actions) {
     <div class="call-console">
       <header class="card call-head-card lc-headcard" data-head>
         <div class="lc-head">
-          <h2 class="lc-title" data-class>911 Call</h2>
+          <h2 class="lc-title" data-class>Campus police call</h2>
           <div class="lc-timer" data-timerbox hidden>
             <span class="lc-timer__t mono" data-timer>00:00</span>
             <span class="lc-timer__live mono" data-live><span class="lc-timer__dot" aria-hidden="true"></span>LIVE</span>
@@ -375,7 +379,7 @@ export function mountCallHost(host, store, actions) {
     const cand = inc ? null : callCandidate(state);
     paintAction(cand);
     if (!inc) {
-      setText(classEl, "911 Call");
+      setText(classEl, "Campus police call");
       // -2 = "no call" empty state, distinct from a call with no lines yet.
       if (lastThreadLen !== -2) {
         renderChat([]);
@@ -388,7 +392,7 @@ export function mountCallHost(host, store, actions) {
       return;
     }
 
-    setText(classEl, "911 Call");
+    setText(classEl, "Campus police call");
 
     const all = (state.call?.transcript || []).filter(
       (t) => !state.call.incidentId || t.incident_id === inc.incident_id,
@@ -487,7 +491,8 @@ export function mountLiveCall(host, store, actions) {
   host.innerHTML = `
     <section class="card lc" aria-label="Call">
       <header class="lc-head">
-        <h2 class="lc-title" data-title>911 Call</h2>
+        <h2 class="lc-title" data-title>Campus police call</h2>
+        <button type="button" class="btn btn--secondary btn--sm lc-speak" data-speak aria-pressed="false" title="Play the call out loud (ElevenLabs voices, simulated campus dispatch line, nothing is dialed)">🔇 Voice off</button>
         <div class="lc-timer" data-timerbox hidden>
           <span class="lc-timer__t mono" data-timer>00:00</span>
           <span class="lc-timer__live mono" data-live><span class="lc-timer__dot" aria-hidden="true"></span>LIVE</span>
@@ -507,6 +512,20 @@ export function mountLiveCall(host, store, actions) {
   const noteEl = host.querySelector("[data-note]");
   const threadEl = host.querySelector("[data-thread]");
   const actionEl = host.querySelector("[data-action]");
+  const speakBtn = host.querySelector("[data-speak]");
+  const paintSpeak = () => {
+    speakBtn.hidden = !speaker.available();
+    speakBtn.setAttribute("aria-pressed", String(speaker.isOn()));
+    speakBtn.classList.toggle("is-on", speaker.isOn());
+    speakBtn.textContent = speaker.isOn() ? "🔊 Voice on" : "🔇 Voice off";
+    speakBtn.title = speaker.error() || "Play the call out loud (ElevenLabs voices, simulated campus dispatch line, nothing is dialed)";
+  };
+  speakBtn.addEventListener("click", () => {
+    speaker.setOn(!speaker.isOn(), (store.getState().call?.transcript || []).length);
+  });
+  speaker.onChange(paintSpeak);
+  paintSpeak();
+  store.subscribe((st) => speaker.feed(st.call?.transcript));
 
   let threadSig = null;
   let metaSig = null;
@@ -564,6 +583,66 @@ export function mountLiveCall(host, store, actions) {
     return el("div", { className: "lc-tool mono", text: `↳ ${toolChipText(t.tool)}` });
   }
 
+  /** Before any call: First Witness asks the operator whether to inform campus police. */
+  function renderAsk(cand) {
+    clear(threadEl);
+    const what = {
+      WEAPON: "someone with a weapon",
+      FIGHT: "a fight",
+      THEFT: "a possible theft",
+      MEDICAL: "a possible medical emergency",
+      RUN: "someone running",
+    }[String(cand.class_token || "").toUpperCase()] || "suspicious activity";
+    const where = cameraTitle(cand.camera_id) || cand.camera_id || "a camera";
+    const box = el("div", { className: "lc-ask", attrs: { role: "group", "aria-label": "Inform campus police?" } });
+    box.appendChild(el("p", { className: "lc-ask__who", text: "First Witness · to operator" }));
+    box.appendChild(
+      el("p", {
+        className: "lc-ask__q",
+        text: `I see ${what} on ${where}. Should I inform campus police?`,
+      }),
+    );
+    box.appendChild(
+      el("p", {
+        className: "lc-ask__note",
+        text: "Nothing is sent until you choose. Check the camera first: a costume or toy can look like a weapon.",
+      }),
+    );
+    const row = el("div", { className: "lc-ask__row" });
+    const st = actions?.getOpStatus?.("dispatch", cand.incident_id);
+    const yes = el("button", {
+      className: "btn btn--sm lc-ask__yes",
+      text: st?.state === "pending" ? "Calling…" : "Yes, inform campus police",
+      attrs: { type: "button" },
+    });
+    yes.disabled = st?.state === "pending";
+    yes.addEventListener("click", () => actions?.callForHelp?.(cand.incident_id));
+    const no = el("button", {
+      className: "btn btn--sm lc-ask__no",
+      text: "No, dismiss",
+      attrs: { type: "button" },
+    });
+    no.addEventListener("click", () =>
+      document.dispatchEvent(new CustomEvent("sentinel:dismiss", { detail: { incidentId: cand.incident_id } })),
+    );
+    row.appendChild(yes);
+    row.appendChild(no);
+    box.appendChild(row);
+    if (st?.state === "declined") box.appendChild(el("p", { className: "lc-ask__note", text: st.message || "The call was blocked." }));
+    threadEl.appendChild(box);
+  }
+
+  /** The open, not-yet-called incident to ask about: the selected one, else the newest severe one. */
+  function askCandidate(state) {
+    const sel = callCandidate(state);
+    if (sel) return sel;
+    for (const id of state.order || []) {
+      const inc = state.incidents[id];
+      if (inc && isOpenIncident(inc) && !isDispatchedOrLater(inc) && inc.severity === "SEVERE") return inc;
+    }
+    return null;
+  }
+
   function renderThread(inc, thread, tools) {
     renderConversation(threadEl, {
       lines: thread,
@@ -581,7 +660,7 @@ export function mountLiveCall(host, store, actions) {
     paintTimes(state);
     const cand = inc ? null : callCandidate(state);
     paintAction(cand);
-    setText(titleEl, "911 Call");
+    setText(titleEl, "Campus police call");
     const all = inc
       ? (state.call?.transcript || []).filter((t) => !state.call.incidentId || t.incident_id === inc.incident_id)
       : [];
@@ -590,10 +669,15 @@ export function mountLiveCall(host, store, actions) {
       : [];
     const thread = buildThread(all);
     const last = thread[thread.length - 1];
-    const sig = `${inc?.incident_id || ""}|${thread.length}|${last ? last.text.length : 0}|${tools.length}`;
+    const ask = inc ? null : askCandidate(state);
+    const askSt = ask ? actions?.getOpStatus?.("dispatch", ask.incident_id)?.state || "" : "";
+    const sig = ask
+      ? `ask|${ask.incident_id}|${ask.class_token}|${askSt}|${opVersion}`
+      : `${inc?.incident_id || ""}|${thread.length}|${last ? last.text.length : 0}|${tools.length}`;
     if (sig !== threadSig) {
       threadSig = sig;
-      renderThread(inc, thread, tools);
+      if (ask) renderAsk(ask);
+      else renderThread(inc, thread, tools);
     }
     if (stick) threadEl.scrollTop = threadEl.scrollHeight;
   }
@@ -825,7 +909,7 @@ export function mountCallPanel(root, store, actions) {
     }
 
     const ended = ENDED_CALL_STATES.has(inc.state);
-    setText(classEl, "911 Call");
+    setText(classEl, "Campus police call");
     headCamEl.hidden = false;
     setText(headCamEl, cameraTitle(inc.camera_id));
 

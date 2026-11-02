@@ -25,6 +25,7 @@ import { clear, el, setText } from "../dom.js?v=pro9";
 import { createCameraLayout } from "./cameraLayout.js?v=pro9";
 import { themeColors } from "../theme.js?v=pro9";
 import * as cameraSources from "../cameraSources.js?v=pro9";
+import * as heatmap from "../heatmap.js?v=pro9";
 import { cameraStream } from "../transport.js?v=pro10";
 import { icon } from "../icons.js?v=pro9";
 import { OP_REPORT_EVENT, confidenceShort } from "./operator.js?v=pro9";
@@ -172,6 +173,7 @@ export function mountCameras(root, store, actions, layout) {
       <div class="camwall__toolbar">
         <span class="camwall__title">Cameras</span>
         <span class="camwall__slot metric mono" data-cam-count>0 online</span>
+        <button type="button" class="btn btn--secondary btn--sm camwall__heat" data-heat aria-pressed="false" title="Where tracked people have stood on each camera this session, built from the tracker boxes on screen. Positions only, no identities.">Heat map</button>
         <button type="button" class="btn btn--secondary btn--sm camwall__all" data-all-cams hidden aria-label="Show all cameras" title="All cameras">
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false">
             <rect x="1" y="1" width="5" height="5" rx="1" fill="currentColor"/>
@@ -192,6 +194,18 @@ export function mountCameras(root, store, actions, layout) {
   const moreEl = root.querySelector("[data-more]");
   const allCamsBtn = root.querySelector("[data-all-cams]");
   allCamsBtn.addEventListener("click", () => layoutCtl.showAll());
+  const heatBtn = root.querySelector("[data-heat]");
+  const syncHeatBtn = () => {
+    heatBtn.setAttribute("aria-pressed", heatmap.isEnabled() ? "true" : "false");
+    heatBtn.classList.toggle("is-on", heatmap.isEnabled());
+  };
+  heatBtn.addEventListener("click", () => {
+    heatmap.setEnabled(!heatmap.isEnabled());
+    syncHeatBtn();
+    for (const t of tiles.values()) t.dirty = true;
+    scheduleDraw();
+  });
+  syncHeatBtn();
   const tiles = new Map();
   /** @type {Map<string, HTMLVideoElement>} */
   const videos = new Map();
@@ -358,6 +372,7 @@ export function mountCameras(root, store, actions, layout) {
     stage.appendChild(wrap);
 
     tiles.set(id, {
+      id,
       wrap,
       tile,
       header,
@@ -746,6 +761,8 @@ export function mountCameras(root, store, actions, layout) {
       ctx.fillStyle = c.feedWell || c.bgDeep || "#1a1a1c";
       ctx.fillRect(0, 0, w, h);
     }
+
+    if (heatmap.isEnabled()) heatmap.draw(ctx, tile.id, mediaRect(tile, w, h));
 
     const drawBoxes =
       cameraSources.getShowOverlays() && Array.isArray(boxes) && boxes.length;
@@ -1179,6 +1196,7 @@ export function mountCameras(root, store, actions, layout) {
       const boxes = Array.isArray(cam.boxes) ? cam.boxes : [];
       if (!boxesEqual(tile.boxes, boxes)) {
         tile.boxes = boxes;
+        heatmap.addBoxes(id, boxes);
         tile.dirty = true;
       } else if (!cameraSources.getShowOverlays()) {
         tile.dirty = true;

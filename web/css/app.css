@@ -8464,3 +8464,73 @@ body.route-live {
 .page--live .cam-slot--main .cam-tile__osd--bl {
   font-size: 11px;
 }
+
+/* Honesty: a First Witness line that declines to guess. */
+.cv-group--self .cv-bubble.cv-bubble--honest {
+  border-color: #2a7de1;
+  box-shadow: inset 3px 0 0 #2a7de1;
+}
+.cv-src {
+  align-self: flex-end;
+  margin: -2px 4px 4px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #6b7280;
+}
+.cv-src--guard {
+  color: #b45309;
+}
+/* Call speaker toggle */
+.lc-speak { margin-left: auto; margin-right: 8px; font-size: 11px; white-space: nowrap; }
+.lc-speak.is-on { background: #2a7de1; border-color: #2a7de1; color: #fff; }
+/* Camera heat map toggle */
+.camwall__heat.is-on {
+  background: #2a7de1;
+  border-color: #2a7de1;
+  color: #fff;
+}
+.camwall__heat {
+  margin-left: auto;
+}
+.camwall__heat + .camwall__all {
+  margin-left: 6px;
+}
+
+/* Building 3D tab */
+.page--building { position: relative; height: calc(100vh - 64px); padding: 12px; box-sizing: border-box; }
+#building { height: 100%; }
+.b3d { position: relative; height: 100%; border-radius: 14px; overflow: hidden; background: linear-gradient(#f8fafc, #e2e8f0); }
+.b3d__stage { position: absolute; inset: 0; }
+.b3d__stage canvas { display: block; width: 100% !important; height: 100% !important; }
+.b3d__panel { position: absolute; top: 14px; right: 14px; width: 300px; max-height: calc(100% - 28px); overflow: auto; padding: 14px 16px; background: #fff; border-radius: 12px; box-shadow: 0 6px 24px rgba(15, 23, 42, 0.12); color: #0f172a; }
+.b3d__title { margin: 0 0 6px; font-size: 16px; font-weight: 700; }
+.b3d__note { margin: 0 0 10px; font-size: 12px; line-height: 1.45; color: #475569; }
+.b3d__zones { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
+.b3d__zone { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 8px; background: #eff6ff; font-size: 13px; }
+.b3d__zone.is-busy { background: #ccfbf1; }
+.b3d__zone.is-hot { background: #dc2626; color: #fff; }
+.b3d__incident { margin: 0 0 10px; padding: 8px 10px; border-radius: 8px; background: #fef2f2; color: #991b1b; font-size: 12px; line-height: 1.4; }
+.b3d__btns { display: flex; gap: 8px; margin-bottom: 10px; }
+.b3d__legend { margin: 0 0 6px; font-size: 11px; color: #475569; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.b3d__dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+.b3d__dot--idle { background: #2a7de1; }
+.b3d__dot--people { background: #2dd4bf; }
+.b3d__dot--severe { background: #dc2626; }
+.b3d__hint { margin: 0; font-size: 11px; color: #94a3b8; }
+.b3d__nogl { padding: 24px; color: #475569; }
+@media (max-width: 720px) { .b3d__panel { left: 12px; right: 12px; width: auto; top: auto; bottom: 12px; max-height: 45%; } }
+.b3d__h { margin: 10px 0 6px; font-size: 12px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.03em; }
+.b3d__sim { margin-left: 4px; padding: 1px 6px; border-radius: 6px; background: #ede9fe; color: #5b21b6; font-size: 10px; text-transform: none; letter-spacing: 0; }
+.b3d__zone--floor { background: #f5f3ff; }
+.b3d__lasttap { margin: 0 0 10px; font-size: 11px; color: #5b21b6; }
+.b3d__dot--badge { background: #7c3aed; }
+.b3d__ramp { height: 10px; border-radius: 5px; background: linear-gradient(90deg, #2a7de1, #2dd4bf 40%, #facc15 70%, #dc2626); margin: 2px 0 2px; }
+.b3d__rampkey { display: flex; justify-content: space-between; margin: 0 0 10px; font-size: 11px; color: #64748b; }
+/* Call panel: ask the operator before any call */
+.lc-ask { margin: 8px 4px; padding: 14px; border-radius: 14px; background: #fff7ed; border: 1px solid #fdba74; }
+.lc-ask__who { margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #9a3412; text-transform: uppercase; letter-spacing: 0.03em; }
+.lc-ask__q { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: #0f172a; line-height: 1.4; }
+.lc-ask__note { margin: 0 0 10px; font-size: 12px; color: #7c2d12; line-height: 1.4; }
+.lc-ask__row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lc-ask__yes { background: #dc2626; border-color: #dc2626; color: #fff; }
+.lc-ask__no { background: #fff; border-color: #cbd5e1; color: #0f172a; }

@@ -343,6 +343,8 @@ export function createStore() {
             speaker: event.speaker,
             text: redactPlaces(event.text),
             ts: event.ts ?? null,
+            source: event.source || "",
+            model: event.model || "",
           },
         ].slice(-MAX_TRANSCRIPT);
         break;

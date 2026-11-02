@@ -90,6 +90,8 @@ async def _http_json(
 
 
 async def main() -> None:
+    # Event mode off: a weapon calls on its own. Event mode is checked below.
+    os.environ["CS_EVENT_MODE"] = "0"
     startup = ApiServer(host="127.0.0.1", port=0)
     await startup.hub.seed()
     assert not startup.hub._incidents, "startup seed must never create a dispatchable incident"
@@ -442,6 +444,18 @@ async def main() -> None:
         # The recording is explicitly on-screen only. A stale live-call
         # guardrail must never suppress its deterministic transcript.
         DEFAULT_GUARDRAILS._dispatched.add(vision.incident_id)
+        os.environ["CS_EVENT_MODE"] = "1"
+        await srv.hub._on_incident(vision)
+        assert placed == [] and not srv.hub._voice_agent().busy(), (
+            "in event mode, a weapon detection alone never starts a call"
+        )
+        assert any(
+            e["type"] == "incident.state_change"
+            and e["incident_id"] == vision.incident_id
+            and e["note"] == "Event mode: weapon alert held for a human check"
+            for e in sent_env
+        )
+        os.environ["CS_EVENT_MODE"] = "0"
         await srv.hub._on_incident(vision)
         assert placed == [], "demo recording must not dial"
         assert srv.hub._voice_agent().busy(), "a severe weapon starts the on-screen call"

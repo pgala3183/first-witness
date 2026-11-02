@@ -1,4 +1,4 @@
-"""On-screen 911 conversation for demo recordings. No phone is dialed.
+"""On-screen campus police dispatch conversation for demo recordings. No phone is dialed.
 
 The opening keeps a recorded call's timing (seconds after the call connects).
 Later lines are keyed to the clip second the camera wall is showing, so each
@@ -47,7 +47,7 @@ INJURIES = "I can't verify injuries from the cameras."
 
 # (seconds after the call connects, speaker, text). The dispatcher answers first.
 OPENING: list[tuple[float, str, Text]] = [
-    (0.00, "dispatcher", "911, what's your emergency?"),
+    (0.00, "dispatcher", "Campus police dispatch, what's your emergency?"),
     (2.50, "sentinel", f"Hi, this is {scene.PRODUCT} at {scene.SPOKEN_SITE}."),
     (5.62, "sentinel", f"I'm reporting armed people inside {PLACE}, {STREET}."),
     (9.60, "sentinel", answer("What weapons do they have?")),

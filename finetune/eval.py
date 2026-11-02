@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import os
 import re
@@ -134,6 +135,18 @@ def make_model_runner(args: argparse.Namespace):
 NEW_FEATURE_INTENTS = {"responders", "pressure_enroute", "pressure_onscene", "zone_alert", "lockdown"}
 
 
+def cluster_key(meta: dict[str, Any]) -> str:
+    """The unit finetune/stats.py resamples: rows that share facts aren't independent.
+
+    Real rows: one Seville second (its questions all read the same snapshot).
+    Synthetic rows: one generated snapshot.
+    """
+    if meta.get("t") is not None:
+        return f"t{meta['t']}"
+    snap = json.dumps(meta["snap"], sort_keys=True)
+    return "s" + hashlib.sha1(snap.encode()).hexdigest()[:10]
+
+
 def pct(x: float) -> float:
     return round(100 * x, 1)
 
@@ -142,12 +155,13 @@ def evaluate(rows: list[dict[str, Any]], runner, workers: int) -> tuple[dict[str
     with ThreadPoolExecutor(max_workers=workers) as ex:
         outs = list(ex.map(runner, rows))
     graded = []
-    for row, out in zip(rows, outs):
+    for i, (row, out) in enumerate(zip(rows, outs)):
         if out is None:
             continue
         a, ms, usage = out
         s = score(a, row["meta"]["snap"], row["meta"]["must"])
-        graded.append({"intent": row["meta"]["intent"], "question": row["meta"]["question"],
+        graded.append({"id": i, "cluster": cluster_key(row["meta"]),
+                       "intent": row["meta"]["intent"], "question": row["meta"]["question"],
                        "answer": a, "reference": row["messages"][2]["content"], "ms": ms,
                        "usage": usage, **s})
     n = len(graded)

@@ -120,6 +120,7 @@ class VoiceAgent:
         self._task: asyncio.Task[None] | None = None
         self._live = False
         self._scripted = False
+        self._model_source = "model"
         self._incident_id: str | None = None
         self._camera = ""
         self._address = ""
@@ -238,6 +239,7 @@ class VoiceAgent:
                     reply = await pending if pending is not None else await self._model_answer(question, timeout_s)
                     pending = None
                     text = reply or text
+                    src = self._model_source if reply else "script"
                     self._history += [("Dispatcher", question), (call_model.SPEAKER, heard(text))]
                 elif i + 1 < len(lines) and lines[i + 1][3]:
                     # Ask as the dispatcher's question appears, so the model's latency
@@ -249,6 +251,8 @@ class VoiceAgent:
                         speaker=speaker,  # type: ignore[arg-type]
                         text=heard(text),
                         ts=utcnow(),
+                        source=(src if question else "script") if speaker == "sentinel" else "",
+                        model=call_model.model_label() if question and src in ("model", "guard") else "",
                     )
                 )
             # The opening establishes the emergency.  Further transcript
@@ -319,7 +323,7 @@ class VoiceAgent:
             return ""
         reply = await self._model_answer(question)
         if reply is not None:
-            return await self._say(incident_id, question, reply)
+            return await self._say(incident_id, question, reply, source=self._model_source)
         # Fallback: fixed questions answer instantly from the scene script at this clip second.
         fixed = scene.answer(question, self.clock())
         if fixed:
@@ -401,6 +405,7 @@ class VoiceAgent:
         if reply is None:
             return None
         text, violations = guarded(reply, snap)
+        self._model_source = "guard" if violations else "model"
         if violations:
             self.audit.record(
                 incident_id=self._incident_id or "",
@@ -411,7 +416,7 @@ class VoiceAgent:
             )
         return text
 
-    async def _say(self, incident_id: str, question: str, text: str) -> str:
+    async def _say(self, incident_id: str, question: str, text: str, *, source: str = "rules") -> str:
         answer = heard(text)
         self._last_answer = answer
         self._history += [("Dispatcher", question), (call_model.SPEAKER, answer)]
@@ -421,6 +426,8 @@ class VoiceAgent:
                 speaker="sentinel",
                 text=answer,
                 ts=utcnow(),
+                source=source,
+                model=call_model.model_label() if source in ("model", "guard") else "",
             )
         )
         return answer

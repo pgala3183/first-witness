@@ -100,6 +100,11 @@ class CallTranscriptDelta:
     speaker: Literal["dispatcher", "sentinel"] = "sentinel"
     text: str = ""
     ts: datetime | None = None
+    # Who produced a First Witness line: "script" (demo recording), "model"
+    # (call model), "guard" (call model reply replaced by the honesty guard),
+    # "rules" (keyword fallback). Empty for dispatcher lines.
+    source: str = ""
+    model: str = ""
 
     def __post_init__(self) -> None:
         _opt_utc("ts", self.ts)
