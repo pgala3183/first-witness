@@ -57,8 +57,7 @@
       ],
       "on_wall": true,
       "feed": "seville_option1_3cam_locked",
-      "file": "CAM01_lobby_entrance_IN_then_OUT_339s.mp4",
-      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed"
+      "file": "CAM01_lobby_entrance.mp4"
     },
     {
       "camera_id": "cam-02",
@@ -108,8 +107,7 @@
       ],
       "on_wall": true,
       "feed": "seville_option1_3cam_locked",
-      "file": "CAM02_hallway_east_IN_then_OUT_339s.mp4",
-      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed"
+      "file": "CAM02_hallway_east.mp4"
     },
     {
       "camera_id": "cam-03",
@@ -159,8 +157,7 @@
       ],
       "on_wall": true,
       "feed": "seville_option1_3cam_locked",
-      "file": "CAM03_hallway_west_IN_then_OUT_339s.mp4",
-      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed"
+      "file": "CAM03_hallway_west.mp4"
     },
     {
       "camera_id": "cam-04",
@@ -193,7 +190,6 @@
       "on_wall": false,
       "feed": "",
       "file": "",
-      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed",
       "placeholder": true
     },
     {
@@ -225,7 +221,6 @@
       "on_wall": false,
       "feed": "",
       "file": "",
-      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed",
       "placeholder": true
     },
     {
@@ -257,7 +252,6 @@
       "on_wall": false,
       "feed": "",
       "file": "",
-      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed",
       "placeholder": true
     }
   ],

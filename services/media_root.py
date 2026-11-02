@@ -6,15 +6,14 @@ import os
 from pathlib import Path
 from typing import Iterable
 
+# Synced feeds written by scripts/build_demo_from_clips.py from the clips in data/clips.
 CORE_CAM_FILES = (
-    "CAM01_lobby_entrance_IN_then_OUT_339s.mp4",
-    "CAM02_hallway_east_IN_then_OUT_339s.mp4",
-    "CAM03_hallway_west_IN_then_OUT_339s.mp4",
+    "CAM01_lobby_entrance.mp4",
+    "CAM02_hallway_east.mp4",
+    "CAM03_hallway_west.mp4",
 )
 
 BANNED_FEED_FILES = {"REVIEW_three_camera_handoffs_339s.mp4"}
-
-_DEMO_DIR = "final_demo_3cam_reconstructed"
 
 
 def _clean(raw: str) -> Path:
@@ -22,8 +21,8 @@ def _clean(raw: str) -> Path:
 
 
 def default_media_root(repo_root: Path) -> Path:
-    """Repo-adjacent media root used by default on Linux/macOS/Windows."""
-    return repo_root.parent / "campus_sentinel_media" / "feeds" / _DEMO_DIR
+    """data/clips in the repo (gitignored): where the demo feeds are built."""
+    return repo_root / "data" / "clips"
 
 
 def ensure_allowed_feed_files(files: Iterable[str]) -> None:

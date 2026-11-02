@@ -60,11 +60,20 @@ def _jpeg_quality() -> int:
 
 
 def vision_enabled() -> bool:
-    return os.environ.get("CS_VISION_SEVILLE", "").strip().lower() in {
-        "1",
-        "true",
-        "yes",
-    }
+    """CS_VISION_SEVILLE=1/0 forces it; unset, live vision runs whenever the
+    three demo feeds and the YOLO weights are on disk."""
+    flag = os.environ.get("CS_VISION_SEVILLE", "").strip().lower()
+    if flag in {"1", "true", "yes"}:
+        return True
+    if flag in {"0", "false", "no"}:
+        return False
+    from services.vision.detector import DEFAULT_PT
+
+    try:
+        resolve_media_root(ROOT, required_files=CORE_CAM_FILES, strict=True)
+    except FileNotFoundError:
+        return False
+    return DEFAULT_PT.is_file()
 
 
 def _resolve_media(feed: dict) -> Path:

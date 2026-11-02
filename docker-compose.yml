@@ -11,7 +11,7 @@ services:
     environment:
       CS_MEDIA_ROOT: /media/seville
     volumes:
-      - ../campus_sentinel_media/feeds/final_demo_3cam_reconstructed:/media/seville:ro
+      - ./data/clips:/media/seville:ro
 
   # Enable with: docker compose --profile full up
   mediamtx:

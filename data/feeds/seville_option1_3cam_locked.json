@@ -1,52 +1,50 @@
 {
-  "id": "seville_option1_3cam_locked",
-  "version": "locked-v2-lobby-fixed",
-  "purpose": "Mock CCTV FileSource for Campus Sentinel demo (synced freeze-handoff)",
-  "duration_s": 339.8,
-  "fps": 5,
-  "path_story": "IN: Lobby → Hall east → Hall west | OUT: Hall west → Hall east → Lobby",
-  "media_root": {
-    "zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/seville_option1_3cam_locked",
-    "mac_mount": "~/mnt/zgx-b505/Documents/campus_sentinel_media/feeds/seville_option1_3cam_locked",
-    "note": "Video bytes live outside the git repo. Only this JSON is committed."
+ "id": "first_witness_3cam_clips",
+ "version": "clips-v1",
+ "purpose": "Three-camera demo feed built from data/clips (synced freeze-handoff)",
+ "duration_s": 289.8,
+ "fps": 5,
+ "path_story": "Lobby -> Hall east -> Hall west",
+ "source": "US Mock Attack (University of Seville) CCTV clips in data/clips; built by scripts/build_demo_from_clips.py",
+ "cameras": [
+  {
+   "camera_id": "CAM-01",
+   "file": "CAM01_lobby_entrance.mp4",
+   "location": "Lobby entrance",
+   "seville_label": "CAM5",
+   "source_clip": "WhatsApp Video 2026-11-02 at 1.53.43 PM.mp4",
+   "live_windows_s": [
+    [
+     0.0,
+     130.8
+    ]
+   ]
   },
-  "research_originals": {
-    "zgx": "/home/hp25/tmp/campus_sentinel_clip_research",
-    "keep": [
-      "sources/mock_attack/",
-      "review/WATCH_THESE/",
-      "docs/PROVENANCE_MOCK_ATTACK.md"
-    ],
-    "note": "Raw Seville stills + source clips. Do not stream from tmp for demo."
+  {
+   "camera_id": "CAM-02",
+   "file": "CAM02_hallway_east.mp4",
+   "location": "Yellow hallway east",
+   "seville_label": "CAM1",
+   "source_clip": "WhatsApp Video 2026-11-02 at 1.52.58 PM.mp4",
+   "live_windows_s": [
+    [
+     130.8,
+     229.0
+    ]
+   ]
   },
-  "dashboard": "dashboard.html",
-  "demo_json": "demo.json",
-  "cameras": [
-    {
-      "camera_id": "CAM-01",
-      "file": "CAM01_lobby_entrance_IN_then_OUT_339s.mp4",
-      "location": "Lobby entrance",
-      "seville_label": "CAM5",
-      "live_windows_s": [[0.0, 60.0], [267.8, 339.8]]
-    },
-    {
-      "camera_id": "CAM-02",
-      "file": "CAM02_hallway_east_IN_then_OUT_339s.mp4",
-      "location": "Yellow hallway east",
-      "seville_label": "CAM1",
-      "live_windows_s": [[60.0, 117.0], [230.2, 267.8]]
-    },
-    {
-      "camera_id": "CAM-03",
-      "file": "CAM03_hallway_west_IN_then_OUT_339s.mp4",
-      "location": "Yellow hallway west",
-      "seville_label": "CAM7",
-      "live_windows_s": [[117.0, 216.6], [216.6, 230.2]]
-    }
-  ],
-  "FileSource_paths_example": {
-    "CAM-01": "/home/hp25/Documents/campus_sentinel_media/feeds/seville_option1_3cam_locked/CAM01_lobby_entrance_IN_then_OUT_339s.mp4",
-    "CAM-02": "/home/hp25/Documents/campus_sentinel_media/feeds/seville_option1_3cam_locked/CAM02_hallway_east_IN_then_OUT_339s.mp4",
-    "CAM-03": "/home/hp25/Documents/campus_sentinel_media/feeds/seville_option1_3cam_locked/CAM03_hallway_west_IN_then_OUT_339s.mp4"
+  {
+   "camera_id": "CAM-03",
+   "file": "CAM03_hallway_west.mp4",
+   "location": "Yellow hallway west",
+   "seville_label": "CAM1",
+   "source_clip": "WhatsApp Video 2026-11-02 at 1.52.32 PM.mp4",
+   "live_windows_s": [
+    [
+     229.0,
+     289.8
+    ]
+   ]
   }
+ ]
 }

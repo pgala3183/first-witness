@@ -1,14 +1,14 @@
 """Precomputed weapon annotations for the demo feeds.
 
-Live per-person weapon detection is not reliable on these 960x540 clips
+Live per-person weapon detection is not reliable on these small CCTV clips
 (measured 2026-09-26: CLIP misses visible handguns and flags unarmed people,
-YOLOE-26 never scores a weapon above 0.35, Qwen3-VL takes 1-2.7 s per frame).
-The timeline comes from the dataset's hand-drawn weapon boxes matched to each
-distinct clip frame (scripts/build_gt_weapon_timeline.py; the older Qwen
-pass is scripts/build_weapon_timeline.py) and the router replays it by
-clip time (seconds), so re-encoding the clips at another frame rate keeps
-it valid. People, boxes and track ids stay live YOLO; only "who is
-holding which weapon" comes from this file.
+YOLOE-26 never scores a weapon above 0.35, a vision model takes 1-2.7 s per
+frame). So a vision model (DeepSeek V4.1 Flash on Fireworks) labels every 2nd
+frame of each camera's live window ahead of time
+(scripts/build_demo_from_clips.py), and the router replays those weapon boxes
+by clip time (seconds), so re-encoding the clips at another frame rate keeps
+it valid. People, boxes and track ids stay live YOLO; only "who is holding
+which weapon" comes from this file.
 """
 
 from __future__ import annotations
