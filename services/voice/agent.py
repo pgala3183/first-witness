@@ -239,6 +239,7 @@ class VoiceAgent:
                     reply = await pending if pending is not None else await self._model_answer(question, timeout_s)
                     pending = None
                     text = reply or text
+                    src = self._model_source if reply else "script"
                     self._history += [("Dispatcher", question), (call_model.SPEAKER, heard(text))]
                 elif i + 1 < len(lines) and lines[i + 1][3]:
                     # Ask as the dispatcher's question appears, so the model's latency
@@ -250,7 +251,8 @@ class VoiceAgent:
                         speaker=speaker,  # type: ignore[arg-type]
                         text=heard(text),
                         ts=utcnow(),
-                        source="script" if speaker == "sentinel" else "",
+                        source=(src if question else "script") if speaker == "sentinel" else "",
+                        model=call_model.model_label() if question and src in ("model", "guard") else "",
                     )
                 )
             # The opening establishes the emergency.  Further transcript
