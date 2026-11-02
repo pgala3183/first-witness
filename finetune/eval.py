@@ -200,9 +200,10 @@ def compare(paths: list[str]) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--system", choices=["gold", "baseline", "model"])
+    ap.add_argument("--system", choices=["gold", "baseline", "model", "serverless"])
     ap.add_argument("--split", action="append", help="test_real | test_synth | val (repeatable)")
-    ap.add_argument("--model")
+    ap.add_argument("--model", help="model id; for --system serverless, the base model")
+    ap.add_argument("--snapshot", help="--system serverless: sampler checkpoint path from serverless.py train")
     ap.add_argument("--name", help="label for the results files")
     ap.add_argument("--base-url", default="https://api.fireworks.ai/inference/v1")
     ap.add_argument("--key-env", default="FIREWORKS_API_KEY")
@@ -226,6 +227,11 @@ def main() -> None:
         runner, workers = run_gold, 1
     elif args.system == "baseline":
         runner, workers = run_baseline, 1
+    elif args.system == "serverless":
+        # Fireworks serverless training pool: base model or a fine-tuned snapshot, no deployment.
+        from serverless import BASE_MODEL, make_sampler_runner
+        args.model = args.model or BASE_MODEL
+        runner, workers = make_sampler_runner(args.model, args.snapshot, args.max_tokens), args.workers
     else:
         if not args.model:
             ap.error("--model is required for --system model")
@@ -242,7 +248,7 @@ def main() -> None:
             summary["cost_per_1k_answers_usd"] = round(
                 1000 * (summary["tokens_in_per_answer"] * args.price_in
                         + summary["tokens_out_per_answer"] * args.price_out) / 1e6, 4)
-        summary.update(system=args.system, model=args.model, split=split)
+        summary.update(system=args.system, model=args.model, split=split, snapshot=args.snapshot)
         out = RESULTS / f"{name}_{split}"
         out.with_suffix(".json").write_text(json.dumps(summary, indent=1))
         with out.with_suffix(".jsonl").open("w", encoding="utf-8") as f:
