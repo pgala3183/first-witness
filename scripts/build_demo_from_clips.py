@@ -125,11 +125,22 @@ def build_feeds() -> tuple[list[dict[str, Any]], int, int, int]:
     cap = cv2.VideoCapture(str(CAMERAS[0]["path"]))
     w, h = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     cap.release()
+    # What each feed was built from: an unchanged feed is not rewritten, so rebuilding
+    # only the timing data never disturbs a running API.
+    stamp_path = CLIPS / ".feeds.json"
+    stamps = json.loads(stamp_path.read_text(encoding="utf-8")) if stamp_path.exists() else {}
     for cam in CAMERAS:
         out = CLIPS / cam["out"]
+        stamp = {"src": cam["path"].name, "size": cam["path"].stat().st_size, "start": cam["start"],
+                 "n": cam["n"], "total": total, "w": w, "h": h}
+        if out.exists() and stamps.get(cam["out"]) == stamp:
+            print(f"{cam['camera_id']}: {out.name} up to date")
+            continue
+        # Written next to the feed and swapped in whole: a reader never sees a half-written file.
+        tmp = out.with_name(out.stem + ".part.mp4")
         cmd = [_ffmpeg(), "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}",
                "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "veryfast",
-               "-crf", "23", "-g", str(FPS), "-movflags", "+faststart", str(out)]
+               "-crf", "23", "-g", str(FPS), "-movflags", "+faststart", str(tmp)]
         proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
         cap = cv2.VideoCapture(str(cam["path"]))
         ok, first = cap.read()
@@ -150,6 +161,12 @@ def build_feeds() -> tuple[list[dict[str, Any]], int, int, int]:
         proc.stdin.close()
         if proc.wait() != 0:
             sys.exit(f"ffmpeg failed for {out}")
+        try:
+            os.replace(tmp, out)
+        except PermissionError:
+            sys.exit(f"{out.name} is open in another program (the API?). Stop it, then run this again.")
+        stamps[cam["out"]] = stamp
+        stamp_path.write_text(json.dumps(stamps, indent=1), encoding="utf-8")
         print(f"{cam['camera_id']}: {cam['path'].name} -> {out.name}  live {cam['start'] / FPS:.1f}-"
               f"{(cam['start'] + cam['n']) / FPS:.1f} s of {total / FPS:.1f} s")
     return CAMERAS, total, w, h
