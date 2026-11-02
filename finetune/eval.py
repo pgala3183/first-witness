@@ -198,6 +198,31 @@ def compare(paths: list[str]) -> None:
         print(f"| {i} | " + " | ".join(str(s["by_intent"].get(i, "")) for _, s in rows) + " |")
 
 
+def rescore(paths: list[str]) -> None:
+    """Regrade saved answers against the current dataset rules, without calling any model.
+
+    results/<name>_<split>.jsonl holds the answers in row order (first n rows of the split);
+    latency, token usage and cost carry over unchanged."""
+    for p in paths:
+        jl = Path(p).with_suffix(".jsonl")
+        old = json.loads(jl.with_suffix(".json").read_text(encoding="utf-8"))
+        saved = [json.loads(line) for line in jl.open(encoding="utf-8")]
+        split = old["split"]
+        rows = [json.loads(line) for line in (DATA / f"{split}_eval.jsonl").open(encoding="utf-8")][: len(saved)]
+        if [r["meta"]["question"] for r in rows] != [g["question"] for g in saved]:
+            sys.exit(f"{jl.name}: saved questions don't match {split}; rerun the model instead.")
+        answers = iter([(g["answer"], g["ms"], g["usage"]) for g in saved])
+        summary, graded = evaluate(rows, lambda _row: next(answers), 1)
+        for k in ("cost_per_1k_answers_usd", "system", "model", "split", "snapshot"):
+            if k in old:
+                summary[k] = old[k]
+        jl.with_suffix(".json").write_text(json.dumps(summary, indent=1))
+        with jl.open("w", encoding="utf-8") as f:
+            for g in graded:
+                f.write(json.dumps(g, ensure_ascii=False) + "\n")
+        print(f"{jl.stem:40s} pass {old['pass_rate']:5.1f} -> {summary['pass_rate']:5.1f}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--system", choices=["gold", "baseline", "model", "serverless"])
@@ -216,10 +241,14 @@ def main() -> None:
     ap.add_argument("--price-in", type=float, default=0.0, help="USD per 1M input tokens")
     ap.add_argument("--price-out", type=float, default=0.0, help="USD per 1M output tokens")
     ap.add_argument("--compare", nargs="+")
+    ap.add_argument("--rescore", nargs="+", help="regrade saved results/<name>_<split>.json files, no model calls")
     args = ap.parse_args()
 
     if args.compare:
         compare(args.compare)
+        return
+    if args.rescore:
+        rescore(args.rescore)
         return
     if not args.system or not args.split:
         ap.error("--system and --split are required (or use --compare)")

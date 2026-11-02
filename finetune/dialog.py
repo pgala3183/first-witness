@@ -257,7 +257,9 @@ def gold(intent: str, snap: dict[str, Any], rng: random.Random,
             f"This is First Witness, the automated camera system for {snap['site']}. I'm an automated system reporting what the cameras show.",
             f"I'm First Witness, an automated system that watches the cameras at {snap['site']}. I only report what the cameras show.",
         ])
-        must = {"text": ["First Witness"]}
+        # The point is that the caller hears it's an automated system, not the product name:
+        # "I'm the automated campus camera system" answers "are you a person?" fully.
+        must = {"text": [["First Witness", "automated", "camera system"]]}
 
     elif intent == "address":
         a = f"{cap(snap['building'])}, {snap['site_address']}."
