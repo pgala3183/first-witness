@@ -25,6 +25,7 @@ from services.brain.call_brief import load_camera_map
 from services.media_root import CORE_CAM_FILES, clip_map, resolve_media_root
 
 from services import activity
+from services.voice import call_model
 
 from .history import History
 from .hub import WALL_CAMS, DemoHub, dumps
@@ -702,6 +703,10 @@ class ApiServer:
             "on",
         }
         print(f"[api] vision={self.vision is not None} calls={calls}", flush=True)
+        if call_model.configured():
+            # The training-pool sampler takes ~17 s to connect cold; pay it before the first call.
+            asyncio.get_running_loop().run_in_executor(None, call_model.warmup)
+            print(f"[api] call model: {call_model.backend()} {os.environ.get('CS_CALL_MODEL', '')}", flush=True)
         # Health, usage and activity run from startup, viewer or not.
         await self.hub.seed()
         await self.hub.start_loops()

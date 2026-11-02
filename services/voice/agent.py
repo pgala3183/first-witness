@@ -242,6 +242,9 @@ class VoiceAgent:
             return
         self._live = True
         self._new_call()
+        if self.use_model:
+            # Off the event loop: the first answer would otherwise pay the model's cold start.
+            asyncio.get_running_loop().run_in_executor(None, call_model.warmup)
         self._incident_id = rec.incident_id
         self._camera = rec.camera_id
         self._address = scene.FULL_ADDRESS

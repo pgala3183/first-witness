@@ -1,15 +1,22 @@
-"""Call agent: the fine-tuned Qwen3-4B on Fireworks answers the dispatcher.
+"""Call agent: the fine-tuned model on Fireworks answers the dispatcher.
 
 answer(facts, history, question) -> str | None. None means "use the keyword
-rules": not configured, timeout, HTTP error or an empty reply.
+rules": not configured, timeout, error or an empty reply.
 
 SYSTEM and user_msg() are exactly what the model was trained on;
 finetune/build_dataset.py imports them from here, so training and live
 answers can't drift apart.
 
-Env: CS_CALL_MODEL_URL, CS_CALL_MODEL, CS_CALL_MODEL_TIMEOUT_S (default 1.5),
-CS_CALL_MODEL_REASONING_EFFORT (e.g. none, for a reasoning base model),
-and the bearer key in FIREWORKS_API_KEY. Self-check: python -m services.voice.call_model
+Two backends (CS_CALL_MODEL_BACKEND):
+* chat (default): an OpenAI-style chat endpoint, e.g. a Fireworks deployment.
+  Env: CS_CALL_MODEL_URL, CS_CALL_MODEL, CS_CALL_MODEL_REASONING_EFFORT.
+* training-pool: the LoRA checkpoint on Fireworks' serverless training pool,
+  which needs no deployment. Prompts are rendered with the model's chat
+  template (chat_template.py, as in training) and sent as token ids.
+  Env: CS_CALL_MODEL (base model id), CS_CALL_MODEL_SNAPSHOT (checkpoint path
+  from finetune/results/serverless_run.json).
+Both: CS_CALL_MODEL_TIMEOUT_S (default 1.5) and FIREWORKS_API_KEY.
+Self-check: python -m services.voice.call_model
 """
 
 from __future__ import annotations
@@ -17,13 +24,18 @@ from __future__ import annotations
 import json
 import os
 import re
+import threading
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
 from typing import Any
 
 from services import activity
 from services.usage import add as usage_add
+
+from .chat_template import END
 
 SPEAKER = "First Witness"
 
@@ -67,8 +79,18 @@ def _config() -> tuple[str, str, str, float]:
     return url, model, key, timeout
 
 
+def backend() -> str:
+    return os.environ.get("CS_CALL_MODEL_BACKEND", "").strip().lower() or "chat"
+
+
+def _snapshot() -> str:
+    return os.environ.get("CS_CALL_MODEL_SNAPSHOT", "").strip()
+
+
 def configured() -> bool:
     url, model, key, _ = _config()
+    if backend() == "training-pool":
+        return bool(model and key and _snapshot() and "<" not in _snapshot())
     return bool(url and model and key and "<" not in model)
 
 
@@ -86,6 +108,8 @@ def answer(
 ) -> str | None:
     if not configured():
         return None
+    if backend() == "training-pool":
+        return _pool_answer(facts, history, question)
     url, model, key, timeout = _config()
     body = json.dumps({
         "model": model,
@@ -139,6 +163,74 @@ def answer(
     return text or None
 
 
+# ---------------------------------------------------------------- training pool
+
+_pool: dict[str, Any] = {}
+_pool_lock = threading.Lock()
+# Requests run here so a slow one can be abandoned at the timeout; it finishes unseen.
+_pool_exec = ThreadPoolExecutor(max_workers=4, thread_name_prefix="callmodel")
+
+
+def _pool_client() -> tuple[Any, Any, Any]:
+    """(chat template, sampler, sdk) for the configured checkpoint, built once."""
+    _, model, key, _ = _config()
+    ident = (model, _snapshot())
+    with _pool_lock:
+        if _pool.get("ident") != ident:
+            from fireworks.training import sdk
+
+            from .chat_template import chat_for, connect
+
+            chat = chat_for(model)
+            sampler = connect(key).create_sampling_client(model_path=_snapshot())
+            _pool.update(ident=ident, chat=chat, sampler=sampler, sdk=sdk)
+        return _pool["chat"], _pool["sampler"], _pool["sdk"]
+
+
+def _pool_sample(messages: list[dict[str, str]], max_tokens: int) -> tuple[str, int, int]:
+    chat, sampler, sdk = _pool_client()
+    prompt = chat.prompt_ids(messages)
+    params = sdk.SamplingParams(max_tokens=max_tokens, temperature=0.0, stop=[END])
+    res = sampler.sample(prompt=sdk.ModelInput.from_ints(prompt), num_samples=1, sampling_params=params)
+    res = res.result() if hasattr(res, "result") else res
+    out = [int(t) for t in res.sequences[0].tokens]
+    return chat.decode(out), len(prompt), len(out)
+
+
+def _pool_answer(facts: dict[str, Any], history: list[tuple[str, str]], question: str) -> str | None:
+    _, model, _, timeout = _config()
+    uid = usage_id(model) + "-ft"
+    messages = [{"role": "system", "content": SYSTEM},
+                {"role": "user", "content": user_msg(facts, history, question)}]
+    t0 = time.perf_counter()
+    try:
+        with activity.busy("callmodel"):
+            text, tokens_in, tokens_out = _pool_exec.submit(_pool_sample, messages, MAX_TOKENS).result(timeout)
+    except FutureTimeout:
+        usage_add(uid, requests=1, errors=1)
+        return None
+    except Exception:  # noqa: BLE001  (network, auth, missing SDK: the keyword rules answer)
+        usage_add(uid, requests=1, errors=1)
+        return None
+    usage_add(uid, requests=1, live=1, tokens_in=tokens_in, tokens_out=tokens_out,
+              ms=(time.perf_counter() - t0) * 1000)
+    return clean(text) or None
+
+
+def warmup() -> bool:
+    """Build the sampler and answer once, so the first live question isn't a cold start.
+
+    Call it off the event loop when a live call starts; never raises."""
+    if not configured() or backend() != "training-pool":
+        return False
+    try:
+        _pool_sample([{"role": "system", "content": SYSTEM},
+                      {"role": "user", "content": user_msg({}, [], "Who is this?")}], 8)
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
 if __name__ == "__main__":
     from services.usage import swap
 
@@ -149,7 +241,9 @@ if __name__ == "__main__":
     assert msg == ('FACTS: {"a":1}\nCALL SO FAR:\nDispatcher: Who is this?\n'
                    "First Witness: First Witness.\nDISPATCHER: Say again?")
     assert user_msg({}, [], "Hi").endswith("(start of call)\nDISPATCHER: Hi")
-    saved = {k: os.environ.pop(k, None) for k in ("CS_CALL_MODEL_URL", "CS_CALL_MODEL", "FIREWORKS_API_KEY")}
+    keys = ("CS_CALL_MODEL_URL", "CS_CALL_MODEL", "FIREWORKS_API_KEY", "CS_CALL_MODEL_BACKEND",
+            "CS_CALL_MODEL_SNAPSHOT", "CS_CALL_MODEL_TIMEOUT_S")
+    saved = {k: os.environ.pop(k, None) for k in keys}
     assert not configured() and answer({}, [], "Hi") is None
     # Unreachable server: falls back (None) quickly and counts an error.
     os.environ.update(CS_CALL_MODEL_URL="http://127.0.0.1:9/v1", CS_CALL_MODEL="m", FIREWORKS_API_KEY="k",
@@ -157,11 +251,40 @@ if __name__ == "__main__":
     swap()
     assert answer({}, [], "Hi") is None
     assert swap() == {"m": {"requests": 1, "errors": 1}}
+
+    # Training pool (offline): needs a snapshot; slow or failing answers fall back.
+    os.environ.update(CS_CALL_MODEL_BACKEND="training-pool", CS_CALL_MODEL="accounts/fireworks/models/b")
+    assert not configured() and not warmup()
+    os.environ["CS_CALL_MODEL_SNAPSHOT"] = "acct/run-1/fw-ep2"
+    assert configured()
+    real_sample = _pool_sample
+
+    def slow(_m: Any, _n: int) -> tuple[str, int, int]:
+        time.sleep(1.0)
+        return "late", 1, 1
+
+    def broken(_m: Any, _n: int) -> tuple[str, int, int]:
+        raise RuntimeError("pool down")
+
+    def good(messages: Any, _n: int) -> tuple[str, int, int]:
+        assert messages[0]["content"] == SYSTEM and messages[1]["content"].endswith("DISPATCHER: Hi")
+        return "No officer has accepted yet.", 500, 7
+
+    swap()
+    for fake, want in ((slow, None), (broken, None), (good, "No officer has accepted yet.")):
+        globals()["_pool_sample"] = fake
+        t = time.perf_counter()
+        assert answer({}, [], "Hi") == want, fake.__name__
+        assert time.perf_counter() - t < 0.9, "the timeout must cut a slow answer off"
+    use = swap()["b-ft"]
+    assert use["requests"] == 3 and use["errors"] == 2 and use["tokens_in"] == 500, use
+    globals()["_pool_sample"] = real_sample
     for k, v in saved.items():
         os.environ.pop(k, None)
         if v is not None:
             os.environ[k] = v
     if configured():
+        print("warmup:", warmup())
         t = time.perf_counter()
         print("live:", answer({"site": "test"}, [], "Who is this?"), f"{(time.perf_counter() - t) * 1000:.0f} ms")
     print("call_model self-check OK")

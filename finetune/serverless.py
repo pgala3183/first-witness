@@ -28,87 +28,37 @@ import os
 import random
 import sys
 import time
-from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 HERE = Path(__file__).resolve().parent
 import envfile  # noqa: E402,F401  (FIREWORKS_API_KEY from the repo .env)
+
+sys.path.insert(0, str(HERE.parent))
+# The live call renders prompts with the same code: train on exactly what it sends.
+from services.voice.chat_template import END, TOKENIZERS, Chat  # noqa: E402,F401
+from services.voice.chat_template import chat_for as _chat_for  # noqa: E402
+from services.voice.chat_template import connect as _connect  # noqa: E402
 DATA = HERE / "data"
 RESULTS = HERE / "results"
 RUN_FILE = RESULTS / "serverless_run.json"
 
 BASE_MODEL = "accounts/fireworks/models/qwen3p6-35b-a3b"
-# Fireworks base model -> Hugging Face repo with the matching tokenizer + chat template.
-TOKENIZERS = {
-    "accounts/fireworks/models/qwen3p6-35b-a3b": "Qwen/Qwen3.6-35B-A3B",
-    "accounts/fireworks/models/qwen3p8-27b": "Qwen/Qwen3.8-27B",
-}
 # USD per 1M tokens, Fireworks serverless training page (Nov 2026). Prefill, sample, train.
 PRICES = {
     "accounts/fireworks/models/qwen3p6-35b-a3b": (0.45, 1.335, 2.14),
     "accounts/fireworks/models/qwen3p8-27b": (1.86, 5.595, 4.103),
 }
 MAX_SEQ_LEN = 2048
-END = "<|im_end|>"
 
 
 # ---------------------------------------------------------------- chat template
 
-class Chat:
-    """The model's chat template + tokenizer, without transformers.
-
-    render(system, user) is the generation prompt; the training target is the
-    answer followed by <|im_end|>, so prompt + target is exactly the template's
-    rendering of the full conversation.
-    """
-
-    def __init__(self, repo: str) -> None:
-        from huggingface_hub import hf_hub_download
-        from jinja2.sandbox import ImmutableSandboxedEnvironment
-        from tokenizers import Tokenizer
-
-        self.tok = Tokenizer.from_file(hf_hub_download(repo, "tokenizer.json"))
-        try:
-            template = Path(hf_hub_download(repo, "chat_template.jinja")).read_text(encoding="utf-8")
-        except Exception:  # noqa: BLE001  (older repos keep it in tokenizer_config.json)
-            cfg = json.loads(Path(hf_hub_download(repo, "tokenizer_config.json")).read_text(encoding="utf-8"))
-            template = cfg["chat_template"]
-        env = ImmutableSandboxedEnvironment(trim_blocks=True, lstrip_blocks=True)
-        env.filters["tojson"] = lambda x, ensure_ascii=False, indent=None, separators=None, sort_keys=False: (
-            json.dumps(x, ensure_ascii=ensure_ascii, indent=indent, separators=separators, sort_keys=sort_keys))
-
-        def _raise(msg: str) -> None:
-            raise ValueError(msg)
-
-        env.globals["raise_exception"] = _raise
-        self.template = env.from_string(template)
-        self.end_id = self.tok.token_to_id(END)
-        if self.end_id is None:
-            raise ValueError(f"{repo}: no {END} token")
-
-    def prompt_text(self, messages: list[dict[str, str]]) -> str:
-        return self.template.render(messages=messages, add_generation_prompt=True, enable_thinking=False)
-
-    def prompt_ids(self, messages: list[dict[str, str]]) -> list[int]:
-        return self.tok.encode(self.prompt_text(messages), add_special_tokens=False).ids
-
-    def target_ids(self, answer: str) -> list[int]:
-        return self.tok.encode(answer + END, add_special_tokens=False).ids
-
-    def decode(self, ids: list[int]) -> str:
-        ids = list(ids)
-        if self.end_id in ids:
-            ids = ids[: ids.index(self.end_id)]
-        return self.tok.decode(ids, skip_special_tokens=True).strip()
-
-
-@lru_cache(maxsize=4)
 def chat_for(base_model: str) -> Chat:
-    repo = TOKENIZERS.get(base_model)
-    if not repo:
-        sys.exit(f"No tokenizer mapping for {base_model}; add it to TOKENIZERS in {Path(__file__).name}.")
-    return Chat(repo)
+    try:
+        return _chat_for(base_model)
+    except KeyError as e:
+        sys.exit(str(e))
 
 
 def sft_tokens(chat: Chat, messages: list[dict[str, str]]) -> tuple[list[int], list[float]] | None:
@@ -140,11 +90,7 @@ def api_key() -> str:
 
 
 def connect():
-    """One client for training and sampling on the shared serverless pool."""
-    from fireworks.training.sdk import FiretitanServiceClient
-
-    root = os.environ.get("FIREWORKS_BASE_URL", "https://api.fireworks.ai").rstrip("/")
-    return FiretitanServiceClient(api_key=api_key(), base_url=f"{root}/training/v1/serverless")
+    return _connect(api_key())
 
 
 def snapshot_path(ref: str | None) -> str | None:
