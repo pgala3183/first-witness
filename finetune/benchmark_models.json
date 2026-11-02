@@ -6,6 +6,7 @@
   "serverless=false needs an on-demand deployment: put its id (accounts/<you>/deployments/<id>) in deployment.",
   "Prices are USD per 1M tokens from the Fireworks model page (serverless only).",
   "reasoning_effort: sent as-is; \"none\" keeps reasoning models from thinking through the token limit.",
+  "backend=training-pool: sampled through Fireworks serverless training (serverless.py), no deployment; thinking is off via the chat template. Prices are the training pool's prefill/sample rates.",
   "GLM 5.3 can't turn thinking off, so it gets \"low\" and room to think (max_tokens): slower, but it answers."
  ],
  "models": [
@@ -15,10 +16,10 @@
    "id": "accounts/fireworks/models/deepseek-v4p1-flash-1017", "price_in": 0.30, "price_out": 1.20},
   {"name": "GLM 5.3 Flash", "slug": "glm-5p3-flash", "reasoning_effort": "low", "max_tokens": 1024, "role": "reference", "serverless": true,
    "id": "accounts/fireworks/models/glm-5p3-flash", "price_in": 0.15, "price_out": 0.50},
-  {"name": "Qwen3.8 27B", "slug": "qwen3p8-27b", "reasoning_effort": "none", "role": "candidate", "serverless": false,
-   "id": "accounts/fireworks/models/qwen3p8-27b", "deployment": "", "no_think": true},
-  {"name": "Qwen3.6 35B A3B", "slug": "qwen3p6-35b-a3b", "reasoning_effort": "none", "role": "candidate", "serverless": false,
-   "id": "accounts/fireworks/models/qwen3p6-35b-a3b", "deployment": "", "no_think": true},
+  {"name": "Qwen3.8 27B", "slug": "qwen3p8-27b", "role": "candidate", "backend": "training-pool",
+   "id": "accounts/fireworks/models/qwen3p8-27b", "price_in": 1.86, "price_out": 5.595},
+  {"name": "Qwen3.6 35B A3B", "slug": "qwen3p6-35b-a3b", "role": "candidate", "backend": "training-pool",
+   "id": "accounts/fireworks/models/qwen3p6-35b-a3b", "price_in": 0.45, "price_out": 1.335},
   {"name": "Gemma 4 26B A4B IT", "slug": "gemma-4-26b-a4b", "role": "candidate", "serverless": false,
    "id": "accounts/fireworks/models/gemma-4-26b-a4b-it", "deployment": ""},
   {"name": "Qwen3.5 9B", "slug": "qwen3p5-9b", "reasoning_effort": "none", "role": "candidate", "serverless": false,

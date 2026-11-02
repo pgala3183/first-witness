@@ -79,6 +79,31 @@ python3 finetune/benchmark.py report             # table + pick -> results/bench
 
 Delete each candidate's deployment once its run finishes: they're billed while up.
 
+## Fine-tuning on shared GPUs (no deployment)
+
+Fireworks won't create dedicated deployments without a payment method on file,
+so we train on **serverless training**: a shared LoRA trainer pool, billed per
+token. `serverless.py` renders each example with the model's own chat template
+(thinking off), trains only on the answer tokens, and saves a sampler checkpoint
+per epoch. The same session samples those checkpoints, so `eval.py` grades the
+base model and the fine-tune with no deployment.
+
+Base model: **Qwen 3.6 35B A3B**, the cheapest on the pool (train $2.14/1M tokens).
+Our data is 1.56M tokens per epoch, so 2 epochs cost about $6.70.
+
+```bash
+pip install "fireworks-ai[training]>=1.2.29"     # then re-pin numpy==2.3.5 (requirements.txt)
+python finetune/serverless.py check              # 3 answers from the base model: access + credits
+python finetune/serverless.py train --limit-train 64 --yes    # paid smoke run, about $0.13
+python finetune/serverless.py train              # full run: asks before spending
+python finetune/eval.py --system serverless --split test_real --split test_synth --name sl-base-q36
+python finetune/eval.py --system serverless --snapshot <fw-ep2 path from results/serverless_run.json> \
+    --split test_real --split test_synth --name sl-ft-q36
+python finetune/serverless.py promote --as first-witness-call-q36   # register as a model (deploying it needs a card)
+```
+
+`benchmark.py run --only qwen3p6-35b-a3b qwen3p8-27b` benchmarks both pool models the same way.
+
 ## Build-day runbook
 
 ```bash

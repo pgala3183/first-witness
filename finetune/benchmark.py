@@ -54,7 +54,7 @@ def models(only: list[str] | None = None) -> list[dict[str, Any]]:
 
 def target(m: dict[str, Any]) -> str | None:
     """The model string to send, or None if it needs a deployment it doesn't have."""
-    if m.get("serverless"):
+    if m.get("serverless") or m.get("backend") == "training-pool":
         return m["id"]
     dep = (m.get("deployment") or "").strip()
     return f"{m['id']}#{dep}" if dep else None
@@ -64,7 +64,7 @@ def target(m: dict[str, Any]) -> str | None:
 
 def cmd_list(_: argparse.Namespace) -> None:
     for m in models():
-        how = "serverless" if m.get("serverless") else (
+        how = "serverless" if m.get("serverless") else "training pool" if m.get("backend") == "training-pool" else (
             "deployment set" if target(m) else "NEEDS DEPLOYMENT")
         print(f"{m['slug']:22s} {m['role']:9s} {how:17s} {m['id']}")
     print("\nCandidates: `benchmark.py run --deploy` creates, runs and deletes each deployment.")
@@ -115,7 +115,9 @@ def cmd_resolve(_: argparse.Namespace) -> None:
 
 def _eval(m: dict[str, Any], model: str, name: str, splits: tuple[str, ...], limit: int,
           workers: int) -> int:
-    cmd = [sys.executable, str(HERE / "eval.py"), "--system", "model", "--model", model, "--name", name,
+    # training-pool: sampled through Fireworks serverless training (serverless.py), no deployment.
+    system = "serverless" if m.get("backend") == "training-pool" else "model"
+    cmd = [sys.executable, str(HERE / "eval.py"), "--system", system, "--model", model, "--name", name,
            "--workers", str(workers), "--max-tokens", str(m.get("max_tokens") or 120)]
     for s in splits:
         cmd += ["--split", s]
