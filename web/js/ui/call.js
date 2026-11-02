@@ -138,6 +138,7 @@ export function buildThread(transcript) {
     const canMerge =
       last &&
       last.speaker === line.speaker &&
+      (last.source || "") === (line.source || "") &&
       !Number.isNaN(ms) &&
       !Number.isNaN(last.lastMs) &&
       ms - last.lastMs <= STREAM_MERGE_MS;
@@ -156,6 +157,8 @@ export function buildThread(transcript) {
         speaker: line.speaker,
         text,
         ts: line.ts ?? null,
+        source: line.source || "",
+        model: line.model || "",
         lastMs: Number.isNaN(ms) ? 0 : ms,
       });
     }

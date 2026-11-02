@@ -66,6 +66,24 @@ function avatar(self) {
  * `subtitleLines` keeps that many recent utterances on screen together.
  * @param {{ lines: object[], tools?: object[], compact?: boolean, live?: boolean, subtitleLines?: number, toolText?: (t: string) => string, nowMs?: number, empty?: string }} opts
  */
+/** First Witness lines that decline to state what the cameras can't show. */
+const HONEST_RE = /\b(can'?t|cannot|can not|unable to) (verify|confirm|see)\b|\bnot (visible|in view)\b|\bno officer has accepted\b|\bhasn'?t been sent\b/i;
+
+/** Small caption under a First Witness line: what produced it, and if it held back. */
+function sourceTag(u, honest) {
+  const src = u.source || "";
+  const who =
+    src === "model" ? `${u.model || "call model"}`
+    : src === "guard" ? `${u.model || "call model"} · honesty guard replaced the reply`
+    : src === "rules" ? "keyword fallback"
+    : src === "script" ? "scripted demo line"
+    : "";
+  const parts = [];
+  if (honest) parts.push("🛡 won't guess");
+  if (who) parts.push(who);
+  return parts.join(" · ");
+}
+
 export function renderConversation(root, opts) {
   const { tools = [], compact = false, live = false } = opts;
   const lines = opts.subtitleLines
@@ -114,12 +132,15 @@ export function renderConversation(root, opts) {
       root.appendChild(g);
       group = { self, lastAt: it.at, col, el: g };
     }
+    const honest = self && HONEST_RE.test(it.u.text || "");
     const bubble = el("div", {
-      className: opts.subtitleLines ? "cv-bubble cv-sub" : "cv-bubble",
+      className: (opts.subtitleLines ? "cv-bubble cv-sub" : "cv-bubble") + (honest ? " cv-bubble--honest" : ""),
       text: maskNumbers(redactPlaces(it.u.text)),
       attrs: it.at ? { title: fullTime(it.at) } : {},
     });
     group.col.appendChild(bubble);
+    const tag = self && !opts.subtitleLines ? sourceTag(it.u, honest) : "";
+    if (tag) group.col.appendChild(el("div", { className: `cv-src cv-src--${it.u.source || "none"}`, text: tag }));
     group.lastAt = it.at || group.lastAt;
     group.lastBubble = bubble;
   }

@@ -72,6 +72,12 @@ def configured() -> bool:
     return bool(url and model and key and "<" not in model)
 
 
+def model_label() -> str:
+    """Short name for the console badge: CS_CALL_MODEL_LABEL, else the id's last segment."""
+    label = os.environ.get("CS_CALL_MODEL_LABEL", "").strip()
+    return label or usage_id(_config()[1])
+
+
 def usage_id(model: str) -> str:
     """Stable dashboard id: the model's last path segment."""
     return model.rsplit("/", 1)[-1]
