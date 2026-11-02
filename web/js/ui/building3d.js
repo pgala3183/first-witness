@@ -59,7 +59,7 @@ function labelSprite(text, { color = "#111827", bg = "rgba(255,255,255,0.92)", s
   tex.colorSpace = THREE.SRGBColorSpace;
   const mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true });
   const s = new THREE.Sprite(mat);
-  const k = 0.022;
+  const k = 0.034;
   s.scale.set(c.width * k, c.height * k, 1);
   s.renderOrder = 10;
   s.userData.text = text;
@@ -83,20 +83,26 @@ export function mountBuilding(root, store) {
       <div class="b3d__stage" data-stage></div>
       <aside class="b3d__panel card">
         <h2 class="b3d__title">MacQuarrie Hall · 3D</h2>
-        <p class="b3d__note">Illustrative layout. The ground floor is live from 3 cameras. Floors 2–${FLOORS} have no cameras in this demo, so they show no counts.</p>
+        <p class="b3d__note">Illustrative layout. Floor 1 is live from 3 cameras. Floors 2–${FLOORS} have no cameras: their counts come from badge tap-ins, <b>simulated</b> in this demo (production reads the campus card system). Counts only, never names.</p>
+        <h3 class="b3d__h">Floor 1 · live cameras</h3>
         <ul class="b3d__zones" data-zones></ul>
+        <h3 class="b3d__h">Upper floors · badge tap-ins <span class="b3d__sim">simulated</span></h3>
+        <ul class="b3d__zones b3d__floors" data-floors></ul>
+        <p class="b3d__lasttap" data-lasttap></p>
         <div class="b3d__incident" data-incident></div>
         <div class="b3d__btns">
           <button type="button" class="btn btn--secondary btn--sm" data-explode aria-pressed="false">Separate floors</button>
           <button type="button" class="btn btn--secondary btn--sm" data-reset>Reset view</button>
         </div>
-        <p class="b3d__legend"><span class="b3d__dot b3d__dot--idle"></span>No one on camera <span class="b3d__dot b3d__dot--people"></span>People on camera <span class="b3d__dot b3d__dot--severe"></span>Incident / armed</p>
+        <p class="b3d__legend"><span class="b3d__dot b3d__dot--idle"></span>No one on camera <span class="b3d__dot b3d__dot--people"></span>People on camera <span class="b3d__dot b3d__dot--severe"></span>Incident / armed <span class="b3d__dot b3d__dot--badge"></span>Badge count (simulated)</p>
         <p class="b3d__hint">Drag to orbit · scroll to zoom · right-drag to pan</p>
       </aside>
     </div>
   `;
   const stage = root.querySelector("[data-stage]");
   const zonesEl = root.querySelector("[data-zones]");
+  const floorsEl = root.querySelector("[data-floors]");
+  const lastTapEl = root.querySelector("[data-lasttap]");
   const incEl = root.querySelector("[data-incident]");
   const explodeBtn = root.querySelector("[data-explode]");
   const resetBtn = root.querySelector("[data-reset]");
@@ -114,10 +120,10 @@ export function mountBuilding(root, store) {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 500);
-  const HOME = new THREE.Vector3(38, 34, 42);
+  const HOME = new THREE.Vector3(40, 24, 34);
   camera.position.copy(HOME);
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, 4, 2);
+  controls.target.set(7, 3, 3);
   controls.enableDamping = true;
   controls.maxPolarAngle = Math.PI * 0.49;
   controls.minDistance = 15;
@@ -150,7 +156,7 @@ export function mountBuilding(root, store) {
     const g = new THREE.Group();
     const slab = new THREE.Mesh(
       new THREE.BoxGeometry(W, 0.35, D),
-      new THREE.MeshStandardMaterial({ color: C.slab, roughness: 0.9, transparent: f > 0, opacity: f > 0 ? 0.55 : 1 }),
+      new THREE.MeshStandardMaterial({ color: f > 0 ? 0xcbd5e1 : C.slab, roughness: 0.9, transparent: f > 0, opacity: f > 0 ? 0.28 : 1, depthWrite: f === 0 }),
     );
     slab.position.y = -0.17;
     slab.receiveShadow = true;
@@ -170,9 +176,13 @@ export function mountBuilding(root, store) {
     edges.position.copy(walls.position);
     g.add(edges);
     if (f > 0) {
-      const tag = labelSprite(`Floor ${f + 1} · no camera coverage`, { color: "#475569", size: 22 });
+      const tag = labelSprite(`Floor ${f + 1} · no cameras`, { color: "#475569", size: 22 });
       tag.position.set(-W / 2 + 7, 1.6, D / 2 + 0.5);
       g.add(tag);
+      g.userData.tag = tag;
+      const crowd = new THREE.Group();
+      g.add(crowd);
+      g.userData.crowd = crowd;
     } else {
       const tag = labelSprite("Floor 1 · live from 3 cameras", { color: "#0f172a", size: 22 });
       tag.position.set(-W / 2 + 7, 0.9, D / 2 + 1.5);
@@ -217,6 +227,58 @@ export function mountBuilding(root, store) {
     return { ...z, tile, mat, label, people, cx: tile.position.x, cz: tile.position.z };
   });
   const zoneByCam = new Map(zones.map((z) => [z.cam, z]));
+
+  // Simulated access-control feed: people per upper floor from badge tap-ins.
+  // Not connected to any real card system; labelled "simulated" everywhere.
+  const DOORS = ["stairwell A", "stairwell B", "elevator lobby", "east fire door"];
+  const badge = { counts: [0, 22, 15, 9], last: null };
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const crowdGeo = new THREE.CapsuleGeometry(0.28, 0.8, 3, 8);
+  const crowdMat = new THREE.MeshStandardMaterial({ color: 0x7c3aed, transparent: true, opacity: 0.55 });
+  function tickBadges() {
+    const f = 1 + Math.floor(rand() * (FLOORS - 1));
+    const delta = rand() < 0.55 ? 1 : -1;
+    badge.counts[f] = Math.max(2, Math.min(40, badge.counts[f] + delta));
+    badge.last = { floor: f + 1, door: DOORS[Math.floor(rand() * DOORS.length)], dir: delta > 0 ? "in" : "out", at: Date.now() };
+    renderBadges();
+  }
+  function renderBadges() {
+    for (let f = 1; f < FLOORS; f++) {
+      const g = floors[f];
+      const n = badge.counts[f];
+      setLabel(g.userData.tag, `Floor ${f + 1} · ~${n} people\nbadge tap-ins (simulated)`, { color: "#4c1d95", size: 22 });
+      const crowd = g.userData.crowd;
+      while (crowd.children.length > n) crowd.remove(crowd.children[crowd.children.length - 1]);
+      while (crowd.children.length < n) {
+        const i = crowd.children.length;
+        const m = new THREE.Mesh(crowdGeo, crowdMat);
+        // Fixed scatter per floor so people don't jump around.
+        const h = Math.sin((f * 97 + i * 31) * 12.9898) * 43758.5453;
+        const u = h - Math.floor(h);
+        const h2 = Math.sin((f * 53 + i * 17) * 78.233) * 12543.123;
+        const v = h2 - Math.floor(h2);
+        m.position.set(-W / 2 + 2 + u * (W - 4), 0.7, -D / 2 + 2 + v * (D - 4));
+        crowd.add(m);
+      }
+    }
+    const rows = [];
+    for (let f = FLOORS - 1; f >= 1; f--) {
+      const li = document.createElement("li");
+      li.className = "b3d__zone b3d__zone--floor";
+      li.innerHTML = `<span class="b3d__zname"></span><span class="b3d__zcount mono"></span>`;
+      li.firstChild.textContent = `Floor ${f + 1}`;
+      li.lastChild.textContent = `~${badge.counts[f]}`;
+      rows.push(li);
+    }
+    floorsEl.replaceChildren(...rows);
+    if (badge.last) {
+      const ago = Math.max(0, Math.round((Date.now() - badge.last.at) / 1000));
+      lastTapEl.textContent = `Last tap-${badge.last.dir}: Floor ${badge.last.floor}, ${badge.last.door} · ${ago}s ago`;
+    }
+  }
+  renderBadges();
+  let badgeTimer = 0;
 
   // Incident beam + path
   const beam = new THREE.Mesh(
@@ -334,7 +396,7 @@ export function mountBuilding(root, store) {
   });
   resetBtn.addEventListener("click", () => {
     camera.position.copy(HOME);
-    controls.target.set(0, 4, 2);
+    controls.target.set(7, 3, 3);
   });
 
   function resize() {
@@ -373,8 +435,10 @@ export function mountBuilding(root, store) {
       resize();
       clock.start();
       frame();
+      badgeTimer = window.setInterval(tickBadges, 3500);
     } else {
       cancelAnimationFrame(raf);
+      window.clearInterval(badgeTimer);
     }
   }
 
