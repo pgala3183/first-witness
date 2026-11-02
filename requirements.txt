@@ -18,6 +18,14 @@ open_clip_torch==3.2.0
 # Speech-to-text service (scripts/serve_parakeet.py)
 faster-whisper==1.2.1
 
+# Call agent on Fireworks' serverless training pool (services/voice/call_model.py,
+# chat_template.py). The [training-sdk] extra skips torch/transformers/wandb; the
+# full [training] extra would upgrade numpy past the pin above.
+fireworks-ai[training-sdk]==1.2.30
+tokenizers==0.22.2
+huggingface-hub==1.33.0
+jinja2==3.1.2
+
 # Optional, not installed by default:
 #   kokoro           local TTS (scripts/serve_kokoro.py); ElevenLabs is the default voice
 #   beeai-framework  + pydantic: the optional watsonx review (services/brain/track_ai.py),
