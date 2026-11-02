@@ -1,0 +1,47 @@
+[
+ {
+  "system": "bench-kimi-k3",
+  "n": 150,
+  "clusters": 90,
+  "before": 85.33333333333333,
+  "after": 96.66666666666667,
+  "gap": 11.333333333333334,
+  "ci_lo": 5.555555555555555,
+  "ci_hi": 17.51824817518248,
+  "boot_wins": 4999,
+  "only_after": 20,
+  "only_before": 3,
+  "p": 0.00048828125,
+  "verdict": "real gain"
+ },
+ {
+  "system": "bench-glm-5p3-flash",
+  "n": 150,
+  "clusters": 90,
+  "before": 85.33333333333333,
+  "after": 90.0,
+  "gap": 4.666666666666667,
+  "ci_lo": -1.3513513513513513,
+  "ci_hi": 10.869565217391305,
+  "boot_wins": 4599,
+  "only_after": 15,
+  "only_before": 8,
+  "p": 0.21003961563110352,
+  "verdict": "could be luck"
+ },
+ {
+  "system": "bench-deepseek-v4p1-flash",
+  "n": 150,
+  "clusters": 90,
+  "before": 85.33333333333333,
+  "after": 91.33333333333333,
+  "gap": 6.0,
+  "ci_lo": 1.3245033112582782,
+  "ci_hi": 10.909090909090908,
+  "boot_wins": 4959,
+  "only_after": 12,
+  "only_before": 3,
+  "p": 0.03515625,
+  "verdict": "real gain"
+ }
+]
