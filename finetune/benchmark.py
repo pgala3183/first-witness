@@ -35,6 +35,7 @@ from pathlib import Path
 from typing import Any
 
 HERE = Path(__file__).resolve().parent
+import envfile  # noqa: E402,F401  (FIREWORKS_API_KEY from the repo .env)
 RESULTS = HERE / "results"
 CONFIG = HERE / "benchmark_models.json"
 SPLITS = ("test_real", "test_synth")

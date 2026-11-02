@@ -35,6 +35,7 @@ from pathlib import Path
 from typing import Any
 
 HERE = Path(__file__).resolve().parent
+import envfile  # noqa: E402,F401  (FIREWORKS_API_KEY from the repo .env)
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent))
 
