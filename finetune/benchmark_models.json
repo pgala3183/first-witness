@@ -5,14 +5,15 @@
   "Ids are best guesses: run `python finetune/benchmark.py resolve` and fix any it flags.",
   "serverless=false needs an on-demand deployment: put its id (accounts/<you>/deployments/<id>) in deployment.",
   "Prices are USD per 1M tokens from the Fireworks model page (serverless only).",
-  "reasoning_effort: sent as-is; \"none\" keeps reasoning models from thinking through the token limit."
+  "reasoning_effort: sent as-is; \"none\" keeps reasoning models from thinking through the token limit.",
+  "GLM 5.3 can't turn thinking off, so it gets \"low\" and room to think (max_tokens): slower, but it answers."
  ],
  "models": [
   {"name": "Kimi K3", "slug": "kimi-k3", "reasoning_effort": "none", "role": "reference", "serverless": true,
    "id": "accounts/fireworks/models/kimi-k3", "price_in": 3.00, "price_out": 15.00},
   {"name": "DeepSeek V4.1 Flash 1017", "slug": "deepseek-v4p1-flash", "reasoning_effort": "none", "role": "reference", "serverless": true,
    "id": "accounts/fireworks/models/deepseek-v4p1-flash-1017", "price_in": 0.30, "price_out": 1.20},
-  {"name": "GLM 5.3 Flash", "slug": "glm-5p3-flash", "reasoning_effort": "none", "role": "reference", "serverless": true,
+  {"name": "GLM 5.3 Flash", "slug": "glm-5p3-flash", "reasoning_effort": "low", "max_tokens": 1024, "role": "reference", "serverless": true,
    "id": "accounts/fireworks/models/glm-5p3-flash", "price_in": 0.15, "price_out": 0.50},
   {"name": "Qwen3.8 27B", "slug": "qwen3p8-27b", "reasoning_effort": "none", "role": "candidate", "serverless": false,
    "id": "accounts/fireworks/models/qwen3p8-27b", "deployment": "", "no_think": true},

@@ -13,6 +13,7 @@ Usage (needs FIREWORKS_API_KEY):
   python finetune/benchmark.py run --limit 150       # quick pass: 150 rows per split
   python finetune/benchmark.py run                   # full: 450 + 450 rows per model
   python finetune/benchmark.py run --only kimi-k3 glm-5p3-flash
+  python finetune/benchmark.py run --deploy --limit 150   # candidates: create, run, delete
   python finetune/benchmark.py report                # table + the model to fine-tune
 
 Writes results/bench-<slug>_<split>.json (+ .jsonl) and results/benchmark.md.
@@ -23,8 +24,11 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
+import shutil
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -63,8 +67,7 @@ def cmd_list(_: argparse.Namespace) -> None:
         how = "serverless" if m.get("serverless") else (
             "deployment set" if target(m) else "NEEDS DEPLOYMENT")
         print(f"{m['slug']:22s} {m['role']:9s} {how:17s} {m['id']}")
-    print("\nCreate a deployment:  firectl deployment create <model-id> --min-replica-count 1")
-    print("Then put accounts/<you>/deployments/<id> in its \"deployment\" field. Delete it after the run.")
+    print("\nCandidates: `benchmark.py run --deploy` creates, runs and deletes each deployment.")
 
 
 def _list_fireworks(key: str) -> list[dict[str, Any]]:
@@ -113,7 +116,7 @@ def cmd_resolve(_: argparse.Namespace) -> None:
 def _eval(m: dict[str, Any], model: str, name: str, splits: tuple[str, ...], limit: int,
           workers: int) -> int:
     cmd = [sys.executable, str(HERE / "eval.py"), "--system", "model", "--model", model, "--name", name,
-           "--workers", str(workers), "--max-tokens", "120"]
+           "--workers", str(workers), "--max-tokens", str(m.get("max_tokens") or 120)]
     for s in splits:
         cmd += ["--split", s]
     if limit:
@@ -127,27 +130,109 @@ def _eval(m: dict[str, Any], model: str, name: str, splits: tuple[str, ...], lim
     return subprocess.call(cmd)
 
 
+def _smoke(m: dict[str, Any], model: str) -> tuple[dict[str, Any], str]:
+    """5-row check: (summary, first answer). A wrong id, a cold deployment or a
+    model that thinks through max_tokens shows up here, not 300 rows later."""
+    _eval(m, model, f"smoke-{m['slug']}", ("test_real",), 5, 5)
+    summary = json.loads((RESULTS / f"smoke-{m['slug']}_test_real.json").read_text(encoding="utf-8"))
+    first = (RESULTS / f"smoke-{m['slug']}_test_real.jsonl").read_text(encoding="utf-8").splitlines()[0]
+    return summary, json.loads(first)["answer"]
+
+
+def _bench(m: dict[str, Any], model: str, args: argparse.Namespace) -> bool:
+    smoke, first = _smoke(m, model)
+    if smoke.get("error_rate", 0) >= 40 and m.get("reasoning_effort") and "reasoning" in first.lower():
+        # Some models reject reasoning_effort; retry once without it.
+        print(f"   model rejects reasoning_effort={m['reasoning_effort']!r}; retrying without it")
+        m = {k: v for k, v in m.items() if k != "reasoning_effort"}
+        smoke, first = _smoke(m, model)
+    if smoke.get("error_rate", 0) >= 40:
+        print(f"   endpoint failing ({smoke['error_rate']}% errors), skipped: {first[:160]}")
+        return False
+    if smoke.get("empty_rate", 0) >= 40:
+        print(f"   {smoke['empty_rate']}% blank answers: it's thinking through max_tokens. Set "
+              f"\"reasoning_effort\" or \"max_tokens\" for {m['slug']} in {CONFIG.name}; skipped.")
+        return False
+    _eval(m, model, f"bench-{m['slug']}", SPLITS, args.limit, args.workers)
+    return True
+
+
+# ---------------------------------------------------------------- deployments
+
+FIRECTL = os.environ.get("FIRECTL") or shutil.which("firectl") or str(Path.home() / "bin" / "firectl.exe")
+
+
+def _firectl(*args: str, timeout: float) -> subprocess.CompletedProcess[str]:
+    cmd = [FIRECTL, *args]
+    # firectl reads ~/.fireworks/auth.ini after `firectl signin`; otherwise use the env key.
+    if not (Path.home() / ".fireworks" / "auth.ini").exists() and os.environ.get("FIREWORKS_API_KEY"):
+        cmd += ["--api-key", os.environ["FIREWORKS_API_KEY"]]
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return subprocess.CompletedProcess(cmd, 1, "", f"firectl timed out after {timeout:.0f} s")
+
+
+def _deploy(m: dict[str, Any]) -> str | None:
+    """Create a one-replica deployment and wait for it. Returns its full name."""
+    dep_id = f"bench-{m['slug']}"
+    print(f"   creating deployment {dep_id}: GPU billing starts once a replica is up")
+    t0 = time.time()
+    r = _firectl("deployment", "create", m["id"], "--deployment-id", dep_id, "--deployment-shape", "default",
+                 "--min-replica-count", "1", "--max-replica-count", "1", "--wait", "-o", "json",
+                 timeout=45 * 60)
+    out = r.stdout + r.stderr
+    if r.returncode != 0 and "already exists" not in out.lower():
+        print(f"   deployment failed: {out.strip()[-300:]}")
+        return None
+    if r.returncode != 0:
+        print("   reusing the deployment left over from an earlier run")
+        r = _firectl("deployment", "get", dep_id, "-o", "json", timeout=120)
+        out = r.stdout + r.stderr
+    found = re.search(r"accounts/[^/\s\"]+/deployments/[A-Za-z0-9-]+", out)
+    if not found:
+        print(f"   could not read the deployment name: {out.strip()[-300:]}")
+        return None
+    print(f"   ready in {(time.time() - t0) / 60:.1f} min: {found.group(0)}")
+    return found.group(0)
+
+
+def _undeploy(m: dict[str, Any], name: str | None, up_since: float | None) -> None:
+    ref = name or f"bench-{m['slug']}"
+    r = _firectl("deployment", "delete", ref, "--ignore-checks", timeout=600)
+    out = r.stdout + r.stderr
+    if r.returncode == 0 or "not found" in out.lower():
+        mins = f" after {(time.time() - up_since) / 60:.1f} min of use" if up_since else ""
+        print(f"   deleted {ref}{mins}")
+    else:
+        print(f"   !! COULD NOT DELETE {ref}: it is still billing. Run: firectl deployment delete {ref}")
+        print(f"      {out.strip()[-200:]}")
+
+
 def cmd_run(args: argparse.Namespace) -> None:
     if not os.environ.get("FIREWORKS_API_KEY"):
         sys.exit("Set FIREWORKS_API_KEY.")
+    if args.deploy and not (Path(FIRECTL).exists() or shutil.which(FIRECTL)):
+        sys.exit(f"--deploy needs firectl (looked for {FIRECTL}); set FIRECTL to its path.")
     for m in models(args.only):
         model = target(m)
-        if model is None:
-            print(f"\n-- skip {m['slug']}: needs a deployment (see `benchmark.py list`)")
+        if model is not None:
+            print(f"\n-- {m['name']}  ({model})")
+            _bench(m, model, args)
             continue
-        print(f"\n-- {m['name']}  ({model})")
-        # 5-row smoke test: a wrong id or a cold deployment fails here, not 900 rows later.
-        _eval(m, model, f"smoke-{m['slug']}", ("test_real",), 5, 5)
-        smoke = json.loads((RESULTS / f"smoke-{m['slug']}_test_real.json").read_text(encoding="utf-8"))
-        if smoke.get("error_rate", 0) >= 40:
-            first = (RESULTS / f"smoke-{m['slug']}_test_real.jsonl").read_text(encoding="utf-8").splitlines()[0]
-            print(f"   endpoint failing ({smoke['error_rate']}% errors), skipped: {json.loads(first)['answer'][:160]}")
+        if not args.deploy:
+            print(f"\n-- skip {m['slug']}: needs a deployment (add --deploy)")
             continue
-        if smoke.get("empty_rate", 0) >= 40:
-            print(f"   {smoke['empty_rate']}% blank answers: it's thinking through max_tokens. Set "
-                  f"\"reasoning_effort\" for {m['slug']} in {CONFIG.name}; skipped.")
-            continue
-        _eval(m, model, f"bench-{m['slug']}", SPLITS, args.limit, args.workers)
+        print(f"\n-- {m['name']}  (deploying)")
+        name, up_since = None, None
+        try:
+            name = _deploy(m)
+            if name:
+                up_since = time.time()
+                _bench(m, f"{m['id']}#{name}", args)
+        finally:
+            # Always delete, even after an error or Ctrl+C: an idle deployment still bills.
+            _undeploy(m, name, up_since)
     print("\nNext: python finetune/benchmark.py report")
 
 
@@ -253,6 +338,8 @@ def main() -> None:
     r.add_argument("--only", nargs="+", help="slugs to run (default: all)")
     r.add_argument("--limit", type=int, default=0, help="rows per split (0 = all 450)")
     r.add_argument("--workers", type=int, default=8)
+    r.add_argument("--deploy", action="store_true",
+                   help="create, run and delete a deployment for each candidate that has none")
     r.set_defaults(fn=cmd_run)
     rp = sub.add_parser("report")
     rp.add_argument("--budget-ms", type=float, default=BUDGET_MS)
