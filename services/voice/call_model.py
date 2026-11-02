@@ -104,13 +104,16 @@ def clean(text: str) -> str:
 
 
 def answer(
-    facts: dict[str, Any], history: list[tuple[str, str]], question: str
+    facts: dict[str, Any], history: list[tuple[str, str]], question: str,
+    timeout_s: float | None = None,
 ) -> str | None:
+    """timeout_s overrides CS_CALL_MODEL_TIMEOUT_S (the on-screen call can wait longer)."""
     if not configured():
         return None
     if backend() == "training-pool":
-        return _pool_answer(facts, history, question)
+        return _pool_answer(facts, history, question, timeout_s)
     url, model, key, timeout = _config()
+    timeout = timeout_s or timeout
     body = json.dumps({
         "model": model,
         "messages": [
@@ -197,8 +200,10 @@ def _pool_sample(messages: list[dict[str, str]], max_tokens: int) -> tuple[str, 
     return chat.decode(out), len(prompt), len(out)
 
 
-def _pool_answer(facts: dict[str, Any], history: list[tuple[str, str]], question: str) -> str | None:
+def _pool_answer(facts: dict[str, Any], history: list[tuple[str, str]], question: str,
+                 timeout_s: float | None = None) -> str | None:
     _, model, _, timeout = _config()
+    timeout = timeout_s or timeout
     uid = usage_id(model) + "-ft"
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": user_msg(facts, history, question)}]

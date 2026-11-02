@@ -165,10 +165,6 @@ def _row(t: int) -> dict[str, Any]:
 
 
 def _descriptions(t: int) -> list[str]:
-    for a, b, text in scene.DESCRIPTIONS:
-        if a <= t < b:
-            parts = [p.strip().rstrip(".") for p in text.replace(", and ", ". ").split(". ") if p.strip()]
-            return [p[0].lower() + p[1:] for p in parts]
     d = scene.people_descriptions(_row(t))
     return [p.strip() for p in d.split(";") if p.strip()]
 

@@ -269,11 +269,12 @@ async def _main() -> None:
     assert "First Witness" in await ask("Where are you calling from?")
     assert "MacQuarrie Hall, One Washington Square" in await ask("What is the exact address?")
     assert "IBM" not in await ask("What is the exact address?")
-    assert await ask("How many people do you see?") == "Eight people in the ground-floor lobby; six of them armed."
+    # Numbers and clothing come from the footage at that second (data/feeds/seville_scene_script.json).
+    assert await ask("How many people do you see?") == "Eight people in the ground-floor lobby; two of them armed."
     assert "handgun" in await ask("What weapons do they have?")
-    assert "red polo shirt" in await ask("Describe the persons")
+    assert "light blue t-shirt" in await ask("Describe the persons")
     assert "can't verify injuries" in await ask("Is anyone harmed?")
-    live.clock = lambda: 130.0
+    live.clock = lambda: 250.0
     assert "west corridor" in await ask("Where are they now?")
     assert "lobby to the east corridor to the west corridor" in await ask("Where did they move?")
     # Camera handoff on a live call: place names only, from -> to.
@@ -290,7 +291,7 @@ async def _main() -> None:
     # An unmatched question is answered from this second of the scene script.
     assert await ask("Is the door locked?") == "I don't see that on the current camera."
     assert qwen.calls == 1 and qwen.last_facts["place"] == "MacQuarrie Hall"
-    assert qwen.last_facts["clip_second"] == 130 and qwen.last_facts["camera_id"] == "cam-02"
+    assert qwen.last_facts["clip_second"] == 250 and qwen.last_facts["camera_id"] == "cam-02"
     assert qwen.last_facts["scene"].get("camera")
     event_count = len(live_events)
     assert await ask("Okay.") == ""
@@ -306,7 +307,7 @@ async def _main() -> None:
         "Officer A. Lee accepted and is about three minutes away.",
     ])
 
-    def fake_answer(facts, history, question):
+    def fake_answer(facts, history, question, timeout_s=None):
         seen.append((facts, list(history), question))
         return next(replies)
 
@@ -337,6 +338,41 @@ async def _main() -> None:
     finally:
         agent_mod.call_model.configured, agent_mod.call_model.answer = saved_cm
         live.use_model = False
+
+    # On-screen call: the model answers the dispatcher (asked as the question
+    # appears, with the longer on-screen timeout); the scripted line is the fallback.
+    asked: list[tuple[str, float | None]] = []
+
+    def screen_answer(facts, history, question, timeout_s=None):
+        asked.append((question, timeout_s))
+        return "They are in the ground-floor lobby." if question.startswith("How many") else None
+
+    screen_events: list[object] = []
+
+    async def screen_pub(ev: object) -> None:
+        screen_events.append(ev)
+
+    saved_cm = (agent_mod.call_model.configured, agent_mod.call_model.answer, agent_mod.plan)
+    agent_mod.call_model.configured = lambda: True  # type: ignore[assignment]
+    agent_mod.call_model.answer = screen_answer  # type: ignore[assignment]
+    agent_mod.plan = lambda _t: [  # type: ignore[assignment]
+        (0.0, "dispatcher", "How many people do you see?", None),
+        (0.2, "sentinel", "scripted count", "How many people do you see?"),
+        (0.3, "dispatcher", "Is anyone hurt?", None),
+        (0.5, "sentinel", "I can't verify injuries from the cameras.", "Is anyone hurt?"),
+    ]
+    try:
+        screen = VoiceAgent(screen_pub)
+        await screen.start_scripted_call(rec, assemble_call_brief(rec))
+        await asyncio.sleep(1.0)
+        said = [getattr(e, "text", "") for e in screen_events if getattr(e, "speaker", "") == "sentinel"]
+        assert said == ["They are in the ground-floor lobby.",
+                        "I can't verify injuries from the cameras."], said
+        assert [q for q, _ in asked] == ["How many people do you see?", "Is anyone hurt?"]
+        assert all(t == 6.0 for _, t in asked), asked
+        await screen.cancel()
+    finally:
+        agent_mod.call_model.configured, agent_mod.call_model.answer, agent_mod.plan = saved_cm
 
     # Demo recording: lines run from call start and finish inside DURATION.
     from services.voice.demo_call import DURATION

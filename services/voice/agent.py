@@ -12,6 +12,7 @@ guard, and a timeout or error falls back to the keyword rules below.
 from __future__ import annotations
 
 import asyncio
+import os
 import re
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable
@@ -30,7 +31,7 @@ from services.brain.call_brief import scene_facts
 from services.brain.zrt_client import ZRTClient
 
 from . import call_model, scene
-from .demo_call import schedule
+from .demo_call import plan
 from .facts import live_snapshot
 from .guard import guarded
 from .tools import TOOL_HANDLERS, ToolName
@@ -203,6 +204,8 @@ class VoiceAgent:
             return
         self._update_q = asyncio.Queue()
         self._new_call()
+        if self.use_model:
+            asyncio.get_running_loop().run_in_executor(None, call_model.warmup)
         self._scripted = True
         self._incident_id = rec.incident_id
         self._camera = rec.camera_id
@@ -215,13 +218,31 @@ class VoiceAgent:
 
     async def _run_scripted(self, incident_id: str) -> None:
         started = asyncio.get_running_loop().time()
+        # On screen a short pause is fine; a phone call keeps CS_CALL_MODEL_TIMEOUT_S.
+        try:
+            timeout_s = float(os.environ.get("CS_CALL_MODEL_SCRIPTED_TIMEOUT_S", "") or 6.0)
+        except ValueError:
+            timeout_s = 6.0
+        pending: asyncio.Task[str | None] | None = None
         try:
             # Keyed to the clip second the wall shows as the call connects.
-            for at_s, speaker, text in schedule(self.clock()):
+            lines = plan(self.clock())
+            for i, (at_s, speaker, text, question) in enumerate(lines):
                 # One line per wait. The timestamp already includes speaking time.
                 wait = at_s - (asyncio.get_running_loop().time() - started)
                 if wait > 0:
                     await asyncio.sleep(wait)
+                if question:
+                    # The fine-tuned model answers from this second's facts (through the
+                    # guard); the scripted scene answer stands if it's off or slow.
+                    reply = await pending if pending is not None else await self._model_answer(question, timeout_s)
+                    pending = None
+                    text = reply or text
+                    self._history += [("Dispatcher", question), (call_model.SPEAKER, heard(text))]
+                elif i + 1 < len(lines) and lines[i + 1][3]:
+                    # Ask as the dispatcher's question appears, so the model's latency
+                    # overlaps the pause before the answer is due.
+                    pending = asyncio.create_task(self._model_answer(lines[i + 1][3], timeout_s))
                 await self.publish(
                     CallTranscriptDelta(
                         incident_id=incident_id,
@@ -234,6 +255,8 @@ class VoiceAgent:
             # turns are event-driven by real camera handoffs.
             await asyncio.Event().wait()
         finally:
+            if pending is not None:
+                pending.cancel()
             self._scripted = False
             self._incident_id = None
 
@@ -367,14 +390,14 @@ class VoiceAgent:
                 answer = re.split(r"(?<=[.!?])\s+", answer, maxsplit=1)[0]
         return await self._say(incident_id, question, answer)
 
-    async def _model_answer(self, question: str) -> str | None:
+    async def _model_answer(self, question: str, timeout_s: float | None = None) -> str | None:
         """The fine-tuned call model on this moment's FACTS, through the guard.
         None (not configured, timeout, error) means the keyword rules answer."""
         if not self.use_model or not call_model.configured():
             return None
         snap = live_snapshot(self.clock(), self.officer, self.zone_alert)
         # Training showed at most two earlier exchanges.
-        reply = await asyncio.to_thread(call_model.answer, snap, self._history[-4:], question)
+        reply = await asyncio.to_thread(call_model.answer, snap, self._history[-4:], question, timeout_s)
         if reply is None:
             return None
         text, violations = guarded(reply, snap)

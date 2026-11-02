@@ -1,8 +1,8 @@
 """Instant call answers from the precomputed scene script (no model round-trip).
 
 data/feeds/seville_scene_script.json holds, for every second of the demo
-clip: the active camera, people visible (YOLO), weapons in view (dataset
-hand labels) and Qwen3-VL descriptions of the armed people. The dispatcher's
+clip: the active camera, people visible (YOLO), weapons in view and who holds
+them (a vision model, scripts/build_demo_from_clips.py). The dispatcher's
 usual questions (who are you, where, how many, weapons, descriptions,
 injuries, location, movement) are answered from the second the wall is
 showing, so the answer is immediate and matches the picture.
@@ -34,23 +34,6 @@ PLACE = {
     "CAM-02": "the east corridor on the ground floor",
     "CAM-03": "the west corridor near the stairwell",
 }
-# Hand-checked against the labelled frames (who holds what, per stretch of
-# the clip). Qwen's per-frame descriptions are the fallback outside these.
-DESCRIPTIONS: list[tuple[float, float, str]] = [
-    (0, 60, "A man in a red polo shirt and jeans with a handgun. Two men in black T-shirts with handguns. "
-            "A man in a white shirt with a handgun, and a man in a light-blue shirt with a knife. "
-            "Near the doors, a man in dark clothing with a rifle."),
-    (60, 100, "The closest is a man in a dark polo shirt and jeans with a handgun in his left hand. "
-              "Ahead of him, a man in a white shirt with a knife."),
-    (100, 117, "A man in a black T-shirt and khaki trousers carrying a rifle down by his side, "
-               "and ahead of him a man in a black T-shirt with a handgun."),
-    (117, 140, "A man in a black T-shirt and jeans with a handgun, and a man in a white shirt with a handgun further down the corridor."),
-    (140, 175, "A man in a white T-shirt and blue shorts carrying a rifle, and a man in a light-blue shirt ahead of him."),
-    (175, 230, "A man in a black T-shirt and shorts with a handgun, and a man in a light-blue shirt holding a knife."),
-    (230, 268, "A man in a black T-shirt and dark trousers holding up a handgun."),
-    (268, 340, "A man in a white T-shirt and blue denim shorts carrying a rifle, and a man in a black T-shirt with a handgun."),
-]
-
 WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
 PLURAL = {"handgun": "handguns", "rifle": "rifles", "knife": "knives"}
 
@@ -120,7 +103,8 @@ def speakable(who: str) -> tuple[str, str]:
     parts = [p.strip().removeprefix("wearing ").strip() for p in re.split(r",| and ", who.lower()) if p.strip()]
     noun = "man" if any(p in ("male", "man") for p in parts) else "woman" if any(p in ("female", "woman") for p in parts) else "person"
     clothes = [p for p in parts if any(c in p for c in CLOTHES)]
-    clothes = [c if c.split()[0] in ("a", "an", "dark", "light") or c.endswith("s") else f"a {c}" for c in clothes]
+    # "a light blue t-shirt", "dark jeans": plurals and phrases with an article keep their wording.
+    clothes = [c if c.split()[0] in ("a", "an") or c.endswith("s") else f"a {c}" for c in clothes]
     return noun, " and ".join(clothes[:2])
 
 
@@ -211,9 +195,6 @@ def answer(question: str, t: float) -> str | None:
     if kind == "weapons":
         return f"I see {weapons_phrase(w)} in {location(s)}."
     if kind == "describe":
-        for a, b, text in DESCRIPTIONS:
-            if a <= t < b:
-                return text
         d = people_descriptions(s)
         return f"{d[0].upper() + d[1:]}." if d else f"I can't make out clothing clearly on this camera; {num(people)} people in view."
     if kind == "injuries":
