@@ -1,0 +1,265 @@
+{
+  "site": {
+    "name": "San Jose State University",
+    "spoken_name": "San Jose State",
+    "product": "First Witness",
+    "type": "Independent staged demonstration",
+    "building": "MacQuarrie Hall",
+    "address": "One Washington Square, San Jose, CA 95192",
+    "timezone": "America/Los_Angeles"
+  },
+  "cameras": [
+    {
+      "camera_id": "cam-01",
+      "legacy_id": "CAM-01",
+      "seville_label": "CAM5",
+      "name": "MacQuarrie Hall / Ground-floor lobby",
+      "location": "Ground-floor lobby entrance",
+      "address": "MacQuarrie Hall, One Washington Square, San Jose, CA 95192",
+      "building": "MacQuarrie Hall",
+      "floor": "ground",
+      "coordinates": [
+        37.333553,
+        -121.881899
+      ],
+      "entrances": [
+        "Ground-floor lobby entrance"
+      ],
+      "cross_streets": [],
+      "vehicle_access": "Use the nearest MacQuarrie Hall entrance; exact curb access is not confirmed",
+      "scene_facts": {
+        "subject_count": 1,
+        "spoken_location": "the ground-floor lobby",
+        "person_description": "Adult in dark clothing carrying a visible long firearm",
+        "visible_weapon": "long firearm",
+        "current_observation": "Person 1 is entering the ground-floor lobby with a visible long firearm",
+        "direction": "moving from the lobby toward the east corridor",
+        "unknowns": [
+          "identity",
+          "intent",
+          "injuries",
+          "exact firearm type"
+        ]
+      },
+      "neighbors": [
+        {
+          "camera_id": "cam-02",
+          "bearing": "ESE"
+        },
+        {
+          "camera_id": "cam-03",
+          "bearing": "WSW"
+        }
+      ],
+      "adjacency": [
+        "cam-02",
+        "cam-03"
+      ],
+      "on_wall": true,
+      "feed": "seville_option1_3cam_locked",
+      "file": "CAM01_lobby_entrance_IN_then_OUT_339s.mp4",
+      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed"
+    },
+    {
+      "camera_id": "cam-02",
+      "legacy_id": "CAM-02",
+      "seville_label": "CAM1",
+      "name": "MacQuarrie Hall / East corridor",
+      "location": "Ground-floor east corridor",
+      "address": "MacQuarrie Hall, One Washington Square, San Jose, CA 95192",
+      "building": "MacQuarrie Hall",
+      "floor": "ground",
+      "coordinates": [
+        37.33358,
+        -121.88182
+      ],
+      "entrances": [
+        "East corridor doors"
+      ],
+      "cross_streets": [],
+      "vehicle_access": "Use the nearest MacQuarrie Hall entrance; exact curb access is not confirmed",
+      "scene_facts": {
+        "subject_count": 1,
+        "spoken_location": "the east corridor",
+        "person_description": "Adult in dark clothing carrying a visible long firearm",
+        "visible_weapon": "long firearm",
+        "current_observation": "Person 1 is moving through the east corridor with a visible long firearm",
+        "direction": "moving toward the west corridor",
+        "unknowns": [
+          "identity",
+          "intent",
+          "injuries",
+          "exact firearm type"
+        ]
+      },
+      "neighbors": [
+        {
+          "camera_id": "cam-01",
+          "bearing": "WNW"
+        },
+        {
+          "camera_id": "cam-03",
+          "bearing": "W"
+        }
+      ],
+      "adjacency": [
+        "cam-01",
+        "cam-03"
+      ],
+      "on_wall": true,
+      "feed": "seville_option1_3cam_locked",
+      "file": "CAM02_hallway_east_IN_then_OUT_339s.mp4",
+      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed"
+    },
+    {
+      "camera_id": "cam-03",
+      "legacy_id": "CAM-03",
+      "seville_label": "CAM7",
+      "name": "MacQuarrie Hall / West corridor",
+      "location": "Ground-floor west corridor and stairwell",
+      "address": "MacQuarrie Hall, One Washington Square, San Jose, CA 95192",
+      "building": "MacQuarrie Hall",
+      "floor": "ground",
+      "coordinates": [
+        37.33352,
+        -121.88197
+      ],
+      "entrances": [
+        "West stairwell exit"
+      ],
+      "cross_streets": [],
+      "vehicle_access": "Use the nearest MacQuarrie Hall entrance; exact curb access is not confirmed",
+      "scene_facts": {
+        "subject_count": 1,
+        "spoken_location": "the west corridor near the stairwell",
+        "person_description": "Adult in dark clothing carrying a visible long firearm",
+        "visible_weapon": "long firearm",
+        "current_observation": "Person 1 is moving through the west corridor near the stairwell with a visible long firearm",
+        "direction": "current direction is not confirmed",
+        "unknowns": [
+          "identity",
+          "intent",
+          "injuries",
+          "exact firearm type"
+        ]
+      },
+      "neighbors": [
+        {
+          "camera_id": "cam-01",
+          "bearing": "ENE"
+        },
+        {
+          "camera_id": "cam-02",
+          "bearing": "E"
+        }
+      ],
+      "adjacency": [
+        "cam-01",
+        "cam-02"
+      ],
+      "on_wall": true,
+      "feed": "seville_option1_3cam_locked",
+      "file": "CAM03_hallway_west_IN_then_OUT_339s.mp4",
+      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed"
+    },
+    {
+      "camera_id": "cam-04",
+      "legacy_id": "CAM-04",
+      "name": "Not a runtime feed",
+      "location": "Hidden. Not shown on the wall.",
+      "address": "MacQuarrie Hall, One Washington Square, San Jose, CA 95192",
+      "building": "MacQuarrie Hall",
+      "floor": "ground",
+      "coordinates": [
+        37.3348,
+        -121.8798
+      ],
+      "entrances": [
+        "Lot pedestrian gate A"
+      ],
+      "cross_streets": [
+        "10th St"
+      ],
+      "vehicle_access": "Demo mirror view only",
+      "neighbors": [
+        {
+          "camera_id": "cam-01",
+          "bearing": "NW"
+        }
+      ],
+      "adjacency": [
+        "cam-01"
+      ],
+      "on_wall": false,
+      "feed": "",
+      "file": "",
+      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed",
+      "placeholder": true
+    },
+    {
+      "camera_id": "cam-05",
+      "legacy_id": "CAM-05",
+      "name": "Not a runtime feed",
+      "location": "Hidden. Not shown on the wall.",
+      "address": "MacQuarrie Hall, One Washington Square, San Jose, CA 95192",
+      "building": "MacQuarrie Hall",
+      "floor": "ground",
+      "coordinates": [
+        37.335,
+        -121.8808
+      ],
+      "entrances": [
+        "Main lobby doors"
+      ],
+      "cross_streets": [],
+      "vehicle_access": "Demo mirror view only",
+      "neighbors": [
+        {
+          "camera_id": "cam-06",
+          "bearing": "S"
+        }
+      ],
+      "adjacency": [
+        "cam-06"
+      ],
+      "on_wall": false,
+      "feed": "",
+      "file": "",
+      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed",
+      "placeholder": true
+    },
+    {
+      "camera_id": "cam-06",
+      "legacy_id": "CAM-06",
+      "name": "Not a runtime feed",
+      "location": "Hidden. Not shown on the wall.",
+      "address": "MacQuarrie Hall, One Washington Square, San Jose, CA 95192",
+      "building": "MacQuarrie Hall",
+      "floor": "ground",
+      "coordinates": [
+        37.3345,
+        -121.8818
+      ],
+      "entrances": [],
+      "cross_streets": [
+        "San Salvador St"
+      ],
+      "vehicle_access": "Demo mirror view only",
+      "neighbors": [
+        {
+          "camera_id": "cam-05",
+          "bearing": "N"
+        }
+      ],
+      "adjacency": [
+        "cam-05"
+      ],
+      "on_wall": false,
+      "feed": "",
+      "file": "",
+      "media_root_zgx": "/home/hp25/Documents/campus_sentinel_media/feeds/final_demo_3cam_reconstructed",
+      "placeholder": true
+    }
+  ],
+  "_note": "cam-01..03 are the only runtime feeds. cam-04..06 are not shown and do not mirror those files."
+}
