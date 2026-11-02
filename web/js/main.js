@@ -18,6 +18,7 @@ import { mountDismiss } from "./ui/dismiss.js?v=pro9";
 import { mountOperator } from "./ui/operator.js?v=pro9";
 import { mountIncidents } from "./ui/incidents.js?v=pro9";
 import { mountSystem } from "./ui/system.js?v=pro11";
+import { mountBuilding } from "./ui/building3d.js?v=pro1";
 import { startAutoFollow } from "./ui/autofollow.js?v=pro9";
 import { playSplash, shouldHoldMockForSplash } from "./ui/splash.js?v=pro9";
 import { startModelStatus } from "./modelStatus.js?v=pro11";
@@ -106,6 +107,7 @@ mountIncidents(
   actions,
 );
 mountSystem(document.getElementById("system"), store);
+mountBuilding(document.getElementById("building"), store);
 startModelStatus(store);
 startUsage(store);
 startModelActivity(store);
