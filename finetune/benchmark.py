@@ -306,7 +306,8 @@ def cmd_report(args: argparse.Namespace) -> None:
     fast = [(m, s) for m, s in ok if (s["latency_ms_p95"] or 1e9) <= args.budget_ms]
     lines += ["", "## Pick"]
     if not ok:
-        lines.append("No candidate has clean results yet: deploy the candidates and run them.")
+        lines.append("No candidate results yet. The training-pool candidates need no deployment: "
+                     "`python finetune/benchmark.py run --only qwen3p6-35b-a3b qwen3p8-27b --limit 150`.")
     else:
         pool = fast or ok
         best_m, best_s = pool[0]
