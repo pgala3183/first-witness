@@ -4,6 +4,7 @@ export const ROUTES = [
   { id: "live", path: "#/live", label: "Live Operations" },
   { id: "incidents", path: "#/incidents", label: "Incidents" },
   { id: "call", path: "#/call", label: "Call Console" },
+  { id: "building", path: "#/building", label: "Building 3D" },
   { id: "system", path: "#/system", label: "System" },
 ];
 
