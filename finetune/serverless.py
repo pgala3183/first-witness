@@ -170,7 +170,8 @@ def make_sampler_runner(base_model: str, snapshot: str | None, max_tokens: int):
     service = connect()
     sampler = (service.create_sampling_client(model_path=snapshot) if snapshot
                else service.create_sampling_client(base_model=base_model))
-    params = sdk.SamplingParams(max_tokens=max_tokens, temperature=0.0, stop=[chat.end_id])
+    # Text stop: integer stop ids would need an HF tokenizer object inside the SDK.
+    params = sdk.SamplingParams(max_tokens=max_tokens, temperature=0.0, stop=[END])
 
     def run(row: dict[str, Any]) -> tuple[str, float, dict[str, int]]:
         prompt = chat.prompt_ids(row["messages"][:2])
