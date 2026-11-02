@@ -1,0 +1,466 @@
+"""Optional Seville vision → brain → WS bridge (GPU-throttled).
+
+  CS_VISION_SEVILLE=1 services/vision/.venv/bin/python -m services.api
+
+Safety knobs (keep the ZGX stable — do NOT also run run_seville.py):
+  CS_VISION_STEP_S         seconds per router step (default: one clip frame)
+  CS_VISION_COOLDOWN_S=600 min seconds between upserts per track
+  CS_VISION_MAX_UPSERTS_MIN=1  hard cap live Qwen calls per rolling minute
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import os
+import time
+from dataclasses import replace
+from pathlib import Path
+from types import SimpleNamespace
+from typing import TYPE_CHECKING, Any
+
+from contracts import BBox, IncidentClass, IncidentUpsert, OverlayBoxes, Severity
+from services.api import telemetry
+from services.brain.adjudicate import adjudicate
+from services.brain.from_vision import (
+    class_hint_from_rules,
+    escalate_request_from_vision,
+    normalize_camera_id,
+)
+from services.brain.zrt_client import ZRTClient
+from services.media_root import CORE_CAM_FILES, ensure_allowed_feed_files, resolve_media_root
+
+if TYPE_CHECKING:
+    from .hub import DemoHub
+
+ROOT = Path(__file__).resolve().parents[2]
+FEED = ROOT / "data" / "feeds" / "seville_option1_3cam_locked.json"
+DEMO_PERSON = "Adult man in a red shirt and jeans carrying a handgun."
+# overlay.boxes label for a person with a detected weapon; the web draws it red.
+ARMED_LABEL = "weapon"
+
+
+def _cooldown_s() -> float:
+    return float(os.environ.get("CS_VISION_COOLDOWN_S", "600"))
+
+
+def _step_s(fps: float) -> float:
+    raw = os.environ.get("CS_VISION_STEP_S", "").strip()
+    return float(raw) if raw else 1.0 / max(fps, 1.0)
+
+
+def _max_upserts_per_min() -> int:
+    return int(os.environ.get("CS_VISION_MAX_UPSERTS_MIN", "1"))
+
+
+def _jpeg_quality() -> int:
+    # Wall JPEGs: q80 was ~1.5 MB/s per viewer for 3 cameras at 10 fps and
+    # stalled remote viewers (send timeouts over Tailscale).
+    return int(os.environ.get("CS_WALL_JPEG_QUALITY", "65"))
+
+
+def vision_enabled() -> bool:
+    return os.environ.get("CS_VISION_SEVILLE", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+
+
+def _resolve_media(feed: dict) -> Path:
+    # Same root resolution as the API server so wall streams and YOLO read the
+    # exact same synchronized clips.
+    return resolve_media_root(ROOT, feed, required_files=CORE_CAM_FILES, strict=True)
+
+
+def _norm_boxes(boxes: list[Any], width: float, height: float) -> list[BBox]:
+    """YOLO tracks are pixel xywh; the dashboard expects 0..1 fractions."""
+    w = max(float(width), 1.0)
+    h = max(float(height), 1.0)
+    out: list[BBox] = []
+    for b in boxes:
+        out.append(
+            BBox(
+                x=max(0.0, min(1.0, float(b.x) / w)),
+                y=max(0.0, min(1.0, float(b.y) / h)),
+                w=max(0.0, min(1.0, float(b.w) / w)),
+                h=max(0.0, min(1.0, float(b.h) / h)),
+                track_id=str(b.track_id),
+                label=getattr(b, "label", "") or "person",
+                score=getattr(b, "score", None),
+            )
+        )
+    return out
+
+
+def _display_overlays(
+    camera_ids: list[str], overlays: list[Any], width: float, height: float
+) -> list[OverlayBoxes]:
+    """Every tracked person with their own track id; inactive cameras cleared."""
+    by_camera = {ov.camera_id: ov for ov in overlays}
+    ts = overlays[0].ts
+    return [
+        OverlayBoxes(
+            camera_id=normalize_camera_id(camera_id),
+            ts=by_camera[camera_id].ts if camera_id in by_camera else ts,
+            boxes=_norm_boxes(
+                list(by_camera[camera_id].boxes) if camera_id in by_camera else [],
+                width,
+                height,
+            ),
+        )
+        for camera_id in camera_ids
+    ]
+
+
+class VisionBridge:
+    def __init__(self, hub: DemoHub) -> None:
+        self.hub = hub
+        self._task: asyncio.Task[None] | None = None
+        self._classify_task: asyncio.Task[None] | None = None
+        self._classify_q: asyncio.Queue[Any] | None = None
+        self._last_fire: dict[tuple[str, str], float] = {}
+        self._upsert_times: list[float] = []
+        self._need_align = False
+        self._pause_t: float | None = None
+        self._src: Any = None
+        self._qwen_started = False
+        self._cached_record: Any = None
+        self._last_camera: str | None = None
+        self._pending_reuse: dict[str, Any] = {}
+        # Bumped on every reset/rewind; Qwen results from an older run are dropped.
+        self._gen = 0
+        # Latest JPEG per camera id + a tick that fires once per step.
+        self.jpeg: dict[str, bytes] = {}
+        self._tick = asyncio.Event()
+        hub.on_reset = self.reset_demo
+        hub.clip_time = self.clip_time
+
+    def start(self) -> None:
+        if self._task is not None:
+            return
+        self._task = asyncio.create_task(self._run(), name="vision-seville")
+
+    def clip_time(self) -> float:
+        """Seconds into the demo clip the wall is showing (0 after Reset)."""
+        src = self._src
+        if src is None:
+            return 0.0
+        return float(getattr(src, "_i", 0)) / max(float(getattr(src, "fps", 5.0) or 5.0), 1.0)
+
+    def cameras(self) -> set[str]:
+        try:
+            feed = json.loads(FEED.read_text())
+        except (OSError, ValueError):
+            return set(self.jpeg)
+        return {normalize_camera_id(c["camera_id"]) for c in feed["cameras"]}
+
+    async def next_jpeg(self, camera_id: str) -> bytes | None:
+        """Wait for the next step, then return that camera's frame."""
+        await self._tick.wait()
+        return self.jpeg.get(camera_id)
+
+    def reset_demo(self) -> None:
+        self._reset_demo()
+        self._need_align = True
+
+    def _reset_demo(self) -> None:
+        self._gen += 1
+        self._qwen_started = False
+        self._cached_record = None
+        self._last_camera = None
+        self._pending_reuse.clear()
+        self._last_fire.clear()
+        self._upsert_times.clear()
+
+    async def stop(self) -> None:
+        if self._classify_q is not None:
+            try:
+                self._classify_q.put_nowait(None)
+            except Exception:
+                pass
+        for task in (self._task, self._classify_task):
+            if task is None:
+                continue
+            task.cancel()
+            try:
+                await task
+            except (asyncio.CancelledError, Exception):
+                pass
+        self._task = None
+        self._classify_task = None
+
+    def _should_fire(self, camera_id: str, track_id: str) -> bool:
+        key = (camera_id, track_id)
+        now = time.monotonic()
+        # rolling per-minute cap — protects queue + GPU adjudicate spam
+        self._upsert_times = [t for t in self._upsert_times if now - t < 60.0]
+        if len(self._upsert_times) >= _max_upserts_per_min():
+            return False
+        prev = self._last_fire.get(key)
+        if prev is not None and now - prev < _cooldown_s():
+            return False
+        self._last_fire[key] = now
+        self._upsert_times.append(now)
+        return True
+
+    async def _run(self) -> None:
+        from services.vision.decode import FileSource
+        from services.vision.pipeline import VisionRouter
+
+        feed = json.loads(FEED.read_text())
+        ensure_allowed_feed_files([str(c.get("file", "")) for c in feed.get("cameras", [])])
+        media = _resolve_media(feed)
+        paths = {c["camera_id"]: str(media / c["file"]) for c in feed["cameras"]}
+        windows = {
+            c["camera_id"]: c["live_windows_s"]
+            for c in feed["cameras"]
+            if c.get("live_windows_s")
+        }
+        src = FileSource(paths, realtime=True, active_windows=windows)
+        self._src = src
+        # ONE VisionRouter for the process lifetime — recreating reloads YOLO.
+        from services.vision.weapon_timeline import load_default
+
+        timeline = load_default()
+        router = VisionRouter(
+            list(paths), forced=False, source=src, weapon_timeline=timeline
+        )
+        zrt = ZRTClient(forced=False, timeout_s=90.0)
+        self._classify_q = asyncio.Queue(maxsize=1)
+        self._classify_task = asyncio.create_task(
+            self._classify_loop(zrt), name="vision-classify"
+        )
+        width = float(getattr(src, "width", 960) or 960)
+        height = float(getattr(src, "height", 540) or 540)
+        step = _step_s(float(getattr(src, "fps", 5.0) or 5.0))
+        print(
+            f"[vision-bridge] started cams={list(paths)} {width:.0f}x{height:.0f} "
+            f"step={step}s realtime=1 cooldown={_cooldown_s()}s "
+            f"max_upserts/min={_max_upserts_per_min()} "
+            f"weapons={'timeline' if timeline else 'clip'}",
+            flush=True,
+        )
+        loop = asyncio.get_running_loop()
+        try:
+            while True:
+                if self.hub.paused:
+                    if self._pause_t is None:
+                        self._pause_t = time.monotonic()
+                    await asyncio.sleep(0.5)
+                    continue
+                if self._pause_t is not None:
+                    src.shift_wall(time.monotonic() - self._pause_t)
+                    self._pause_t = None
+                if self._need_align:
+                    print("[vision-bridge] reset: rewind all cameras to t=0", flush=True)
+                    src.rewind()
+                    router.reset_tracking()
+                    router.source = src
+                    self._src = src
+                    self._need_align = False
+                    width = float(getattr(src, "width", width) or width)
+                    height = float(getattr(src, "height", height) or height)
+                t0 = time.perf_counter()
+                ovs, packed = await loop.run_in_executor(
+                    None, self._step, router
+                )
+                step_ms = (time.perf_counter() - t0) * 1000.0
+                if not ovs:
+                    print(
+                        "[vision-bridge] EOF — rewind FileSource (keep YOLO warm)",
+                        flush=True,
+                    )
+                    self._reset_demo()
+                    router.reset_tracking()
+                    src.close()
+                    src = FileSource(paths, realtime=True, active_windows=windows)
+                    router.source = src
+                    self._src = src
+                    width = float(getattr(src, "width", width) or width)
+                    height = float(getattr(src, "height", height) or height)
+                    await asyncio.sleep(1.0)
+                    continue
+                telemetry.ROUTER_LATENCY.record(step_ms)
+                shown = _display_overlays(list(paths), ovs, width, height)
+                for remapped in shown:
+                    await self.hub.publish(remapped)
+                    record = self._reuse_from_overlay(remapped)
+                    if record is not None:
+                        await self.hub.publish(IncidentUpsert(incident=record))
+                # Release the wall frame after the boxes, so the picture
+                # the viewer paints is the one those boxes were measured on.
+                tick, self._tick = self._tick, asyncio.Event()
+                tick.set()
+                for mode, esc, frames in packed:
+                    if mode == "reuse":
+                        record = self._reuse_record(esc)
+                        if record is not None:
+                            await self.hub.publish(IncidentUpsert(incident=record))
+                        continue
+                    if self._classify_q is None:
+                        break
+                    try:
+                        self._classify_q.put_nowait((esc, frames, self._gen))
+                    except asyncio.QueueFull:
+                        print("[vision-bridge] classify queue full — drop", flush=True)
+                self.hub.frames_screened += len(ovs)
+                await asyncio.sleep(max(0.0, step - (time.perf_counter() - t0)))
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:
+            print(f"[vision-bridge] stopped: {exc}", flush=True)
+        finally:
+            try:
+                src.close()
+            except Exception:
+                pass
+
+    def _step(
+        self, router: Any
+    ) -> tuple[list[Any], list[tuple[str, Any, list[Any]]]]:
+        ovs = router.step()
+        latest = getattr(getattr(router, "source", None), "last_bgr", None)
+        if ovs and latest:
+            import cv2
+
+            for cid, bgr in latest.items():
+                ok, buf = cv2.imencode(".jpg", bgr, [cv2.IMWRITE_JPEG_QUALITY, _jpeg_quality()])
+                if ok:
+                    self.jpeg[normalize_camera_id(cid)] = buf.tobytes()
+        packed: list[tuple[str, Any, list[Any]]] = []
+        for esc in router.last_escalations:
+            cam = normalize_camera_id(esc.camera_id)
+            if self._qwen_started:
+                if cam != self._last_camera:
+                    packed.append(("reuse", esc, []))
+                continue
+            if cam != "cam-01":
+                continue
+            if not self._should_fire(cam, esc.track_id):
+                continue
+            self._qwen_started = True
+            self._last_camera = cam
+            frames: list[Any] = []
+            try:
+                bundle = router.bundle(
+                    esc.camera_id,
+                    peak_ts=esc.ts,
+                    track_id=esc.track_id,
+                )
+                frames = list(bundle.images)
+            except Exception as exc:
+                print(f"[vision-bridge] bundle failed: {exc}", flush=True)
+            packed.append(("classify", esc, frames))
+        return ovs, packed
+
+    def _reuse_record(self, esc: Any) -> Any:
+        cam = normalize_camera_id(esc.camera_id)
+        if self._cached_record is None:
+            self._pending_reuse[cam] = esc
+            return None
+        self._last_camera = cam
+        now = self._cached_record.updated_at.__class__.now(
+            self._cached_record.updated_at.tzinfo
+        )
+        self._cached_record = replace(
+            self._cached_record,
+            camera_id=cam,
+            track_id=str(esc.track_id),
+            peak_ts=esc.ts,
+            router_score=float(esc.fused),
+            description=f"weapon tracked on {cam} [zrt-cached]",
+            location_text=cam,
+            updated_at=now,
+            rules_fired=list(getattr(esc, "rules", []) or []),
+        )
+        return self._cached_record
+
+    def _drain_pending_reuse(self) -> list[Any]:
+        records: list[Any] = []
+        for camera_id in ("cam-02", "cam-03"):
+            esc = self._pending_reuse.pop(camera_id, None)
+            if esc is not None:
+                record = self._reuse_record(esc)
+                if record is not None:
+                    records.append(record)
+        return records
+
+    def _reuse_from_overlay(self, overlay: OverlayBoxes) -> Any:
+        """Fallback handoff from what is visible, without another Qwen call."""
+        next_camera = {"cam-01": "cam-02", "cam-02": "cam-03"}.get(
+            self._last_camera or ""
+        )
+        if (
+            not overlay.boxes
+            or overlay.camera_id != next_camera
+        ):
+            return None
+        strongest = max(overlay.boxes, key=lambda box: float(box.score or 0.0))
+        return self._reuse_record(
+            SimpleNamespace(
+                camera_id=overlay.camera_id,
+                track_id=strongest.track_id,
+                ts=overlay.ts,
+                fused=float(strongest.score or 0.0),
+                rules=["overlay_handoff"],
+            )
+        )
+
+    async def _classify_loop(self, zrt: ZRTClient) -> None:
+        assert self._classify_q is not None
+        loop = asyncio.get_running_loop()
+        while True:
+            item = await self._classify_q.get()
+            if item is None:
+                return
+            esc, frames, gen = item
+            try:
+                result, live_ok = await loop.run_in_executor(
+                    None, self._classify_one, zrt, esc, frames
+                )
+            except Exception as exc:
+                print(f"[vision-bridge] classify failed: {exc}", flush=True)
+                continue
+            if gen != self._gen:
+                print("[vision-bridge] drop Qwen result from before reset", flush=True)
+                continue
+            self.hub.frames_escalated += 1
+            self._cached_record = result.record
+            await self.hub.publish(IncidentUpsert(incident=result.record))
+            for record in self._drain_pending_reuse():
+                await self.hub.publish(IncidentUpsert(incident=record))
+            print(
+                f"[vision-bridge] upsert {result.record.incident_id} "
+                f"{result.record.class_token.value} "
+                f"sev={result.record.severity.value} "
+                f"fused={result.fused_prob:.3f} "
+                f"router={esc.fused:.3f} "
+                f"vadclip={getattr(esc, 'vadclip', 0):.3f} "
+                f"live={live_ok}",
+                flush=True,
+            )
+
+    @staticmethod
+    def _classify_one(
+        zrt: ZRTClient, esc: Any, frames: list[Any]
+    ) -> tuple[Any, bool]:
+        req = escalate_request_from_vision(
+            esc, frames=frames, person_description=DEMO_PERSON
+        )
+        live_ok = bool(frames) and zrt.health()
+        if live_ok:
+            req.class_token_forced = None
+            zrt_use = zrt
+        else:
+            req.class_token_forced = class_hint_from_rules(req.rules_fired)
+            zrt_use = ZRTClient(forced=True)
+            print(
+                f"[vision-bridge] fallback forced-classify "
+                f"frames={len(frames)} zrt_ok={zrt.health()}",
+                flush=True,
+            )
+        result = adjudicate(req, zrt=zrt_use)
+        if result.record.class_token is IncidentClass.WEAPON:
+            result.record.severity = Severity.SEVERE
+        return result, live_ok
