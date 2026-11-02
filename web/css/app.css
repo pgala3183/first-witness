@@ -8506,3 +8506,5 @@ body.route-live {
 .b3d__zone--floor { background: #f5f3ff; }
 .b3d__lasttap { margin: 0 0 10px; font-size: 11px; color: #5b21b6; }
 .b3d__dot--badge { background: #7c3aed; }
+.b3d__ramp { height: 10px; border-radius: 5px; background: linear-gradient(90deg, #2a7de1, #2dd4bf 40%, #facc15 70%, #dc2626); margin: 2px 0 2px; }
+.b3d__rampkey { display: flex; justify-content: space-between; margin: 0 0 10px; font-size: 11px; color: #64748b; }
