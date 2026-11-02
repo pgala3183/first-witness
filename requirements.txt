@@ -1,0 +1,24 @@
+# First Witness runtime: api (hub, vision loop, voice bridge) + asr service.
+# Python 3.12 only: services/voice imports audioop, which 3.13 removed.
+# The api, brain and voice self-checks (make check) need only the standard library.
+#
+# CPU-only VM: install torch/torchvision from https://download.pytorch.org/whl/cpu
+# first (the Dockerfile's TORCH_INDEX build arg does this), then this file.
+
+# Vision loop: YOLO26s-pose + ByteTrack, CLIP anomaly scorer, frame decode
+numpy==2.3.5
+opencv-python-headless==4.13.0.92
+Pillow==11.3.0
+torch==2.9.1
+torchvision==0.24.1
+# YOLO26 weights need ultralytics 8.4.x.
+ultralytics==8.4.198
+open_clip_torch==3.2.0
+
+# Speech-to-text service (scripts/serve_parakeet.py)
+faster-whisper==1.2.1
+
+# Optional, not installed by default:
+#   kokoro           local TTS (scripts/serve_kokoro.py); ElevenLabs is the default voice
+#   beeai-framework  + pydantic: the optional watsonx review (services/brain/track_ai.py),
+#                    skipped while WATSONX_* is unset

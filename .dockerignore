@@ -1,0 +1,21 @@
+# Secrets, media and weights never go into the image.
+.env
+.env.*
+!.env.example
+data/clips/
+data/runtime/
+services/vision/weights/
+services/vision/.venv/
+.venv/
+*.pt
+*.engine
+*.onnx
+*.safetensors
+*.bin
+**/__pycache__/
+*.pyc
+logs/
+# Not needed at runtime.
+finetune/
+docs/
+campus-sentinel-playbook.html

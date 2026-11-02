@@ -1,0 +1,24 @@
+# One machine, one compose file. Five services + ZRT on the HOST.
+# First wired service: api (:8080). Others join under profile "full".
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      CS_MEDIA_ROOT: /media/seville
+    volumes:
+      - ../campus_sentinel_media/feeds/final_demo_3cam_reconstructed:/media/seville:ro
+
+  # Enable with: docker compose --profile full up
+  mediamtx:
+    profiles: ["full"]
+    image: bluenviron/mediamtx:latest
+    ports:
+      - "127.0.0.1:8554:8554"
+
+  # vision / brain / voice Dockerfiles land with their owners.
+  # ZRT is never composed — host snap on :8000.
