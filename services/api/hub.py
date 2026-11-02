@@ -82,9 +82,26 @@ def live_call_mode() -> bool:
     return os.environ.get("CS_CALL_MODE", "").strip().lower() == "live"
 
 
-def human_confirm_required() -> bool:
-    """A person confirms before any call starts. CS_HUMAN_CONFIRM=0 restores auto-dispatch."""
-    return os.environ.get("CS_HUMAN_CONFIRM", "1").strip().lower() not in {"0", "false", "no", "off"}
+def event_mode() -> bool:
+    """Costume / event days: weapon alerts wait for a human check instead of calling.
+
+    On when CS_EVENT_MODE=1, or when today (MM-DD) is in CS_EVENT_DATES
+    (comma-separated, default "10-31" for Halloween). CS_EVENT_MODE=0 forces it off.
+    """
+    raw = os.environ.get("CS_EVENT_MODE", "").strip().lower()
+    if raw in {"1", "true", "yes", "on"}:
+        return True
+    if raw in {"0", "false", "no", "off"}:
+        return False
+    dates = os.environ.get("CS_EVENT_DATES", "10-31")
+    today = datetime.now().strftime("%m-%d")
+    return today in {d.strip() for d in dates.split(",") if d.strip()}
+
+
+def auto_calls_for(rec: Any) -> bool:
+    """Autonomous rule: a detected weapon calls campus police on its own,
+    except in event mode. Everything else is logged for review, no call."""
+    return getattr(rec, "class_token", None) is IncidentClass.WEAPON and not event_mode()
 
 
 def scripted_call_mode() -> bool:
@@ -230,16 +247,19 @@ class DemoHub:
             return
         if "operator_report" in getattr(rec, "rules_fired", []):
             return
-        if human_confirm_required():
-            # The AI flags; a person decides. The call starts only from the
-            # console's "Confirm & call campus police" (dispatch_incident).
+        if not auto_calls_for(rec):
+            # Not a weapon, or event mode: log it for review. A person can still
+            # call from the console ("Yes, inform campus police").
             if (
                 getattr(rec, "severity", None) is Severity.SEVERE
                 and getattr(rec, "state", None) is IncidentState.ALERTED
             ):
-                await self.send_state_change(
-                    rec.incident_id, "ALERTED", "Awaiting operator confirmation"
+                note = (
+                    "Event mode: weapon alert held for a human check"
+                    if getattr(rec, "class_token", None) is IncidentClass.WEAPON
+                    else "Logged for review: no call for non-weapon alerts"
                 )
+                await self.send_state_change(rec.incident_id, "ALERTED", note)
             return
         await self._maybe_start_voice(rec)
 
