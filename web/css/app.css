@@ -8480,3 +8480,6 @@ body.route-live {
 .cv-src--guard {
   color: #b45309;
 }
+/* Call speaker toggle */
+.lc-speak { margin-left: auto; margin-right: 8px; font-size: 11px; white-space: nowrap; }
+.lc-speak.is-on { background: #2a7de1; border-color: #2a7de1; color: #fff; }

@@ -1,6 +1,7 @@
 /** Call Console — single chat thread + tool cards. No floating overlay. */
 
 import { now, subscribeTick } from "../clock.js?v=pro9";
+import * as speaker from "../speaker.js?v=pro1";
 import {
   awaiting,
   classLabel,
@@ -491,6 +492,7 @@ export function mountLiveCall(host, store, actions) {
     <section class="card lc" aria-label="Call">
       <header class="lc-head">
         <h2 class="lc-title" data-title>Campus police call</h2>
+        <button type="button" class="btn btn--secondary btn--sm lc-speak" data-speak aria-pressed="false" title="Play the call out loud (ElevenLabs voices, simulated campus dispatch line, nothing is dialed)">🔇 Voice off</button>
         <div class="lc-timer" data-timerbox hidden>
           <span class="lc-timer__t mono" data-timer>00:00</span>
           <span class="lc-timer__live mono" data-live><span class="lc-timer__dot" aria-hidden="true"></span>LIVE</span>
@@ -510,6 +512,20 @@ export function mountLiveCall(host, store, actions) {
   const noteEl = host.querySelector("[data-note]");
   const threadEl = host.querySelector("[data-thread]");
   const actionEl = host.querySelector("[data-action]");
+  const speakBtn = host.querySelector("[data-speak]");
+  const paintSpeak = () => {
+    speakBtn.hidden = !speaker.available();
+    speakBtn.setAttribute("aria-pressed", String(speaker.isOn()));
+    speakBtn.classList.toggle("is-on", speaker.isOn());
+    speakBtn.textContent = speaker.isOn() ? "🔊 Voice on" : "🔇 Voice off";
+    speakBtn.title = speaker.error() || "Play the call out loud (ElevenLabs voices, simulated campus dispatch line, nothing is dialed)";
+  };
+  speakBtn.addEventListener("click", () => {
+    speaker.setOn(!speaker.isOn(), (store.getState().call?.transcript || []).length);
+  });
+  speaker.onChange(paintSpeak);
+  paintSpeak();
+  store.subscribe((st) => speaker.feed(st.call?.transcript));
 
   let threadSig = null;
   let metaSig = null;
