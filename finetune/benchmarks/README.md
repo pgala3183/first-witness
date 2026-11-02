@@ -23,3 +23,19 @@ so the numbers behind the submission table can be checked.
 
 To refresh: run the benchmark, then copy `finetune/results/benchmark.md` and the
 `bench-*` / `baseline_*` files here.
+
+## Is the gap real? (`stats/`)
+
+`finetune/stats.py` on the files above (McNemar + 5,000-rep cluster bootstrap; older
+result files are paired with the eval set by position, checked question by question).
+All comparisons use the same 150 rows; on those rows the keyword router scores **61.3%**
+(55.3% is its score on all 450 `test_real` rows).
+
+- [stats/vs_router_real.md](stats/vs_router_real.md): every prompted model beats the router (all p < 0.05).
+- [stats/qwen36_vs_frontier_real.md](stats/qwen36_vs_frontier_real.md): Qwen3.6 vs the frontier models on real seconds.
+  Kimi K3 (+11.3) and DeepSeek (+6.0) are really ahead; GLM's +4.7 could be luck.
+- [stats/qwen36_vs_frontier_synth.md](stats/qwen36_vs_frontier_synth.md): on unseen campuses all three frontier
+  models are really ahead (+11 to +14). This is the gap the fine-tune has to close.
+
+[tradeoff.png](tradeoff.png) (`python3 finetune/tradeoff.py`): pass rate against p95 latency and cost.
+Only GLM 5.3 Flash and the two Qwen candidates fit the 1.5 s call budget.

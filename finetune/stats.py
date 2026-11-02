@@ -36,12 +36,22 @@ RESULTS = HERE / "results"
 
 
 def load(path: str) -> dict[int, dict]:
+    """Rows by id. Older result files (no id/cluster) are matched to the eval set
+    by position, and only if every question matches its dataset row exactly."""
+    lines = [json.loads(l) for l in Path(path).open(encoding="utf-8") if l.strip()]
+    if all("id" in r for r in lines):
+        return {r["id"]: r for r in lines}
+    from eval import cluster_key  # same cluster definition eval.py writes
+
+    data_file = HERE / "data" / f"{split_of(path)}_eval.jsonl"
+    if not data_file.is_file():
+        sys.exit(f"{path}: rows have no id and {data_file} is missing. Run finetune/build_dataset.py.")
+    metas = [json.loads(l)["meta"] for l in data_file.open(encoding="utf-8")]
     rows = {}
-    for line in Path(path).open(encoding="utf-8"):
-        r = json.loads(line)
-        if "id" not in r:
-            sys.exit(f"{path}: rows have no id. Re-run eval.py (it now writes id + cluster).")
-        rows[r["id"]] = r
+    for i, r in enumerate(lines):
+        if i >= len(metas) or r.get("question") != metas[i]["question"]:
+            sys.exit(f"{path}: row {i} doesn't match {data_file.name}; re-run eval.py to get ids.")
+        rows[i] = {**r, "id": i, "cluster": cluster_key(metas[i])}
     return rows
 
 
