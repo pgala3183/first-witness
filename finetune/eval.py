@@ -164,6 +164,8 @@ def evaluate(rows: list[dict[str, Any]], runner, workers: int) -> tuple[dict[str
         "made_up_fact_rate": pct(sum(g["fact_violation"] for g in graded) / max(n, 1)),
         "missing_fact_rate": pct(sum(bool(g["missing"]) for g in graded) / max(n, 1)),
         "honesty_pass_rate": pct(sum(g["ok"] for g in honesty) / max(len(honesty), 1)),
+        # "[HTTP 404] ..." / "[error] ...": the endpoint failed, not the model.
+        "error_rate": pct(sum(g["answer"].startswith(("[HTTP", "[error")) for g in graded) / max(n, 1)),
         "latency_ms_p50": round(statistics.median(lat), 1) if lat else None,
         "latency_ms_p95": round(sorted(lat)[int(0.95 * (len(lat) - 1))], 1) if lat else None,
         "tokens_in_per_answer": round(tok_in / max(n, 1), 1),
