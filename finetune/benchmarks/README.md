@@ -55,8 +55,18 @@ to read the facts it's given rather than memorize the demo building.
 ## Training
 
 LoRA rank 16, learning rate 1e-4 (constant), batch 32, 2 epochs = 208 steps over 1.56M tokens per
-epoch, about $6.70 on the training pool. Loss went from 1.21 to about 0.01 within the first epoch.
-Wall-clock 43 minutes (slower in epoch 2 while evals shared the pool).
+epoch. Loss went from 1.21 to about 0.01 within the first epoch. Wall-clock 43 minutes (slower in
+epoch 2 while evals shared the pool).
+
+Fireworks billing record (`firectl billing get-usage --usage-type training`), both sessions on
+NVIDIA GB300 in the serverless pool, billed as `SERVERLESS_TRAINING_TOKENS`:
+
+| Session | Training tokens | Cost at $2.14 / 1M |
+|---|---|---|
+| `ts-4b9a196039fd4d81b654147ec1a8c01a` (64-example smoke test) | 60,668 | ~$0.13 |
+| `ts-a90f06ad279043f9854e305ee95b1b16` (full run) | 3,111,942 | ~$6.66 |
+
+Total Fireworks usage for the project, Nov 1-3 (training, all benchmarks, evals, live-call test): **$9.42**.
 
 ## Honest misses
 

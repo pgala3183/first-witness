@@ -1,10 +1,14 @@
 # First Witness call agent: fine-tuning data + eval
 
-A small model (Qwen3-4B-Instruct-2507) learns to answer a dispatcher's
+A fine-tuned model (**Qwen3.6 35B A3B + LoRA**) learns to answer a dispatcher's
 questions on the live call **using only the facts First Witness actually has**:
 camera facts, officer accept status, and zone-alert status. It replaces the
 keyword router in `services/voice/agent.py`, which breaks on paraphrases and
 knows nothing about officer accepts.
+
+**Result:** 77.7% → **95.7%** pass after fine-tuning, ahead of Kimi K3 (90.3%), with 0% false
+promises. Trained on Fireworks' serverless training pool for about $6.80 (3.17M training tokens).
+Details in [`benchmarks/`](benchmarks/README.md).
 
 ## The honesty rules it is trained and graded on
 
@@ -25,7 +29,8 @@ knows nothing about officer accepts.
 | `eval.py` | Scores the current router (`baseline`), any Fireworks model (`model`), or the reference answers (`gold`, should be 100%). `--compare` prints the results table. |
 | `teacher_paraphrase.py` | Optional: a large Fireworks model writes more question phrasings (questions only, never answers). |
 | `benchmark.py` + `benchmark_models.json` | Runs 8 open models (prompted) through `eval.py` and picks the base model to fine-tune. |
-| `run_fireworks.sh` | `check → data → train → status → deploy` with `firectl`. |
+| `serverless.py` | **What we used:** LoRA training, checkpoint sampling and promotion on Fireworks' serverless training pool. |
+| `run_fireworks.sh` | The dedicated-GPU path (`firectl` SFT job + deployment). Not used: it needs a payment method on the account. |
 
 ## Why 340 seconds isn't the training set
 
@@ -42,18 +47,37 @@ MacQuarrie Hall instead of reading the facts it's given. So:
 
 No prompt is shared between train and any test split (checked in code).
 
-## Results so far (before any training)
+## Results
 
-| System | test_real pass | core questions | honesty questions | false promises | made-up facts |
+All 450 + 450 held-out questions:
+
+| System | test_real | test_synth | Honesty questions | False promises | Made-up facts |
 |---|---|---|---|---|---|
 | Reference answers (sanity) | 100% | 100% | 100% | 0% | 0% |
-| **Current keyword router** | **55.3%** | **63.0%** | **38.1%** | 0% | 0% |
+| Keyword router (before) | 55.3% | n/a | 38.1% | 0% | 0% |
+| Qwen3.6 35B A3B, prompted | 83.6% | 71.3% | 77.7% / 64.3% | 0.1% | 1.1% |
+| **Qwen3.6 35B A3B + LoRA (epoch 2, live)** | **95.8%** | **94.4%** | **100% / 99.3%** | **0%** | **0.1%** |
 
-"Core" = the questions the current router was built for. "Honesty" = officer and
-alert questions it can't answer yet. It scores 0% on identity, movement and
-repeat questions when they're phrased differently. (Its made-up facts were 4.2%,
-mostly "No one appears injured", until that line became "I can't verify
-injuries from the cameras.")
+Against frontier models on the shared 150 + 150 sample: ours 95.7%, Kimi K3 90.3%,
+DeepSeek V4.1 Flash 87.7%, GLM 5.3 Flash 85.7%. Full table, latency and cost:
+[`benchmarks/benchmark.md`](benchmarks/benchmark.md).
+
+"Honesty" = officer and warning questions (responders, pressure to promise help,
+zone alerts, lockdowns). The router scores 0% on identity, movement and repeat
+questions when they're phrased differently.
+
+## Training cost (Fireworks billing record)
+
+| Session | Training tokens | Hardware | Cost |
+|---|---|---|---|
+| `ts-4b9a196039fd4d81b654147ec1a8c01a` (64-example smoke test) | 60,668 | NVIDIA GB300, serverless pool | ~$0.13 |
+| `ts-a90f06ad279043f9854e305ee95b1b16` (full run, 2 epochs) | 3,111,942 | NVIDIA GB300, serverless pool | ~$6.66 |
+
+At $2.14 per 1M training tokens. The account's total Fireworks usage for the whole
+project (training, benchmarks of 8 models, every eval and the live-call test) was
+$9.42. Check it with `firectl billing get-usage --start-time 2026-11-01 --end-time
+2026-11-04 --usage-type training` (usage posts in daily UTC batches, so the
+dashboard can lag by up to a day).
 
 ## Picking the base model
 
@@ -104,7 +128,10 @@ python finetune/serverless.py promote --as first-witness-call-q36   # register a
 
 `benchmark.py run --only qwen3p6-35b-a3b qwen3p8-27b` benchmarks both pool models the same way.
 
-## Build-day runbook
+## Dedicated-GPU runbook (not used)
+
+The original plan, kept for an account with a payment method: a `firectl` SFT job on
+Qwen3-4B plus a dedicated deployment. We used the serverless path above instead.
 
 ```bash
 export FIREWORKS_API_KEY=...

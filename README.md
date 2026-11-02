@@ -12,7 +12,8 @@
 </p>
 
 <p align="center">
-  <img alt="Fine-tuned Qwen3-4B call agent" src="https://img.shields.io/badge/Call%20agent-fine--tuned%20Qwen3--4B-615CED?style=for-the-badge">
+  <img alt="Fine-tuned Qwen3.6 35B A3B call agent" src="https://img.shields.io/badge/Call%20agent-fine--tuned%20Qwen3.6%2035B%20A3B-615CED?style=for-the-badge">
+  <img alt="95.7% pass, ahead of Kimi K3" src="https://img.shields.io/badge/Eval-95.7%25%20pass%20%C2%B7%200%25%20false%20promises-24A148?style=for-the-badge">
   <img alt="Models on Fireworks" src="https://img.shields.io/badge/Models-Fireworks-6720FF?style=for-the-badge">
   <br>
   <img alt="No face recognition" src="https://img.shields.io/badge/Face%20recognition-none-24A148?style=flat-square">
@@ -94,7 +95,9 @@ First Witness is like **a security guard who never blinks and can watch every ca
 
 ## 📞 The call agent
 
-A small model, **Qwen3-4B-Instruct fine-tuned on Fireworks**, answers the dispatcher. It sees one compact FACTS snapshot (what the cameras show now, the last sighting, the route, officer-accept status and warning status) and the call so far, and answers in one or two spoken sentences. It replaces a keyword router that broke on paraphrases and knew nothing about officers or warnings.
+A fine-tuned model, **Qwen3.6 35B A3B with a LoRA adapter, trained on Fireworks**, answers the dispatcher. It sees one compact FACTS snapshot (what the cameras show now, the last sighting, the route, officer-accept status and warning status) and the call so far, and answers in one or two spoken sentences. It replaces a keyword router that broke on paraphrases and knew nothing about officers or warnings.
+
+It's a mixture-of-experts model: 35B parameters, but only about 3B active per token, so it answers in about **0.6 s**. After fine-tuning it passes **95.7%** of held-out dispatcher questions, ahead of every frontier model we tested (Kimi K3: 90.3%), and it **never promised help that wasn't coming**. See [Results](#-results).
 
 It is trained and graded on five honesty rules:
 
@@ -106,11 +109,16 @@ It is trained and graded on five honesty rules:
 
 | Piece | Where |
 |---|---|
-| Model client (timeout, one retry on a cold start, falls back to the rules) | [`services/voice/call_model.py`](./services/voice/call_model.py) |
+| Model client (1.5 s timeout, falls back to the rules) | [`services/voice/call_model.py`](./services/voice/call_model.py) |
+| Facts snapshot and honesty guard (shared by training and the live call) | [`services/voice/facts.py`](./services/voice/facts.py), [`services/voice/guard.py`](./services/voice/guard.py) |
+| Chat template, rendered client-side (shared by training and the live call) | [`services/voice/chat_template.py`](./services/voice/chat_template.py) |
 | Training data, grader and eval | [`finetune/`](./finetune/README.md) |
-| Fine-tune and deploy on Fireworks | [`finetune/run_fireworks.sh`](./finetune/run_fireworks.sh) |
+| Fine-tune on Fireworks serverless training | [`finetune/serverless.py`](./finetune/serverless.py) |
+| 8-model benchmark and the pick | [`finetune/benchmark.py`](./finetune/benchmark.py), results in [`finetune/benchmarks/`](./finetune/benchmarks/README.md) |
 
-The system prompt and message format live in `call_model.py`, and the training data imports them, so the live agent always sends what the model was trained on. If the model is slow or down, the existing keyword rules answer instead.
+The system prompt, message format, facts snapshot, honesty checks and chat template are each defined once and imported by both the training pipeline and the live call, so the live agent always sends exactly what the model was trained on. Every reply also passes the honesty guard on the call; a failing reply becomes "I can't confirm that" and is logged. If the model is slow or down, the keyword rules answer instead.
+
+**No dedicated GPU.** Fireworks requires a payment method for dedicated deployments, so both training and serving use Fireworks' **serverless training pool**: shared GPUs billed per token. The live call samples the trained checkpoint there directly (`CS_CALL_MODEL_BACKEND=training-pool`); the API connects at startup because a cold connection takes about 17 s.
 
 ---
 
@@ -195,16 +203,41 @@ These are real measurements from the local demo workstation (sample data in [`be
 | 🧠 Vision model size | **30 billion parameters**, but only about **3 billion** are active at each step. That keeps it fast on one GPU. |
 | 🎯 Weapon labels lined up with the demo video | **640 of 649** frames matched |
 
-### Call agent eval (fill in on build day)
+### Call agent: fine-tuned vs frontier models
 
-Graded by [`finetune/checker.py`](./finetune/checker.py) on held-out phrasings. `test_real` is unseen seconds of the demo clip; `test_synth` is unseen campuses.
+Graded by the same honesty checks the live call enforces ([`services/voice/guard.py`](./services/voice/guard.py), plus required facts in [`finetune/checker.py`](./finetune/checker.py)). A **pass** means no false promise, no made-up fact, and the facts the dispatcher asked for. Questions use wordings never seen in training, 40% with speech-recognition noise. `test_real` is unseen seconds of the demo clip; `test_synth` is campuses never seen in training. Same system prompt and the same 150 + 150 questions for every model.
 
-| System | Pass, test_real | Pass, test_synth | False promises | Made-up facts | p50 / p95 latency | Cost per 1k answers |
-|---|---|---|---|---|---|---|
-| Keyword router (before) | 51.1% | n/a | 0.0% | 4.2% | | $0 |
-| Qwen3-4B, prompted, no fine-tune | | | | | | |
-| **Qwen3-4B fine-tuned** | | | | | | |
-| Large model (quality ceiling) | | | | | | |
+| System | Pass (both) | test_real | test_synth | False promises | Made-up facts | Latency p50 / p95 | $ / 1k answers |
+|---|---|---|---|---|---|---|---|
+| Keyword router (before) | n/a | 55.3% | n/a | 0% | 0% | instant | $0 |
+| **Qwen3.6 35B A3B + LoRA (ours)** | **95.7%** | **95.3%** | **96.0%** | **0%** | 0.3% | **632 / 882 ms** ¹ | $0.23 |
+| Kimi K3 (quality ceiling) | 90.3% | 96.7% | 84.0% | 0% | 3.3% | 1,751 / 3,983 ms | $1.91 |
+| DeepSeek V4.1 Flash | 87.7% | 91.3% | 84.0% | 0% | 0.7% | 1,105 / 1,631 ms | $0.18 |
+| GLM 5.3 Flash | 85.7% | 90.0% | 81.3% | 0.7% | 4.0% | 773 / 1,468 ms | $0.09 |
+| Qwen3.6 35B A3B, prompted, no fine-tune | 77.7% | 85.3% | 70.0% | 0% | 1.4% | 584 / 890 ms ¹ | $0.23 |
+| Qwen3.8 27B, prompted, no fine-tune | 75.0% | 75.3% | 74.7% | 2.0% | 2.0% | 612 / 832 ms | $0.98 |
+
+¹ One request at a time, as on a real call. The other latencies were measured with 8 parallel requests, so they read somewhat high.
+
+**What fine-tuning bought:** +18.0 points over the same model prompted (77.7% → 95.7%), and +5.4 over the best frontier model, at about an eighth of Kimi K3's cost per answer and well inside the call's 1.5 s budget. On all 900 held-out questions it goes from 77.4% to 95.1%. The biggest gain is on **unseen campuses (71% → 94%)**: it learned to read the facts it's given rather than memorize the demo building.
+
+**How we picked the base model.** We benchmarked 8 tunable open models on Fireworks, prompted, before training. The 3 frontier models (Kimi K3, DeepSeek V4.1 Flash, GLM 5.3 Flash) are the comparison. Qwen3.6 35B A3B was the best candidate that could be trained and served without a dedicated GPU, inside the call's 1.5 s budget. Three smaller candidates (Gemma 4 26B A4B, Qwen3.5 9B, Ministral 3 3B) needed a dedicated deployment, which our account couldn't create. Every graded answer is in [`finetune/benchmarks/`](./finetune/benchmarks/README.md).
+
+**Honest misses.** "Where are we at?" gets the location rather than a full status update (status questions: 42%). On unseen campuses it sometimes gives only the current place instead of the route. Made-up facts are rare (0.1% across 900 answers).
+
+### Training run and cost
+
+From the Fireworks billing record (`firectl billing get-usage --usage-type training`):
+
+| | Training session | Training tokens | Hardware | Cost |
+|---|---|---|---|---|
+| Smoke test (64 examples) | `ts-4b9a1960…` | 60,668 | NVIDIA GB300, shared pool | ~$0.13 |
+| **Full run** | `ts-a90f06ad…` | **3,111,942** | NVIDIA GB300, shared pool | **~$6.66** |
+
+- **Setup:** LoRA rank 16, learning rate 1e-4, batch 32, 2 epochs = 208 steps over 3,300 examples (1.56M tokens per epoch); answer tokens only in the loss.
+- **Time:** 43 minutes wall-clock. Loss fell from 1.21 to about 0.01 within the first epoch.
+- **Pricing:** serverless training bills per token ($2.14 per 1M training tokens for this model), with no deployment to provision or tear down.
+- **Whole project:** **$9.42 of Fireworks usage**, covering both training runs, all 8-model benchmarks and every eval. That's about 19% of our $50 credit.
 
 > **Honest note:** we have not measured detection accuracy yet. The alert thresholds are demo settings, not tuned on labelled data (see [`bench/thresholds.json`](./bench/thresholds.json)).
 
@@ -257,7 +290,7 @@ flowchart LR
 
     subgraph CLOUD["☁️ Internet services"]
         ZRT["🤖 Fireworks · Qwen3-VL-30B-A3B"]
-        CALL["💬 Fireworks · Qwen3-4B call agent (fine-tuned)"]
+        CALL["💬 Fireworks · Qwen3.6 35B A3B + LoRA call agent"]
         EL["🗣️ ElevenLabs"]
         SW["☎️ SignalWire"]
     end
@@ -326,7 +359,7 @@ flowchart LR
 | Tech | Version / model | What it does in First Witness |
 |---|---|---|
 | <img alt="Qwen3-VL" src="https://img.shields.io/badge/Qwen3--VL-30B--A3B-615CED?style=flat-square"> | `qwen3-vl-30b-a3b-instruct` on Fireworks (or a local runtime) | Looks at a 16-frame clip, names the incident type by logprobs, and describes the person. |
-| <img alt="Qwen3-4B" src="https://img.shields.io/badge/Qwen3--4B-fine--tuned-615CED?style=flat-square"> | `qwen3-4b-instruct-2507` + LoRA, on Fireworks | The call agent: answers the dispatcher from verified facts only. |
+| <img alt="Qwen3.6 35B A3B" src="https://img.shields.io/badge/Qwen3.6%2035B%20A3B-fine--tuned-615CED?style=flat-square"> | `qwen3p6-35b-a3b` + LoRA (rank 16), on Fireworks serverless training | The call agent: answers the dispatcher from verified facts only. |
 | Plain Python | — | Fusion, severity thresholds, incident state machine and guardrails. The rules decide, not the model. |
 
 #### 🗣️ Voice & calling
@@ -355,7 +388,7 @@ flowchart LR
 | **api** | WebSocket hub, REST actions, MJPEG and MP4 streams, SQLite history. Also hosts vision, the brain and the voice bridge. | `8080` | `make api`, or the Docker Compose `api` service |
 | **web** | Security console (static files) | `8090` | `python3 -m http.server 8090 --directory web` |
 | **ASR** | faster-whisper speech-to-text, `POST /transcribe` | `8091` | `scripts/serve_parakeet.py` (the name is historical) |
-| **Fireworks** ☁️ | Qwen3-VL adjudicator and the fine-tuned call agent | `https://api.fireworks.ai/inference` | Cloud. Needs `FIREWORKS_API_KEY`, `ZRT_BASE_URL` and `CS_CALL_MODEL`. |
+| **Fireworks** ☁️ | Qwen3-VL adjudicator and the fine-tuned call agent | `https://api.fireworks.ai` (inference; the call agent uses the serverless training pool) | Cloud. Needs `FIREWORKS_API_KEY`, `ZRT_BASE_URL` and the `CS_CALL_MODEL_*` settings. |
 | **ElevenLabs** ☁️ | Text-to-speech for every call line | `https://api.elevenlabs.io` | Cloud. Needs `CS_TTS_PROVIDER=elevenlabs` and `ELEVENLABS_API_KEY`. |
 | **SignalWire** ☁️ | Outbound call, call audio stream, SOS broadcasts | your SignalWire space | Cloud. Calls back to `/signalwire/*` through `CS_PUBLIC_BASE`. |
 
@@ -385,14 +418,16 @@ flowchart LR
 │   ├── api/            HTTP + WebSocket server, hub, video streams, history DB, vision bridge
 │   ├── brain/          Qwen client, fusion, thresholds, state machine, guardrails
 │   ├── vision/         Video decode, YOLO26s-pose, ByteTrack, motion rules, CLIP scorer, weapon timeline
-│   ├── voice/          SignalWire bridge, media bridge, ElevenLabs client, call agent + model client, scene facts, demo call
+│   ├── voice/          SignalWire bridge, media bridge, ElevenLabs client, call agent + model client,
+│   │                   facts snapshot, honesty guard, chat template, scene facts, demo call
 │   └── mediamtx/       Optional RTSP relay config (not used in the demo)
-├── finetune/           Call-agent training data, grader, eval and Fireworks runbook
+├── finetune/           Call-agent training data, grader, eval, 8-model benchmark, serverless training
+│   └── benchmarks/     Committed results: comparison table, every graded answer, training log
 ├── web/                Security console: plain HTML/CSS/JS, no build step (see web/README.md)
 ├── data/               Camera map, feed manifests, scene script, weapon timeline
 ├── scripts/            Timeline builders, speech servers, GPU memory preflight, perf probe, calibration fit
 ├── bench/              Severity thresholds and the latest performance sample
-├── docs/               Setup and stability notes, design docs, README images
+├── docs/               Setup and stability notes, design docs
 ├── docker-compose.yml  One machine, one compose file
 ├── Makefile            Shortcuts: api, check, up, demo
 └── .env.example        Settings template. Copy to .env on the machine and never commit it.
@@ -417,7 +452,7 @@ cp .env.example .env
 | Setting | What it's for |
 |---|---|
 | `FIREWORKS_API_KEY` | Bearer key for both models on Fireworks. |
-| `CS_CALL_MODEL_URL`, `CS_CALL_MODEL`, `CS_CALL_MODEL_TIMEOUT_S` | The fine-tuned call agent. Empty model means keyword rules only. |
+| `CS_CALL_MODEL_BACKEND`, `CS_CALL_MODEL`, `CS_CALL_MODEL_SNAPSHOT`, `CS_CALL_MODEL_TIMEOUT_S` | The fine-tuned call agent: `training-pool`, the base model and the trained checkpoint (values in `.env.example`). No snapshot means keyword rules only. `CS_CALL_MODEL_URL` is for a deployed model (`chat` backend) instead. |
 | `ZRT_BASE_URL`, `ZRT_MODEL`, `ZRT_API_KEY_ENV` | The Qwen3-VL adjudicator. Empty URL means forced (offline) classification. |
 | `CS_CALL_MODE` | `live` places a real call (to the verified number only). Anything else, including unset, is recording mode: the on-screen call, no dialing. |
 | `CS_TTS_PROVIDER`, `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID` | The call voice. |
@@ -505,8 +540,8 @@ Video files and model weights are **never committed**. Put the three demo MP4s i
 
 ## 🙏 Acknowledgments
 
-- **Qwen team**, for Qwen3-VL and Qwen3-4B
-- **Fireworks**, for fine-tuning and serving
+- **Qwen team**, for Qwen3-VL and Qwen3.6
+- **Fireworks**, for serverless training, serving and the frontier models we benchmarked against
 - **Ultralytics** (YOLO), **ByteTrack**, **OpenCLIP** and **faster-whisper**, the open-source models that power the pipeline
 - **ElevenLabs**, for the call voice, and **SignalWire**, for phone calling
 - **OpenStreetMap contributors**, for the campus map
