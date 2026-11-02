@@ -120,6 +120,8 @@ def _eval(m: dict[str, Any], model: str, name: str, splits: tuple[str, ...], lim
         cmd += ["--limit", str(limit)]
     if m.get("no_think"):
         cmd.append("--no-think")
+    if m.get("reasoning_effort"):
+        cmd += ["--reasoning-effort", m["reasoning_effort"]]
     if m.get("price_in") or m.get("price_out"):
         cmd += ["--price-in", str(m.get("price_in", 0)), "--price-out", str(m.get("price_out", 0))]
     return subprocess.call(cmd)
@@ -136,10 +138,14 @@ def cmd_run(args: argparse.Namespace) -> None:
         print(f"\n-- {m['name']}  ({model})")
         # 5-row smoke test: a wrong id or a cold deployment fails here, not 900 rows later.
         _eval(m, model, f"smoke-{m['slug']}", ("test_real",), 5, 5)
-        smoke = json.loads((RESULTS / f"smoke-{m['slug']}_test_real.json").read_text())
+        smoke = json.loads((RESULTS / f"smoke-{m['slug']}_test_real.json").read_text(encoding="utf-8"))
         if smoke.get("error_rate", 0) >= 40:
-            first = (RESULTS / f"smoke-{m['slug']}_test_real.jsonl").read_text().splitlines()[0]
+            first = (RESULTS / f"smoke-{m['slug']}_test_real.jsonl").read_text(encoding="utf-8").splitlines()[0]
             print(f"   endpoint failing ({smoke['error_rate']}% errors), skipped: {json.loads(first)['answer'][:160]}")
+            continue
+        if smoke.get("empty_rate", 0) >= 40:
+            print(f"   {smoke['empty_rate']}% blank answers: it's thinking through max_tokens. Set "
+                  f"\"reasoning_effort\" for {m['slug']} in {CONFIG.name}; skipped.")
             continue
         _eval(m, model, f"bench-{m['slug']}", SPLITS, args.limit, args.workers)
     print("\nNext: python finetune/benchmark.py report")
@@ -149,7 +155,7 @@ def cmd_run(args: argparse.Namespace) -> None:
 
 def _load(name: str, split: str) -> dict[str, Any] | None:
     p = RESULTS / f"{name}_{split}.json"
-    return json.loads(p.read_text()) if p.exists() else None
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
 
 
 def _both(name: str) -> dict[str, Any] | None:
@@ -164,7 +170,7 @@ def _both(name: str) -> dict[str, Any] | None:
         return round(sum(v * c for v, c in vals) / sum(c for _, c in vals), digits) if vals else None
 
     out = {k: w(k) for k in ("pass_rate", "honesty_pass_rate", "false_promise_rate", "made_up_fact_rate",
-                             "missing_fact_rate", "error_rate")}
+                             "missing_fact_rate", "error_rate", "empty_rate")}
     out["cost_per_1k_answers_usd"] = w("cost_per_1k_answers_usd", 4)
     out["n"] = n
     out["latency_ms_p50"] = max((p.get("latency_ms_p50") or 0) for p in parts) or None
@@ -192,13 +198,13 @@ def cmd_report(args: argparse.Namespace) -> None:
              f"Same system prompt and held-out questions for every model. Pass = no false promise, "
              f"no made-up fact, and the required facts present. Latency budget: {BUDGET_MS:.0f} ms p95.", "",
              "| Model | Role | Pass (both) | test_real | test_synth | Honesty | False promises | Made-up facts "
-             "| p50 ms | p95 ms | $/1k answers | Errors |",
-             "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+             "| p50 ms | p95 ms | $/1k answers | Errors | Blank |",
+             "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     base = _load("baseline", "test_real")
     if base:
         lines.append(f"| Keyword router (today) | baseline | - | {base['pass_rate']}% | n/a | "
                      f"{base['honesty_pass_rate']}% | {base['false_promise_rate']}% | {base['made_up_fact_rate']}% "
-                     f"| {_cell(base.get('latency_ms_p50'))} | {_cell(base.get('latency_ms_p95'))} | $0 | - |")
+                     f"| {_cell(base.get('latency_ms_p50'))} | {_cell(base.get('latency_ms_p95'))} | $0 | - | - |")
     for m, s in rows:
         cost = _cell(s["cost_per_1k_answers_usd"]) if m.get("serverless") else "dedicated GPU"
         lines.append(
@@ -206,9 +212,10 @@ def cmd_report(args: argparse.Namespace) -> None:
             f"| {_cell(s['synth'], '%')} | {_cell(s['honesty_pass_rate'], '%')} "
             f"| {_cell(s['false_promise_rate'], '%')} | {_cell(s['made_up_fact_rate'], '%')} "
             f"| {_cell(s['latency_ms_p50'])} | {_cell(s['latency_ms_p95'])} | {cost} "
-            f"| {_cell(s['error_rate'], '%')} |")
+            f"| {_cell(s['error_rate'], '%')} | {_cell(s['empty_rate'], '%')} |")
 
-    ok = [(m, s) for m, s in rows if m["role"] == "candidate" and (s["error_rate"] or 0) < 5]
+    ok = [(m, s) for m, s in rows
+          if m["role"] == "candidate" and (s["error_rate"] or 0) < 5 and (s["empty_rate"] or 0) < 5]
     fast = [(m, s) for m, s in ok if (s["latency_ms_p95"] or 1e9) <= args.budget_ms]
     lines += ["", "## Pick"]
     if not ok:

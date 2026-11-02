@@ -98,7 +98,10 @@ def make_model_runner(args: argparse.Namespace):
             # Qwen3 hybrid models: keep thinking off for a phone call.
             body["messages"] = [dict(body["messages"][0]),
                                 {**body["messages"][1], "content": body["messages"][1]["content"] + " /no_think"}]
-        req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={
+        if args.reasoning_effort:
+            # Reasoning models otherwise spend max_tokens thinking and answer nothing.
+            body["reasoning_effort"] = args.reasoning_effort
+        req =urllib.request.Request(url, data=json.dumps(body).encode(), headers={
             "Authorization": f"Bearer {key}", "Content-Type": "application/json"})
         for attempt in range(4):
             t0 = time.perf_counter()
@@ -166,6 +169,8 @@ def evaluate(rows: list[dict[str, Any]], runner, workers: int) -> tuple[dict[str
         "honesty_pass_rate": pct(sum(g["ok"] for g in honesty) / max(len(honesty), 1)),
         # "[HTTP 404] ..." / "[error] ...": the endpoint failed, not the model.
         "error_rate": pct(sum(g["answer"].startswith(("[HTTP", "[error")) for g in graded) / max(n, 1)),
+        # Blank answers: usually a reasoning model that spent max_tokens thinking.
+        "empty_rate": pct(sum(not g["answer"].strip() for g in graded) / max(n, 1)),
         "latency_ms_p50": round(statistics.median(lat), 1) if lat else None,
         "latency_ms_p95": round(sorted(lat)[int(0.95 * (len(lat) - 1))], 1) if lat else None,
         "tokens_in_per_answer": round(tok_in / max(n, 1), 1),
@@ -205,6 +210,7 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--limit", type=int, default=0, help="only the first N rows (quick smoke test)")
     ap.add_argument("--no-think", action="store_true", help="append /no_think (Qwen3 hybrid models)")
+    ap.add_argument("--reasoning-effort", help="sent as reasoning_effort, e.g. none or low (reasoning models)")
     ap.add_argument("--price-in", type=float, default=0.0, help="USD per 1M input tokens")
     ap.add_argument("--price-out", type=float, default=0.0, help="USD per 1M output tokens")
     ap.add_argument("--compare", nargs="+")
@@ -228,7 +234,7 @@ def main() -> None:
     RESULTS.mkdir(exist_ok=True)
 
     for split in args.split:
-        rows = [json.loads(l) for l in (DATA / f"{split}_eval.jsonl").open()]
+        rows = [json.loads(l) for l in (DATA / f"{split}_eval.jsonl").open(encoding="utf-8")]
         if args.limit:
             rows = rows[: args.limit]
         summary, graded = evaluate(rows, runner, workers)
@@ -239,7 +245,7 @@ def main() -> None:
         summary.update(system=args.system, model=args.model, split=split)
         out = RESULTS / f"{name}_{split}"
         out.with_suffix(".json").write_text(json.dumps(summary, indent=1))
-        with out.with_suffix(".jsonl").open("w") as f:
+        with out.with_suffix(".jsonl").open("w", encoding="utf-8") as f:
             for g in graded:
                 f.write(json.dumps(g, ensure_ascii=False) + "\n")
         print(f"\n== {name} on {split} (n={summary['n']})")

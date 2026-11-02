@@ -102,7 +102,7 @@ def build(n: int, rng: random.Random, part: str, noise: float, mix: list[tuple[s
 
 
 def write(path: Path, rows: list[dict[str, Any]], sft: bool) -> None:
-    with path.open("w") as f:
+    with path.open("w", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps({"messages": r["messages"]} if sft else r, ensure_ascii=False) + "\n")
 
