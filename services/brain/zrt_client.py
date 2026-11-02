@@ -1,0 +1,380 @@
+"""OpenAI-compatible model runtime client (local zrt on :8000, or Fireworks).
+
+ZRT_BASE_URL picks the server; an empty value means forced/offline
+classification. ZRT_API_KEY_ENV names the env var holding a bearer key
+(e.g. FIREWORKS_API_KEY); unset sends no Authorization header.
+
+Playbook: prefill with frames + factual metadata only
+(track_id, camera_id, peak timestamp, target person).
+Never send the router's scores to the VLM.
+
+Forced/demo classify works offline. Live path posts 16 frames to /v1/chat/completions
+and reads a single six-class token (Completion A).
+"""
+
+from __future__ import annotations
+
+import base64
+import json
+import os
+import urllib.error
+import urllib.request
+from dataclasses import dataclass
+from io import BytesIO
+from typing import Any
+
+from contracts import IncidentClass
+from services import activity
+from services.brain.call_brief import site_config
+
+from services.usage import add as usage_add
+
+
+DEFAULT_BASE_URL = os.environ.get("ZRT_BASE_URL", "http://127.0.0.1:8000")
+DEFAULT_MODEL = os.environ.get(
+    "ZRT_MODEL", "hf:Qwen/Qwen3-VL-30B-A3B-Instruct-FP8"
+)
+CLASS_TOKENS = tuple(c.value for c in IncidentClass)
+_MAX_SIDE = 384
+
+
+@dataclass
+class ClassifyResult:
+    class_token: IncidentClass
+    logprob: float
+    forced: bool
+    raw: dict[str, Any] | None = None
+
+
+@dataclass
+class DescribeResult:
+    """Completion B — person appearance only.
+
+    Location stays from camera_map (invariant). Never trust the model for address.
+    """
+
+    person_description: str
+    forced: bool
+    raw: dict[str, Any] | None = None
+
+
+class ZRTClient:
+    def __init__(
+        self,
+        base_url: str = DEFAULT_BASE_URL,
+        *,
+        forced: bool = False,
+        timeout_s: float = 90.0,
+        model: str = DEFAULT_MODEL,
+    ) -> None:
+        self.base_url = base_url.rstrip("/")
+        self.forced = forced
+        self.timeout_s = timeout_s
+        self.model = model
+
+    def health(self) -> bool:
+        if self.forced:
+            return True
+        if not self.base_url:
+            return False
+        for path in ("/v1/models", "/health"):
+            try:
+                req = urllib.request.Request(
+                    self.base_url + path, method="GET", headers=_auth_headers()
+                )
+                with urllib.request.urlopen(req, timeout=min(self.timeout_s, 5.0)) as resp:
+                    if 200 <= resp.status < 300:
+                        return True
+            except (urllib.error.URLError, TimeoutError, ValueError):
+                continue
+        return False
+
+    def classify_forced(self, class_token: IncidentClass) -> ClassifyResult:
+        """Demo / scenario path — no network."""
+        return ClassifyResult(class_token=class_token, logprob=0.0, forced=True)
+
+    def classify(
+        self,
+        *,
+        class_token_forced: IncidentClass | None = None,
+        track_id: str,
+        camera_id: str,
+        peak_ts_iso: str,
+        person_hint: str = "",
+        frames: list[Any] | None = None,
+    ) -> ClassifyResult:
+        """Completion A: single token from the six-class set.
+
+        Live path: 16 frames + facts, never router scores.
+        Forced path: offline demo. If both frames and forced=True, forced wins
+        so check.py stays network-free.
+        """
+        has_frames = bool(frames)
+        if self.forced or (class_token_forced is not None and not has_frames):
+            token = class_token_forced or IncidentClass.BENIGN
+            return self.classify_forced(token)
+        if not has_frames:
+            raise NotImplementedError(
+                "live ZRT classify needs the 16 sampled frames over the wire; "
+                "use forced=True / class_token_forced until vision supplies frames "
+                f"(frames_provided={frames is not None})"
+            )
+        return self._classify_live(
+            track_id=track_id,
+            camera_id=camera_id,
+            peak_ts_iso=peak_ts_iso,
+            person_hint=person_hint,
+            frames=list(frames or []),
+        )
+
+    def describe(
+        self,
+        *,
+        track_id: str,
+        camera_id: str,
+        peak_ts_iso: str,
+        frames: list[Any] | None = None,
+        class_token: IncidentClass | None = None,
+    ) -> DescribeResult:
+        """Completion B: short person description JSON (no location inventing)."""
+        if self.forced or not frames:
+            hint = "Adult, clothing not confirmed from camera."
+            if class_token is IncidentClass.WEAPON:
+                hint = "Adult, dark clothing, long firearm visible on camera."
+            return DescribeResult(person_description=hint, forced=True)
+        return self._describe_live(
+            track_id=track_id,
+            camera_id=camera_id,
+            peak_ts_iso=peak_ts_iso,
+            frames=list(frames),
+            class_token=class_token,
+        )
+
+    def answer_dispatcher(self, facts: dict[str, Any], question: str) -> str:
+        """Answer an unmatched dispatcher question from supplied facts only."""
+        if self.forced:
+            return "The cameras do not confirm that detail."
+        payload = {
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        f"You are {_product()} speaking to a 911 dispatcher about {_building()}. "
+                        "Answer in one short sentence using only the supplied facts. "
+                        "Never guess identity, intent, injuries, or unseen details. "
+                        "If the facts do not answer the question, say: "
+                        "The cameras do not confirm that detail."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": json.dumps(
+                        {"current_camera_facts": facts, "dispatcher_question": question},
+                        separators=(",", ":"),
+                    ),
+                },
+            ],
+            "max_tokens": 80,
+            "temperature": 0.0,
+        }
+        raw = self._post_json("/v1/chat/completions", payload)
+        text = str(
+            (((raw.get("choices") or [{}])[0].get("message") or {}).get("content"))
+            or ""
+        ).strip()
+        return text[:400] or "The cameras do not confirm that detail."
+
+    def _describe_live(
+        self,
+        *,
+        track_id: str,
+        camera_id: str,
+        peak_ts_iso: str,
+        frames: list[Any],
+        class_token: IncidentClass | None,
+    ) -> DescribeResult:
+        cls = class_token.value if class_token else "UNKNOWN"
+        facts = (
+            f"camera_id={camera_id} track_id={track_id} "
+            f"peak_ts={peak_ts_iso} class_token={cls} n_frames={len(frames)}"
+        )
+        text = (
+            "Describe ONLY the visible person in this campus security clip. "
+            f"Facts: {facts}. "
+            "Reply with ONE JSON object and no other text: "
+            '{"person_description":"<short visual description, max 20 words>"}. '
+            "Do not invent a street address or building name. "
+            "If unsure about clothing or objects, say so briefly."
+        )
+        content: list[dict[str, Any]] = [{"type": "text", "text": text}]
+        for img in frames[:16]:
+            content.append(
+                {
+                    "type": "image_url",
+                    "image_url": {"url": _jpeg_data_url(img)},
+                }
+            )
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "user", "content": content}],
+            "max_tokens": 80,
+            "temperature": 0.0,
+        }
+        raw = self._post_json("/v1/chat/completions", payload)
+        person = _parse_person_description(raw)
+        return DescribeResult(person_description=person, forced=False, raw=raw)
+
+    def _classify_live(
+        self,
+        *,
+        track_id: str,
+        camera_id: str,
+        peak_ts_iso: str,
+        person_hint: str,
+        frames: list[Any],
+    ) -> ClassifyResult:
+        facts = (
+            f"camera_id={camera_id} track_id={track_id} "
+            f"peak_ts={peak_ts_iso} target_person={person_hint or 'unspecified'} "
+            f"n_frames={len(frames)}"
+        )
+        # Six-class only. No FIRE. No router scores / fused_prob.
+        text = (
+            "Classify this campus security clip. Facts only: "
+            f"{facts}. Reply with exactly one token from this set: "
+            + " ".join(CLASS_TOKENS)
+            + "."
+        )
+        content: list[dict[str, Any]] = [{"type": "text", "text": text}]
+        for img in frames[:16]:
+            content.append(
+                {
+                    "type": "image_url",
+                    "image_url": {"url": _jpeg_data_url(img)},
+                }
+            )
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "user", "content": content}],
+            "max_tokens": 8,
+            "temperature": 0.0,
+            "logprobs": True,
+            "top_logprobs": 5,
+        }
+        raw = self._post_json("/v1/chat/completions", payload)
+        token, logprob = _parse_class_token(raw)
+        return ClassifyResult(
+            class_token=token, logprob=logprob, forced=False, raw=raw
+        )
+
+    def _post_json(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+        banned = ("router_score", "fused_prob")
+        blob = json.dumps(payload)
+        for b in banned:
+            if b in blob:
+                raise ValueError(f"refusing to send {b} to ZRT")
+        body = blob.encode("utf-8")
+        req = urllib.request.Request(
+            self.base_url + path,
+            data=body,
+            method="POST",
+            headers={"Content-Type": "application/json", **_auth_headers()},
+        )
+        with activity.busy("qwen"), urllib.request.urlopen(req, timeout=self.timeout_s) as resp:
+            raw = json.loads(resp.read().decode("utf-8"))
+        # usage.tick: every real call (forced/scripted paths never post here).
+        use = raw.get("usage") if isinstance(raw, dict) else None
+        use = use if isinstance(use, dict) else {}
+        usage_add(
+            self.model,
+            requests=1,
+            live=1,
+            tokens_in=int(use.get("prompt_tokens") or 0),
+            tokens_out=int(use.get("completion_tokens") or 0),
+        )
+        return raw
+
+
+def _auth_headers() -> dict[str, str]:
+    """Bearer key from the env var named by ZRT_API_KEY_ENV, if set."""
+    name = os.environ.get("ZRT_API_KEY_ENV", "").strip()
+    key = os.environ.get(name, "").strip() if name else ""
+    return {"Authorization": f"Bearer {key}"} if key else {}
+
+
+def _product() -> str:
+    return str(site_config().get("product") or "First Witness")
+
+
+def _building() -> str:
+    site = site_config()
+    return str(site.get("building") or site.get("name") or "the building")
+
+
+def _jpeg_data_url(image: Any) -> str:
+    try:
+        import numpy as np
+        from PIL import Image
+    except ImportError as exc:
+        raise RuntimeError("live classify needs numpy and Pillow") from exc
+    arr = np.asarray(image)
+    if arr.ndim == 2:
+        arr = np.stack([arr, arr, arr], axis=-1)
+    if arr.ndim != 3 or arr.shape[2] < 3:
+        raise ValueError("frame must be HxWx3")
+    arr = arr[:, :, :3]
+    if arr.dtype != np.uint8:
+        arr = np.clip(arr, 0, 255).astype("uint8")
+    h, w = arr.shape[:2]
+    m = max(h, w)
+    im = Image.fromarray(arr)
+    if m > _MAX_SIDE:
+        s = _MAX_SIDE / m
+        im = im.resize((max(1, int(w * s)), max(1, int(h * s))))
+    buf = BytesIO()
+    im.save(buf, format="JPEG", quality=80)
+    b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+    return f"data:image/jpeg;base64,{b64}"
+
+
+def _parse_class_token(raw: dict[str, Any]) -> tuple[IncidentClass, float]:
+    choice = (raw.get("choices") or [{}])[0]
+    text = str((choice.get("message") or {}).get("content") or "")
+    cleaned = "".join(ch if ch.isalnum() or ch.isspace() else " " for ch in text)
+    words = [w.upper() for w in cleaned.split() if w]
+    token = IncidentClass.BENIGN
+    for w in words:
+        if w in CLASS_TOKENS:
+            token = IncidentClass(w)
+            break
+    logprob = -2.3  # ~0.10 if the model did not emit a known token
+    lp = ((choice.get("logprobs") or {}).get("content") or [{}])
+    if lp and isinstance(lp[0], dict) and "logprob" in lp[0]:
+        try:
+            logprob = float(lp[0]["logprob"])
+        except (TypeError, ValueError):
+            pass
+    return token, logprob
+
+
+def _parse_person_description(raw: dict[str, Any]) -> str:
+    choice = (raw.get("choices") or [{}])[0]
+    text = str((choice.get("message") or {}).get("content") or "").strip()
+    if not text:
+        return "unknown"
+    # Prefer JSON object if present.
+    start = text.find("{")
+    end = text.rfind("}")
+    if start >= 0 and end > start:
+        try:
+            obj = json.loads(text[start : end + 1])
+            if isinstance(obj, dict):
+                desc = obj.get("person_description") or obj.get("description")
+                if isinstance(desc, str) and desc.strip():
+                    return desc.strip()[:200]
+        except json.JSONDecodeError:
+            pass
+    # Fallback: first line of prose, strip fences.
+    line = text.splitlines()[0].strip().strip("`")
+    return (line or "unknown")[:200]
