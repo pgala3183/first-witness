@@ -82,6 +82,11 @@ def live_call_mode() -> bool:
     return os.environ.get("CS_CALL_MODE", "").strip().lower() == "live"
 
 
+def human_confirm_required() -> bool:
+    """A person confirms before any call starts. CS_HUMAN_CONFIRM=0 restores auto-dispatch."""
+    return os.environ.get("CS_HUMAN_CONFIRM", "1").strip().lower() not in {"0", "false", "no", "off"}
+
+
 def scripted_call_mode() -> bool:
     """Demo recording: the on-screen 911 conversation. Unset does not dial."""
     return not live_call_mode()
@@ -223,8 +228,20 @@ class DemoHub:
                 await self._publish_brief(brief, "handoff")
             await voice.notify_whereabouts(rec.camera_id, brief.address)
             return
-        if "operator_report" not in getattr(rec, "rules_fired", []):
-            await self._maybe_start_voice(rec)
+        if "operator_report" in getattr(rec, "rules_fired", []):
+            return
+        if human_confirm_required():
+            # The AI flags; a person decides. The call starts only from the
+            # console's "Confirm & call campus police" (dispatch_incident).
+            if (
+                getattr(rec, "severity", None) is Severity.SEVERE
+                and getattr(rec, "state", None) is IncidentState.ALERTED
+            ):
+                await self.send_state_change(
+                    rec.incident_id, "ALERTED", "Awaiting operator confirmation"
+                )
+            return
+        await self._maybe_start_voice(rec)
 
     async def _maybe_start_voice(self, rec: Any, *, operator_requested: bool = False) -> bool:
         if getattr(rec, "severity", None) is not Severity.SEVERE:
@@ -312,7 +329,7 @@ class DemoHub:
                     state=IncidentState.DISPATCHED,
                     severity=Severity.SEVERE,
                     ts=now,
-                    note="SignalWire call started" if dial else "911 call started",
+                    note="SignalWire call started" if dial else "Campus police call started",
                 )
             )
             await self._publish_brief(brief, "dispatch")

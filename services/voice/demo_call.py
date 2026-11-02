@@ -1,4 +1,4 @@
-"""On-screen 911 conversation for demo recordings. No phone is dialed.
+"""On-screen campus police dispatch conversation for demo recordings. No phone is dialed.
 
 Copied from the recorded call in sentinel_old_demo.mp4, word for word. The opening keeps that call's timing (seconds after the
 call connects). Later lines are keyed to the clip second the camera wall is
@@ -31,7 +31,7 @@ def answer(question: str, fallback: str) -> Callable[[float], str]:
 # (seconds after the call connects, speaker, text). The recorded call's
 # lines and gaps, with the dispatcher answering first.
 OPENING: list[tuple[float, str, Text]] = [
-    (0.00, "dispatcher", "911, what's your emergency?"),
+    (0.00, "dispatcher", "Campus police dispatch, what's your emergency?"),
     (2.50, "sentinel", f"Hi, this is {scene.PRODUCT} at {scene.SPOKEN_SITE}."),
     (5.62, "sentinel", f"I'm reporting armed people inside {PLACE}, {STREET}."),
     (9.60, "sentinel", answer("What weapons do they have?", "I see handguns and a knife in the ground-floor lobby.")),

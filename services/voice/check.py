@@ -354,7 +354,7 @@ async def _main() -> None:
     await asyncio.sleep(3.2)
     await demo.cancel()
     said = [(getattr(e, "speaker", ""), getattr(e, "text", "")) for e in scripted_events]
-    assert said[0] == ("dispatcher", "911, what's your emergency?"), said
+    assert said[0] == ("dispatcher", "Campus police dispatch, what's your emergency?"), said
     assert len(said) == 2, said
     assert said[1] == ("sentinel", "Hi, this is First Witness at San Jose State."), said
     script_blob = " ".join(text for _, text in said).lower()
