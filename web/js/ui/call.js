@@ -583,6 +583,66 @@ export function mountLiveCall(host, store, actions) {
     return el("div", { className: "lc-tool mono", text: `↳ ${toolChipText(t.tool)}` });
   }
 
+  /** Before any call: First Witness asks the operator whether to inform campus police. */
+  function renderAsk(cand) {
+    clear(threadEl);
+    const what = {
+      WEAPON: "someone with a weapon",
+      FIGHT: "a fight",
+      THEFT: "a possible theft",
+      MEDICAL: "a possible medical emergency",
+      RUN: "someone running",
+    }[String(cand.class_token || "").toUpperCase()] || "suspicious activity";
+    const where = cameraTitle(cand.camera_id) || cand.camera_id || "a camera";
+    const box = el("div", { className: "lc-ask", attrs: { role: "group", "aria-label": "Inform campus police?" } });
+    box.appendChild(el("p", { className: "lc-ask__who", text: "First Witness · to operator" }));
+    box.appendChild(
+      el("p", {
+        className: "lc-ask__q",
+        text: `I see ${what} on ${where}. Should I inform campus police?`,
+      }),
+    );
+    box.appendChild(
+      el("p", {
+        className: "lc-ask__note",
+        text: "Nothing is sent until you choose. Check the camera first: a costume or toy can look like a weapon.",
+      }),
+    );
+    const row = el("div", { className: "lc-ask__row" });
+    const st = actions?.getOpStatus?.("dispatch", cand.incident_id);
+    const yes = el("button", {
+      className: "btn btn--sm lc-ask__yes",
+      text: st?.state === "pending" ? "Calling…" : "Yes, inform campus police",
+      attrs: { type: "button" },
+    });
+    yes.disabled = st?.state === "pending";
+    yes.addEventListener("click", () => actions?.callForHelp?.(cand.incident_id));
+    const no = el("button", {
+      className: "btn btn--sm lc-ask__no",
+      text: "No, dismiss",
+      attrs: { type: "button" },
+    });
+    no.addEventListener("click", () =>
+      document.dispatchEvent(new CustomEvent("sentinel:dismiss", { detail: { incidentId: cand.incident_id } })),
+    );
+    row.appendChild(yes);
+    row.appendChild(no);
+    box.appendChild(row);
+    if (st?.state === "declined") box.appendChild(el("p", { className: "lc-ask__note", text: st.message || "The call was blocked." }));
+    threadEl.appendChild(box);
+  }
+
+  /** The open, not-yet-called incident to ask about: the selected one, else the newest severe one. */
+  function askCandidate(state) {
+    const sel = callCandidate(state);
+    if (sel) return sel;
+    for (const id of state.order || []) {
+      const inc = state.incidents[id];
+      if (inc && isOpenIncident(inc) && !isDispatchedOrLater(inc) && inc.severity === "SEVERE") return inc;
+    }
+    return null;
+  }
+
   function renderThread(inc, thread, tools) {
     renderConversation(threadEl, {
       lines: thread,
@@ -609,10 +669,15 @@ export function mountLiveCall(host, store, actions) {
       : [];
     const thread = buildThread(all);
     const last = thread[thread.length - 1];
-    const sig = `${inc?.incident_id || ""}|${thread.length}|${last ? last.text.length : 0}|${tools.length}`;
+    const ask = inc ? null : askCandidate(state);
+    const askSt = ask ? actions?.getOpStatus?.("dispatch", ask.incident_id)?.state || "" : "";
+    const sig = ask
+      ? `ask|${ask.incident_id}|${ask.class_token}|${askSt}|${opVersion}`
+      : `${inc?.incident_id || ""}|${thread.length}|${last ? last.text.length : 0}|${tools.length}`;
     if (sig !== threadSig) {
       threadSig = sig;
-      renderThread(inc, thread, tools);
+      if (ask) renderAsk(ask);
+      else renderThread(inc, thread, tools);
     }
     if (stick) threadEl.scrollTop = threadEl.scrollHeight;
   }

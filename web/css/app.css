@@ -8526,3 +8526,11 @@ body.route-live {
 .b3d__dot--badge { background: #7c3aed; }
 .b3d__ramp { height: 10px; border-radius: 5px; background: linear-gradient(90deg, #2a7de1, #2dd4bf 40%, #facc15 70%, #dc2626); margin: 2px 0 2px; }
 .b3d__rampkey { display: flex; justify-content: space-between; margin: 0 0 10px; font-size: 11px; color: #64748b; }
+/* Call panel: ask the operator before any call */
+.lc-ask { margin: 8px 4px; padding: 14px; border-radius: 14px; background: #fff7ed; border: 1px solid #fdba74; }
+.lc-ask__who { margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #9a3412; text-transform: uppercase; letter-spacing: 0.03em; }
+.lc-ask__q { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: #0f172a; line-height: 1.4; }
+.lc-ask__note { margin: 0 0 10px; font-size: 12px; color: #7c2d12; line-height: 1.4; }
+.lc-ask__row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lc-ask__yes { background: #dc2626; border-color: #dc2626; color: #fff; }
+.lc-ask__no { background: #fff; border-color: #cbd5e1; color: #0f172a; }
