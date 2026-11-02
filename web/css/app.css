@@ -8464,3 +8464,16 @@ body.route-live {
 .page--live .cam-slot--main .cam-tile__osd--bl {
   font-size: 11px;
 }
+
+/* Camera heat map toggle */
+.camwall__heat.is-on {
+  background: #2a7de1;
+  border-color: #2a7de1;
+  color: #fff;
+}
+.camwall__heat {
+  margin-left: auto;
+}
+.camwall__heat + .camwall__all {
+  margin-left: 6px;
+}
