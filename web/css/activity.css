@@ -1,0 +1,94 @@
+/* Live pipeline strip (ui/activity.js): camera-to-phone stages in order. */
+.live-activity {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: 6px var(--live-pad, 8px);
+  border-top: 1px solid var(--line);
+  background: var(--panel-bg);
+  font-size: var(--fs-12);
+  min-width: 0;
+}
+.act-tokens {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  padding-right: var(--gap);
+  border-right: 1px solid var(--line);
+  line-height: 1.2;
+}
+.act-tokens__label {
+  color: var(--text-muted);
+  font-size: var(--fs-11);
+}
+.act-tokens__value {
+  font-family: var(--mono);
+  font-size: var(--fs-14);
+  color: var(--text);
+}
+.act-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+.act-stage {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-control, 6px);
+  color: var(--text-muted);
+  font-size: var(--fs-11);
+  white-space: nowrap;
+  opacity: 0.55;
+}
+.act-stage__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+.act-stage__name {
+  color: inherit;
+}
+.act-stage__count {
+  font-family: var(--mono);
+  color: var(--text-muted);
+}
+.act-stage.is-active {
+  opacity: 1;
+  color: var(--text);
+  border-color: var(--ok-border);
+  background: var(--ok-bg);
+}
+.act-stage.is-active .act-stage__count {
+  color: var(--text-body);
+}
+.act-stage.is-active .act-stage__dot {
+  background: var(--ok);
+  animation: act-pulse 1s ease-in-out infinite;
+}
+@keyframes act-pulse {
+  50% { opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .act-stage.is-active .act-stage__dot { animation: none; }
+}
+
+/* Top bar Reset (ui/topbar.js): readable on the header in both themes. */
+.topbar [data-topbar-reset] {
+  background: transparent;
+  color: var(--header-text);
+  border: 1px solid var(--header-border);
+  font-weight: 600;
+  padding: 0 12px;
+}
+.topbar [data-topbar-reset]:hover {
+  background: var(--header-accent, rgba(127, 127, 127, 0.12));
+}
