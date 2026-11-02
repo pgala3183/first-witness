@@ -84,7 +84,7 @@ export function mountSystem(root, store) {
     ["Product", "First Witness"],
     ["Cameras", "Playback on the camera wall."],
     ["Detection", "YOLO person tracking on playback. Weapon boxes are a precomputed timeline. Qwen is a local VLM and runs only when that runtime is up."],
-    ["Dispatch", "A 911 call is placed when an operator starts it."],
+    ["Dispatch", "A campus police call is placed when an operator confirms it."],
   ]) {
     if (!v) continue;
     const row = el("div", { className: "sys-kv__row" });

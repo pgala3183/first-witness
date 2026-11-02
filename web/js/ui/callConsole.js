@@ -31,7 +31,7 @@ function skeleton(host) {
     <div class="cc">
       <header class="card cc-head">
         <div class="cc-head__l">
-          <h2 class="cc-title">911 Call</h2>
+          <h2 class="cc-title">Campus police call</h2>
           <p class="cc-desc" data-desc>No active call</p>
           <span class="ochip ochip--state cc-label" data-label hidden></span>
         </div>

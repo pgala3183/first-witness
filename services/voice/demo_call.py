@@ -1,4 +1,4 @@
-"""On-screen 911 conversation for demo recordings. No phone is dialed.
+"""On-screen campus police dispatch conversation for demo recordings. No phone is dialed.
 
 Copied from the recorded call in sentinel_old_demo.mp4, word for word. The opening keeps that call's timing (seconds after the
 call connects). Later lines are keyed to the clip second the camera wall is
@@ -28,10 +28,22 @@ def answer(question: str, fallback: str) -> Callable[[float], str]:
     return lambda t: scene.answer(question, t) or fallback
 
 
+def cant_verify_then_report(fallback: str) -> Callable[[float], str]:
+    """Injuries can't be seen on camera, so say so, then give what the
+    cameras do show at that second (people, weapons, where)."""
+
+    def line(t: float) -> str:
+        head = scene.answer("Is anyone hurt?", t) or "I can't verify injuries from the cameras."
+        seen = scene.answer("How many people do you see?", t)
+        return f"{head} What I can see: {seen[0].lower() + seen[1:]}" if seen else head
+
+    return line
+
+
 # (seconds after the call connects, speaker, text). The recorded call's
 # lines and gaps, with the dispatcher answering first.
 OPENING: list[tuple[float, str, Text]] = [
-    (0.00, "dispatcher", "911, what's your emergency?"),
+    (0.00, "dispatcher", "Campus police dispatch, what's your emergency?"),
     (2.50, "sentinel", f"Hi, this is {scene.PRODUCT} at {scene.SPOKEN_SITE}."),
     (5.62, "sentinel", f"I'm reporting armed people inside {PLACE}, {STREET}."),
     (9.60, "sentinel", answer("What weapons do they have?", "I see handguns and a knife in the ground-floor lobby.")),
@@ -47,7 +59,7 @@ ON_CLIP: list[tuple[float, str, Text]] = [
     (30.0, "dispatcher", "Can you describe them?"),
     (31.6, "sentinel", answer("Describe them.", "A group of men with handguns, and one with a knife.")),
     (45.0, "dispatcher", "Is anyone hurt?"),
-    (46.4, "sentinel", answer("Is anyone hurt?", "I can't verify injuries from the cameras.")),
+    (46.4, "sentinel", cant_verify_then_report("I can't verify injuries from the cameras.")),
     (51.0, "dispatcher", "Okay. Are they still in the lobby?"),
     (52.6, "sentinel", "Yes, still in the ground-floor lobby. I'm tracking each of them across every camera."),
     (59.0, "sentinel", "One moment."),
@@ -77,7 +89,7 @@ ON_CLIP: list[tuple[float, str, Text]] = [
     (197.0, "dispatcher", "Any update?"),
     (198.6, "sentinel", answer("Any update?", "They're still in the west corridor near the stairwell.")),
     (213.0, "dispatcher", "Is anyone hurt?"),
-    (214.4, "sentinel", answer("Is anyone hurt?", "I can't verify injuries from the cameras.")),
+    (214.4, "sentinel", cant_verify_then_report("I can't verify injuries from the cameras.")),
     (221.0, "dispatcher", "Okay. Tell me the moment they move."),
     (222.8, "sentinel", "Will do. Watching the west corridor now."),
     (240.0, "dispatcher", "Where are they going?"),
